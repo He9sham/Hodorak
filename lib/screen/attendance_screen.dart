@@ -146,8 +146,13 @@ class _AttendancePageState extends State<AttendancePage> {
       final summary = await dailyService.createDailySummary();
       await _showEndDaySummary(summary);
 
-      setState(() => dayCompleted = true);
-      _toast('Day ended successfully!');
+      // Clear attendance records from screen
+      setState(() {
+        dayCompleted = true;
+        records.clear(); // Remove all attendance records
+      });
+
+      _toast('Day ended successfully! Attendance records cleared.');
     } catch (e) {
       // Close loading dialog
       Navigator.of(context).pop();
