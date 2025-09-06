@@ -32,6 +32,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
+  flutter_riverpod: ^2.6.1
   flutter_svg: ^2.2.0
   http: ^1.5.0
   odoo_rpc: ^0.7.1

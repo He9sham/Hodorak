@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-
+ /// Login function to login to the app
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
