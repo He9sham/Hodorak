@@ -1,49 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/models/daily_attendance_summary.dart';
 import 'package:hodorak/odoo/odoo_service.dart';
-import 'package:hodorak/services/calendar_service.dart';
-import 'package:hodorak/services/daily_attendance_service.dart';
+import 'package:hodorak/providers/attendance_provider.dart';
 
-class AttendancePage extends StatefulWidget {
+class AttendancePage extends ConsumerStatefulWidget {
   final OdooService odoo;
   const AttendancePage({super.key, required this.odoo});
 
   @override
-  State<AttendancePage> createState() => _AttendancePageState();
+  ConsumerState<AttendancePage> createState() => _AttendancePageState();
 }
 
-class _AttendancePageState extends State<AttendancePage> {
-  List<Map<String, dynamic>> records = [];
-  bool loading = true;
-  bool dayCompleted = false;
+class _AttendancePageState extends ConsumerState<AttendancePage> {
   final employeeIdCtrl = TextEditingController();
-  late DailyAttendanceService dailyService;
-  late CalendarService calendarService;
 
   @override
-  void initState() {
-    super.initState();
-    calendarService = CalendarService();
-    dailyService = DailyAttendanceService(
-      odooService: widget.odoo,
-      calendarService: calendarService,
-    );
-    _load();
-    _initializeDayStatus();
+  void dispose() {
+    employeeIdCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
-    setState(() => loading = true);
-    try {
-      final data = await widget.odoo.fetchAttendance(limit: 20);
-      setState(() => records = data);
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Fetch error: $e')));
-    } finally {
-      setState(() => loading = false);
-    }
+    await ref.read(attendanceProvider(widget.odoo).notifier).loadAttendance();
   }
 
   Future<void> _checkIn() async {
@@ -52,10 +31,10 @@ class _AttendancePageState extends State<AttendancePage> {
       _toast('ادخل Employee ID صحيح');
       return;
     }
+    
     try {
-      final attId = await widget.odoo.checkIn(id);
-      _toast('تم تسجيل الحضور. attendance_id=$attId');
-      _load();
+      await ref.read(attendanceProvider(widget.odoo).notifier).checkIn(id);
+      _toast('تم تسجيل الحضور');
     } catch (e) {
       _toast('Check-in failed: $e');
     }
@@ -67,10 +46,10 @@ class _AttendancePageState extends State<AttendancePage> {
       _toast('ادخل Employee ID صحيح');
       return;
     }
+    
     try {
-      final ok = await widget.odoo.checkOut(id);
-      _toast(ok ? 'تم تسجيل الانصراف' : 'لا يوجد حضور مفتوح لهذا الموظف');
-      _load();
+      await ref.read(attendanceProvider(widget.odoo).notifier).checkOut(id);
+      _toast('تم تسجيل الانصراف');
     } catch (e) {
       _toast('Check-out failed: $e');
     }
@@ -80,18 +59,6 @@ class _AttendancePageState extends State<AttendancePage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  Future<void> _initializeDayStatus() async {
-    try {
-      // Check and reset for new day if needed
-      await dailyService.checkAndResetForNewDay();
-
-      // Check if today is completed
-      final completed = await dailyService.isDayCompleted();
-      setState(() => dayCompleted = completed);
-    } catch (e) {
-      _toast('Error initializing day status: $e');
-    }
-  }
 
   Future<void> _endDay() async {
     // Show confirmation dialog
@@ -137,22 +104,16 @@ class _AttendancePageState extends State<AttendancePage> {
     );
 
     try {
-      await dailyService.endDay();
+      final summary = await ref.read(attendanceProvider(widget.odoo).notifier).endDay();
 
       // Close loading dialog
       Navigator.of(context).pop();
 
-      // Show success dialog with summary
-      final summary = await dailyService.createDailySummary();
-      await _showEndDaySummary(summary);
-
-      // Clear attendance records from screen
-      setState(() {
-        dayCompleted = true;
-        records.clear(); // Remove all attendance records
-      });
-
-      _toast('Day ended successfully! Attendance records cleared.');
+      if (summary != null) {
+        // Show success dialog with summary
+        await _showEndDaySummary(summary);
+        _toast('Day ended successfully! Attendance records cleared.');
+      }
     } catch (e) {
       // Close loading dialog
       Navigator.of(context).pop();
@@ -197,6 +158,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
+    final attendanceState = ref.watch(attendanceProvider(widget.odoo));
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -205,7 +167,7 @@ class _AttendancePageState extends State<AttendancePage> {
         appBar: AppBar(
           title: const Text('Attendance'),
           actions: [
-            if (dayCompleted)
+            if (attendanceState.dayCompleted)
               Container(
                 margin: const EdgeInsets.only(right: 16),
                 padding: const EdgeInsets.symmetric(
@@ -264,7 +226,7 @@ class _AttendancePageState extends State<AttendancePage> {
               const SizedBox(height: 12),
 
               // End Day Button
-              if (!dayCompleted)
+              if (!attendanceState.dayCompleted)
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 12),
@@ -280,7 +242,7 @@ class _AttendancePageState extends State<AttendancePage> {
                 ),
 
               // Day completed message
-              if (dayCompleted)
+              if (attendanceState.dayCompleted)
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 12),
@@ -317,12 +279,12 @@ class _AttendancePageState extends State<AttendancePage> {
                 ),
 
               Expanded(
-                child: loading
+                child: attendanceState.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : ListView.builder(
-                        itemCount: records.length,
+                        itemCount: attendanceState.records.length,
                         itemBuilder: (context, i) {
-                          final r = records[i];
+                          final r = attendanceState.records[i];
                           final emp = r['employee_id'];
                           final empText = (emp is List && emp.length >= 2)
                               ? '${emp[0]} • ${emp[1]}'

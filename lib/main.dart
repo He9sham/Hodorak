@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/screen/splash_screen.dart';
 
 void main() {
-  runApp(const Hodorak());
+  runApp(
+    const ProviderScope(
+      child: Hodorak(),
+    ),
+  );
 }
 
 class Hodorak extends StatelessWidget {
