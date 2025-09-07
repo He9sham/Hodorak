@@ -1,35 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/odoo/odoo_service.dart';
+import 'package:hodorak/providers/attendance_provider.dart';
 
-class SimpleAttendanceScreen extends StatefulWidget {
+class SimpleAttendanceScreen extends ConsumerStatefulWidget {
   final OdooService odoo;
   const SimpleAttendanceScreen({super.key, required this.odoo});
 
   @override
-  State<SimpleAttendanceScreen> createState() => _SimpleAttendanceScreenState();
+  ConsumerState<SimpleAttendanceScreen> createState() =>
+      _SimpleAttendanceScreenState();
 }
 
-class _SimpleAttendanceScreenState extends State<SimpleAttendanceScreen> {
-  List<Map<String, dynamic>> records = [];
-  bool loading = true;
+class _SimpleAttendanceScreenState
+    extends ConsumerState<SimpleAttendanceScreen> {
   final employeeIdCtrl = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _load();
+  void dispose() {
+    employeeIdCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
-    setState(() => loading = true);
-    try {
-      final data = await widget.odoo.fetchAttendance(limit: 20);
-      setState(() => records = data);
-    } catch (e) {
-      _toast('Fetch error: $e');
-    } finally {
-      setState(() => loading = false);
-    }
+    await ref.read(attendanceProvider(widget.odoo).notifier).loadAttendance();
   }
 
   Future<void> _checkIn() async {
@@ -68,6 +62,7 @@ class _SimpleAttendanceScreenState extends State<SimpleAttendanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final attendanceState = ref.watch(attendanceProvider(widget.odoo));
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -107,12 +102,12 @@ class _SimpleAttendanceScreenState extends State<SimpleAttendanceScreen> {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: loading
+                child: attendanceState.loading
                     ? const Center(child: CircularProgressIndicator())
                     : ListView.builder(
-                        itemCount: records.length,
+                        itemCount: attendanceState.records.length,
                         itemBuilder: (context, i) {
-                          final r = records[i];
+                          final r = attendanceState.records[i];
                           final emp = r['employee_id'];
                           final empText = (emp is List && emp.length >= 2)
                               ? '${emp[0]} • ${emp[1]}'

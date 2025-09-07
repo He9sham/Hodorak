@@ -1,43 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/odoo/odoo_service.dart';
+import 'package:hodorak/providers/navigation_provider.dart';
 import 'package:hodorak/screen/attendance_screen.dart';
 import 'package:hodorak/screen/calendar_screen.dart';
 
-class SimpleMainNavigationScreen extends StatefulWidget {
+class SimpleMainNavigationScreen extends ConsumerWidget {
   final OdooService odooService;
 
   const SimpleMainNavigationScreen({super.key, required this.odooService});
 
   @override
-  State<SimpleMainNavigationScreen> createState() =>
-      _SimpleMainNavigationScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final navigationState = ref.watch(navigationProvider);
+    final screens = [AttendancePage(odoo: odooService), const CalendarScreen()];
 
-class _SimpleMainNavigationScreenState
-    extends State<SimpleMainNavigationScreen> {
-  int _currentIndex = 0;
-
-  late final List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      AttendancePage(odoo: widget.odooService),
-      const CalendarScreen(),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(
+        index: navigationState.currentIndex,
+        children: screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: navigationState.currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          ref.read(navigationProvider.notifier).setCurrentIndex(index);
         },
         items: const [
           BottomNavigationBarItem(

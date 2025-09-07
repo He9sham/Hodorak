@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:hodorak/odoo/odoo_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodorak/providers/auth_provider.dart';
 import 'package:hodorak/screen/simple_main_navigation_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
+
   bool _obscurePassword = true;
-  String? _errorMessage;
 
   @override
   void dispose() {
@@ -23,42 +23,30 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
- /// Login function to login to the app
+
+  /// Login function to login to the app
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    await ref
+        .read(authProvider.notifier)
+        .login(_emailController.text, _passwordController.text);
 
-    try {
-      final odooService = OdooService();
-      await odooService.login(_emailController.text, _passwordController.text);
+    final authState = ref.read(authProvider);
 
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) =>
-                SimpleMainNavigationScreen(odooService: odooService),
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Login failed: ${e.toString()}';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    if (authState.isAuthenticated && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) =>
+              SimpleMainNavigationScreen(odooService: authState.odooService!),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -88,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 48),
-              
+
                   // Email Field
                   TextFormField(
                     controller: _emailController,
@@ -110,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-              
+
                   // Password Field
                   TextFormField(
                     controller: _passwordController,
@@ -144,9 +132,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
-              
+
                   // Error Message
-                  if (_errorMessage != null)
+                  if (authState.error != null)
                     Container(
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
@@ -161,21 +149,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              _errorMessage!,
+                              authState.error!,
                               style: TextStyle(color: Colors.red.shade700),
                             ),
                           ),
                         ],
                       ),
                     ),
-              
+
                   // Login Button
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: FilledButton(
-                      onPressed: _isLoading ? null : _login,
-                      child: _isLoading
+                      onPressed: authState.isLoading ? null : _login,
+                      child: authState.isLoading
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -197,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-              
+
                   // Demo Credentials Info
                   Container(
                     padding: const EdgeInsets.all(16),
