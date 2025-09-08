@@ -61,11 +61,12 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
     state = state.copyWith(loading: true, error: null);
 
     try {
-      final records = await odooService.fetchAttendance(limit: 20);
+      // Load only today's attendance records for a more logical start state
+      final records = await dailyService.getTodayAttendance();
       state = state.copyWith(records: records, loading: false);
     } catch (e) {
       state = state.copyWith(
-        error: "ftch error: $e.toString()",
+        error: "fetch error: ${e.toString()}",
         loading: false,
       );
     }
@@ -78,7 +79,7 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
       state = state.copyWith(dayCompleted: dayCompleted);
     } catch (e) {
       state = state.copyWith(
-        error: "initialize day status error: $e.toString()",
+        error: "initialize day status error: ${e.toString()}",
       );
     }
   }
@@ -87,15 +88,11 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
     state = state.copyWith(error: null);
   }
 
-  Future<void> checkIn(int employeeId, BuildContext context) async {
+  Future<void> checkIn(int employeeId) async {
     try {
-      final attid = await odooService.checkIn(employeeId);
+      await odooService.checkIn(employeeId);
 
       await loadAttendance(); // for refresh records emp     by hesham
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('checkIn done for $attid')));
     } catch (e) {
       state = state.copyWith(error: 'checkIn failed: $e');
     }

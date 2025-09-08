@@ -34,7 +34,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     try {
       await ref
           .read(attendanceProvider(widget.odoo).notifier)
-          .checkIn(id, context);
+          .checkIn(id);
       _toast('تم تسجيل الحضور');
     } catch (e) {
       _toast('Check-in failed: $e');
@@ -202,6 +202,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
+              // enter emp id && check in or out
               Row(
                 children: [
                   Expanded(
@@ -283,7 +284,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                     ],
                   ),
                 ),
-
+              // show all emp
               Expanded(
                 child: attendanceState.loading
                     ? const Center(child: CircularProgressIndicator())

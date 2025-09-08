@@ -1,3 +1,4 @@
+import 'package:hodorak/constance.dart';
 import 'package:hodorak/models/daily_attendance_summary.dart';
 import 'package:hodorak/odoo/odoo_service.dart';
 import 'package:hodorak/services/calendar_service.dart';
@@ -37,8 +38,8 @@ class DailyAttendanceService {
 
     try {
       final result = await odooService.client.callKw({
-        'model': 'hr.attendance',
-        'method': 'search_read',
+        'model': Constance.model,
+        'method': Constance.methodSearchRead,
         'args': [
           [
             ['check_in', '>=', _formatDateTime(startOfDay)],
