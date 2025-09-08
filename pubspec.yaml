@@ -37,6 +37,7 @@ dependencies:
   http: ^1.5.0
   odoo_rpc: ^0.7.1
   page_transition: ^2.2.1
+  path_provider: ^2.1.4
 
 dev_dependencies:
   flutter_lints: ^5.0.0

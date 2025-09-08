@@ -1,26 +1,23 @@
 import 'dart:convert';
 
 import 'package:hodorak/models/daily_attendance_summary.dart';
+import 'package:hodorak/services/file_storage_service.dart';
 
 class CalendarServiceFallback {
-  static Map<String, dynamic> _memoryStorage = {};
+  final FileStorageService _storage = FileStorageService();
 
-  /// Save daily attendance summary to memory
+  /// Save daily attendance summary to persistent storage
   Future<void> saveDailySummary(DailyAttendanceSummary summary) async {
-    // Get existing calendar data
     final calendarData = await getCalendarData();
-
-    // Add or update the summary for the date
     final dateKey = _getDateKey(summary.date);
     calendarData[dateKey] = summary.toJson();
-
-    // Save to memory
-    _memoryStorage = calendarData;
+    await _storage.saveData(calendarData);
   }
 
-  /// Get all calendar data from memory
+  /// Get all calendar data from persistent storage
   Future<Map<String, dynamic>> getCalendarData() async {
-    return Map<String, dynamic>.from(_memoryStorage);
+    final data = await _storage.loadData();
+    return Map<String, dynamic>.from(data);
   }
 
   /// Get daily summary for a specific date
@@ -96,7 +93,7 @@ class CalendarServiceFallback {
 
   /// Clear all calendar data
   Future<void> clearAllData() async {
-    _memoryStorage.clear();
+    await _storage.clearData();
   }
 
   /// Export calendar data as JSON
@@ -110,7 +107,7 @@ class CalendarServiceFallback {
     try {
       final data = jsonDecode(jsonData);
       if (data is Map<String, dynamic>) {
-        _memoryStorage = data;
+        await _storage.saveData(Map<String, dynamic>.from(data));
       } else {
         throw Exception('Invalid data format');
       }

@@ -1,15 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 
-
+import 'package:path_provider/path_provider.dart';
 
 class FileStorageService {
   static const String _fileName = 'attendance_calendar.json';
 
   /// Get the file path for storing data
   Future<File> _getFile() async {
-    // final directory = await getApplicationDocumentsDirectory();
-    return File('${Directory.current.path}/$_fileName');
+    final directory = await getApplicationDocumentsDirectory();
+    final dirPath = directory.path;
+    final file = File('$dirPath/$_fileName');
+    // Ensure directory exists (it should, but defensive)
+    if (!await file.parent.exists()) {
+      await file.parent.create(recursive: true);
+    }
+    return file;
   }
 
   /// Save data to file
