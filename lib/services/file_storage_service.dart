@@ -25,7 +25,6 @@ class FileStorageService {
       final jsonString = jsonEncode(data);
       await file.writeAsString(jsonString);
     } catch (e) {
-      print('Error saving data to file: $e');
       rethrow;
     }
   }
@@ -40,7 +39,6 @@ class FileStorageService {
       }
       return {};
     } catch (e) {
-      print('Error loading data from file: $e');
       return {};
     }
   }
@@ -53,7 +51,7 @@ class FileStorageService {
         await file.delete();
       }
     } catch (e) {
-      print('Error clearing data: $e');
+      return;
     }
   }
 
