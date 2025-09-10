@@ -25,6 +25,8 @@ The app is designed to manage **Employee Attendance & Calendar**, using **Odoo a
 
 ---
 
+---
+
 ## 🔗 Links
 
 - 📂 [GitHub Repository](https://github.com/He9sham/Hodorak)  
@@ -34,6 +36,12 @@ The app is designed to manage **Employee Attendance & Calendar**, using **Odoo a
 
 ## 👨‍💻 Author
 
-- **Hesham Hamdan**  
-  [GitHub](https://github.com/He9sham)  
-  [LinkedIn](https://www.linkedin.com/)
+**Hesham Hamdan**  
+
+- ✉️ [Email](mailto:heshamhamdan51@gmail.com)  
+- 🐙 [GitHub](https://github.com/He9sham)  
+- 💼 [LinkedIn](https://www.linkedin.com/in/hesham-hamdan-9ab479269?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)  
+
+---
+
+⭐️ If you found this project useful, don't forget to give it a **star** on GitHub!
