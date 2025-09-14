@@ -100,13 +100,9 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
 
   Future<void> checkOut(int employeeId, BuildContext context) async {
     try {
-      final attid = await odooService.checkOut(employeeId);
+      await odooService.checkOut(employeeId);
 
       await loadAttendance(); // for refresh records emp     by hesham
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('checkOut done for $attid')));
     } catch (e) {
       state = state.copyWith(error: 'checkOut failed: $e');
     }
