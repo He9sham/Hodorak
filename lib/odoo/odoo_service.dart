@@ -1,4 +1,5 @@
 import 'package:hodorak/constance.dart';
+import 'package:hodorak/unknwon_for_database.dart';
 import 'package:odoo_rpc/odoo_rpc.dart';
 
 class OdooService {
@@ -12,8 +13,8 @@ class OdooService {
   bool _isAuthenticated = false;
 
   OdooService({
-    this.baseUrl = 'https://heshamhemdan1.odoo.com',
-    this.dbName = 'heshamhemdan1',
+    this.baseUrl = OdooDatabase.baseUrl,
+    this.dbName = OdooDatabase.kNameDatabase,
   }) {
     client = OdooClient(baseUrl);
   }

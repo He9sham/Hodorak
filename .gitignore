@@ -32,7 +32,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
-
+lib/unknwon_for_database.dart
 # Symbolication related
 app.*.symbols
 

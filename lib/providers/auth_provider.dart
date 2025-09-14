@@ -44,7 +44,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isAuthenticated: true,
       );
     } catch (e) {
-      state = state.copyWith(error: "Login failed: $e.toString()", isLoading: false);
+      state = state.copyWith(error: "Login failed: ${e.toString()}", isLoading: false);
       rethrow;
     }
   }

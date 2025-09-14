@@ -8,4 +8,5 @@ class Constance {
   static String methodSearch = 'search';
 
   static String methodWrite = 'write';
+  
 }
