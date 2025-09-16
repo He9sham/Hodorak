@@ -6,8 +6,10 @@ import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_provider.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
+import 'package:hodorak/features/login_screen/views/widgets/container_icon_auth.dart';
 import 'package:hodorak/features/login_screen/views/widgets/custom_error_message.dart';
 import 'package:hodorak/features/login_screen/views/widgets/custom_text_field_auth.dart';
+import 'package:hodorak/features/login_screen/views/widgets/divider_row.dart';
 import 'package:hodorak/features/login_screen/views/widgets/label_text_field.dart';
 import 'package:hodorak/features/login_screen/views/widgets/login_button.dart';
 import 'package:hodorak/features/login_screen/views/widgets/text_rich.dart';
@@ -79,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  verticalSpace(80),
+                  verticalSpace(50),
                   // Logo/Title
                   Text(
                     'Sign in',
@@ -164,6 +166,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     authState: authState,
                   ),
                   verticalSpace(24),
+                  DividerRow(),
+                  verticalSpace(32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ContainerIconAuth(icon: Icon(Icons.apple)),
+                      horizontalSpace(10),
+                      ContainerIconAuth(icon: Icon(Icons.facebook)),
+                      horizontalSpace(10),
+                      ContainerIconAuth(icon: Icon(Icons.gpp_good_outlined)),
+                    ],
+                  ),
+                  verticalSpace(30),
                   // when user do not have any account
                   TextRich(gestureRecognizer: _signUpRecognizer),
                 ],
