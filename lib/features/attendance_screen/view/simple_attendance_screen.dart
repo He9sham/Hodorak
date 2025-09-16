@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/odoo_service/odoo_service.dart';
 import 'package:hodorak/core/providers/attendance_provider.dart';
 
@@ -86,13 +87,13 @@ class _SimpleAttendanceScreenState
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  horizontalSpace(8),
                   FilledButton.icon(
                     onPressed: _checkIn,
                     icon: const Icon(Icons.login),
                     label: const Text('Check In'),
                   ),
-                  const SizedBox(width: 8),
+                  horizontalSpace(8),
                   OutlinedButton.icon(
                     onPressed: _checkOut,
                     icon: const Icon(Icons.logout),
@@ -100,7 +101,7 @@ class _SimpleAttendanceScreenState
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              verticalSpace(12),
               Expanded(
                 child: attendanceState.loading
                     ? const Center(child: CircularProgressIndicator())

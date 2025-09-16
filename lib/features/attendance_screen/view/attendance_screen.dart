@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/odoo_service/odoo_service.dart';
 import 'package:hodorak/core/providers/attendance_provider.dart';
@@ -32,9 +33,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       return;
     }
     try {
-      await ref
-          .read(attendanceProvider(widget.odoo).notifier)
-          .checkIn(id);
+      await ref.read(attendanceProvider(widget.odoo).notifier).checkIn(id);
       _toast('تم تسجيل الحضور');
     } catch (e) {
       _toast('Check-in failed: $e');
@@ -93,11 +92,11 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Row(
           children: [
             CircularProgressIndicator(),
-            SizedBox(width: 20),
+            horizontalSpace(20),
             Text('Ending day...'),
           ],
         ),
@@ -136,14 +135,14 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Date: ${_formatDate(summary.date)}'),
-            const SizedBox(height: 8),
+            verticalSpace(8),
             Text('Total Employees: ${summary.totalEmployees}'),
             Text('Present: ${summary.presentEmployees}'),
             Text('Absent: ${summary.absentEmployees}'),
             Text(
               'Attendance Rate: ${summary.attendancePercentage.toStringAsFixed(1)}%',
             ),
-            const SizedBox(height: 16),
+            verticalSpace(16),
             const Text('Summary saved to calendar successfully!'),
           ],
         ),
@@ -184,14 +183,18 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                   color: Colors.green,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.check_circle, color: Colors.white, size: 16),
-                    SizedBox(width: 4),
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    horizontalSpace(4),
                     Text(
                       'Day Completed',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ],
                 ),
@@ -216,13 +219,13 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  horizontalSpace(8),
                   FilledButton.icon(
                     onPressed: _checkIn,
                     icon: const Icon(Icons.login),
                     label: const Text('Check In'),
                   ),
-                  const SizedBox(width: 8),
+                  horizontalSpace(8),
                   OutlinedButton.icon(
                     onPressed: _checkOut,
                     icon: const Icon(Icons.logout),
@@ -230,7 +233,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              verticalSpace(12),
 
               // End Day Button
               if (!attendanceState.dayCompleted)
@@ -262,7 +265,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                   child: Row(
                     children: [
                       Icon(Icons.check_circle, color: Colors.green.shade600),
-                      const SizedBox(width: 12),
+                      horizontalSpace(12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

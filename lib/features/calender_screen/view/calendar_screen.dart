@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/providers/calendar_provider.dart';
 
@@ -58,7 +59,7 @@ class CalendarScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('CSV data generated:'),
-              const SizedBox(height: 8),
+              verticalSpace(8),
               Container(
                 height: 200,
                 width: double.maxFinite,
@@ -171,7 +172,7 @@ class CalendarScreen extends ConsumerWidget {
             child: calendarState.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : calendarState.summaries.isEmpty
-                ? const Center(
+                ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -180,7 +181,7 @@ class CalendarScreen extends ConsumerWidget {
                           size: 64,
                           color: Colors.grey,
                         ),
-                        SizedBox(height: 16),
+                        verticalSpace(16),
                         Text(
                           'No attendance data found for this month',
                           style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -259,7 +260,7 @@ class CalendarScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                verticalSpace(16),
 
                 // Employee details
                 if (summary.employeeAttendances.isNotEmpty) ...[
@@ -269,7 +270,7 @@ class CalendarScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  verticalSpace(8),
                   ...summary.employeeAttendances
                       .take(5)
                       .map(
@@ -286,7 +287,7 @@ class CalendarScreen extends ConsumerWidget {
                                     ? Colors.green
                                     : Colors.red,
                               ),
-                              const SizedBox(width: 8),
+                              horizontalSpace(8),
                               Expanded(child: Text(emp.employeeName)),
                               if (emp.checkIn != null)
                                 Text(
