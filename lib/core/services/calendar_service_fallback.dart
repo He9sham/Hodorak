@@ -1,19 +1,23 @@
 import 'dart:convert';
 
-import 'package:hodorak/models/daily_attendance_summary.dart';
-import 'package:hodorak/services/calendar_service_fallback.dart';
+import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/services/file_storage_service.dart';
 
-class CalendarService {
-  final CalendarServiceFallback _fallback = CalendarServiceFallback();
+class CalendarServiceFallback {
+  final FileStorageService _storage = FileStorageService();
 
-  /// Save daily attendance summary to calendar
+  /// Save daily attendance summary to persistent storage
   Future<void> saveDailySummary(DailyAttendanceSummary summary) async {
-    return await _fallback.saveDailySummary(summary);
+    final calendarData = await getCalendarData();
+    final dateKey = _getDateKey(summary.date);
+    calendarData[dateKey] = summary.toJson();
+    await _storage.saveData(calendarData);
   }
 
-  /// Get all calendar data
+  /// Get all calendar data from persistent storage
   Future<Map<String, dynamic>> getCalendarData() async {
-    return await _fallback.getCalendarData();
+    final data = await _storage.loadData();
+    return Map<String, dynamic>.from(data);
   }
 
   /// Get daily summary for a specific date
@@ -89,7 +93,7 @@ class CalendarService {
 
   /// Clear all calendar data
   Future<void> clearAllData() async {
-    return await _fallback.clearAllData();
+    await _storage.clearData();
   }
 
   /// Export calendar data as JSON
@@ -100,7 +104,16 @@ class CalendarService {
 
   /// Import calendar data from JSON
   Future<void> importData(String jsonData) async {
-    return await _fallback.importData(jsonData);
+    try {
+      final data = jsonDecode(jsonData);
+      if (data is Map<String, dynamic>) {
+        await _storage.saveData(Map<String, dynamic>.from(data));
+      } else {
+        throw Exception('Invalid data format');
+      }
+    } catch (e) {
+      throw Exception('Failed to import data: $e');
+    }
   }
 
   /// Get date key for storage

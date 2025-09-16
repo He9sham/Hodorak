@@ -1,7 +1,7 @@
 import 'package:hodorak/constance.dart';
-import 'package:hodorak/models/daily_attendance_summary.dart';
-import 'package:hodorak/odoo/odoo_service.dart';
-import 'package:hodorak/services/calendar_service.dart';
+import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/odoo_service/odoo_service.dart';
+import 'package:hodorak/core/services/calendar_service.dart';
 
 class DailyAttendanceService {
   final OdooService odooService;

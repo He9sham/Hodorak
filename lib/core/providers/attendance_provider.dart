@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/models/daily_attendance_summary.dart';
-import 'package:hodorak/odoo/odoo_service.dart';
-import 'package:hodorak/providers/auth_provider.dart';
-import 'package:hodorak/services/calendar_service.dart';
-import 'package:hodorak/services/daily_attendance_service.dart';
+import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/odoo_service/odoo_service.dart';
+import 'package:hodorak/core/providers/auth_provider.dart';
+import 'package:hodorak/core/services/calendar_service.dart';
+import 'package:hodorak/core/services/daily_attendance_service.dart';
 
 class AttendanceState {
   final List<Map<String, dynamic>> records;

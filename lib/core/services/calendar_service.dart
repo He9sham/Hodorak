@@ -1,23 +1,19 @@
 import 'dart:convert';
 
-import 'package:hodorak/models/daily_attendance_summary.dart';
-import 'package:hodorak/services/file_storage_service.dart';
+import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/services/calendar_service_fallback.dart';
 
-class CalendarServiceFallback {
-  final FileStorageService _storage = FileStorageService();
+class CalendarService {
+  final CalendarServiceFallback _fallback = CalendarServiceFallback();
 
-  /// Save daily attendance summary to persistent storage
+  /// Save daily attendance summary to calendar
   Future<void> saveDailySummary(DailyAttendanceSummary summary) async {
-    final calendarData = await getCalendarData();
-    final dateKey = _getDateKey(summary.date);
-    calendarData[dateKey] = summary.toJson();
-    await _storage.saveData(calendarData);
+    return await _fallback.saveDailySummary(summary);
   }
 
-  /// Get all calendar data from persistent storage
+  /// Get all calendar data
   Future<Map<String, dynamic>> getCalendarData() async {
-    final data = await _storage.loadData();
-    return Map<String, dynamic>.from(data);
+    return await _fallback.getCalendarData();
   }
 
   /// Get daily summary for a specific date
@@ -93,7 +89,7 @@ class CalendarServiceFallback {
 
   /// Clear all calendar data
   Future<void> clearAllData() async {
-    await _storage.clearData();
+    return await _fallback.clearAllData();
   }
 
   /// Export calendar data as JSON
@@ -104,16 +100,7 @@ class CalendarServiceFallback {
 
   /// Import calendar data from JSON
   Future<void> importData(String jsonData) async {
-    try {
-      final data = jsonDecode(jsonData);
-      if (data is Map<String, dynamic>) {
-        await _storage.saveData(Map<String, dynamic>.from(data));
-      } else {
-        throw Exception('Invalid data format');
-      }
-    } catch (e) {
-      throw Exception('Failed to import data: $e');
-    }
+    return await _fallback.importData(jsonData);
   }
 
   /// Get date key for storage

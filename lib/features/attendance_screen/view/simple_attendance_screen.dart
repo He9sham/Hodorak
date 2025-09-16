@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/odoo/odoo_service.dart';
-import 'package:hodorak/providers/attendance_provider.dart';
+import 'package:hodorak/core/odoo_service/odoo_service.dart';
+import 'package:hodorak/core/providers/attendance_provider.dart';
 
 class SimpleAttendanceScreen extends ConsumerStatefulWidget {
   final OdooService odoo;

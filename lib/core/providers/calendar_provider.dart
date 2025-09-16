@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/models/daily_attendance_summary.dart';
-import 'package:hodorak/services/calendar_service.dart';
+import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/services/calendar_service.dart';
 
 // Calendar state class
 class CalendarState {

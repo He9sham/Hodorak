@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/providers/auth_provider.dart';
-import 'package:hodorak/screen/simple_main_navigation_screen.dart';
+import 'package:hodorak/core/providers/auth_provider.dart';
+import 'package:hodorak/features/main_navigation/simple_main_navigation_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

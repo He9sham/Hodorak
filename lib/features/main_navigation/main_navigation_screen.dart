@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/odoo/odoo_service.dart';
-import 'package:hodorak/providers/navigation_provider.dart';
-import 'package:hodorak/screen/attendance_screen.dart';
-import 'package:hodorak/screen/calendar_screen.dart';
+import 'package:hodorak/core/odoo_service/odoo_service.dart';
+import 'package:hodorak/core/providers/navigation_provider.dart';
+import 'package:hodorak/features/attendance_screen/view/attendance_screen.dart';
+import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
 
 class MainNavigationScreen extends ConsumerWidget {
   final OdooService odooService;

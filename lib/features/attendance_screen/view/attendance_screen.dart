@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/models/daily_attendance_summary.dart';
-import 'package:hodorak/odoo/odoo_service.dart';
-import 'package:hodorak/providers/attendance_provider.dart';
+import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/odoo_service/odoo_service.dart';
+import 'package:hodorak/core/providers/attendance_provider.dart';
 
 class AttendancePage extends ConsumerStatefulWidget {
   final OdooService odoo;

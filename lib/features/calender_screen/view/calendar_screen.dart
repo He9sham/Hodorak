@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/models/daily_attendance_summary.dart';
-import 'package:hodorak/providers/calendar_provider.dart';
+import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/providers/calendar_provider.dart';
 
 class CalendarScreen extends ConsumerWidget {
   const CalendarScreen({super.key});

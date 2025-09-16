@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/odoo/odoo_service.dart';
+import 'package:hodorak/core/odoo_service/odoo_service.dart';
 
 class AuthState {
   final OdooService? odooService;
