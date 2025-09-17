@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/theming/colors_manger.dart';
-import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
+import 'package:hodorak/core/utils/app_router.dart';
+import 'package:hodorak/core/utils/routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,8 @@ class Hodorak extends StatelessWidget {
             ),
           ),
         ),
-        home: const SplashScreen(),
+        onGenerateRoute: AppRouter().generateRoute,
+        initialRoute: Routes.splashScreen,
       ),
     );
   }

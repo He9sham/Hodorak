@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DividerRow extends StatelessWidget {
-  const DividerRow({super.key});
-
+  const DividerRow({super.key, required this.title, required this.spaceRow});
+  final String title;
+  final double spaceRow;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -22,8 +23,8 @@ class DividerRow extends StatelessWidget {
           Positioned(
             right: 122.w,
             bottom: 13.h,
-            child: const Text(
-              'Or Log in with',
+            child: Text(
+              title,
               style: TextStyle(
                 color: Color(0xff929292),
                 fontSize: 15,
@@ -33,7 +34,7 @@ class DividerRow extends StatelessWidget {
           ),
           Positioned(
             child: Divider(
-              endIndent: 235,
+              endIndent: spaceRow,
               indent: 20,
               thickness: 1,
               color: Colors.black.withValues(alpha: 0.3),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/login_screen/views/login_screen.dart';
-import 'package:hodorak/features/login_screen/views/sign_up_screen.dart';
+import 'package:hodorak/features/auth/views/login_screen.dart';
+import 'package:hodorak/features/auth/views/sign_up_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
 
 class AppRouter {

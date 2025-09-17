@@ -35,6 +35,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.2.0
+  font_awesome_flutter: ^10.10.0
   google_fonts: ^6.3.1
   http: ^1.5.0
   odoo_rpc: ^0.7.1

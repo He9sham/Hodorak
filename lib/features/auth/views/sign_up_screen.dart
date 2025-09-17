@@ -1,70 +1,40 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_provider.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/login_screen/views/widgets/container_icon_auth.dart';
-import 'package:hodorak/features/login_screen/views/widgets/custom_error_message.dart';
-import 'package:hodorak/features/login_screen/views/widgets/custom_text_field_auth.dart';
-import 'package:hodorak/features/login_screen/views/widgets/divider_row.dart';
-import 'package:hodorak/features/login_screen/views/widgets/label_text_field.dart';
-import 'package:hodorak/features/login_screen/views/widgets/login_button.dart';
-import 'package:hodorak/features/login_screen/views/widgets/text_rich.dart';
-import 'package:hodorak/features/main_navigation/simple_main_navigation_screen.dart';
+import 'package:hodorak/features/auth/views/widgets/container_icon_auth.dart';
+import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
+import 'package:hodorak/features/auth/views/widgets/divider_row.dart';
+import 'package:hodorak/features/auth/views/widgets/label_text_field.dart';
+import 'package:hodorak/features/auth/views/widgets/login_button.dart';
+import 'package:hodorak/features/auth/views/widgets/text_rich.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+class SignUpScreen extends ConsumerStatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
+  final _confirmPasswordController = TextEditingController();
+  late final TapGestureRecognizer _signInRecognizer;
   bool _obscurePassword = true;
-  late final TapGestureRecognizer _signUpRecognizer;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _signUpRecognizer.dispose();
-    super.dispose();
-  }
-
   @override
   void initState() {
-    super.initState();
-    _signUpRecognizer = TapGestureRecognizer()
+    _signInRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        context.pushReplacementNamed(Routes.signupScreen);
+        context.pushReplacementNamed(Routes.loginScreen);
       };
-  }
-
-  /// Login function to login to the app
-  Future<void> login() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    await ref
-        .read(authProvider.notifier)
-        .login(_emailController.text, _passwordController.text);
-
-    final authState = ref.read(authProvider);
-
-    if (authState.isAuthenticated && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) =>
-              SimpleMainNavigationScreen(odooService: authState.odooService!),
-        ),
-      );
-    }
+    super.initState();
   }
 
   @override
@@ -74,7 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -84,7 +54,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   verticalSpace(50),
                   // Logo/Title
                   Text(
-                    'Sign in',
+                    'Sign Up',
                     style: Styles.textSize13Black600.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 32,
@@ -139,48 +109,67 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     },
                   ),
                   verticalSpace(16),
-                  Row(
-                    textDirection: TextDirection.rtl,
-                    children: [
-                      Text(
-                        'Forget Password?',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff8C9F5F),
-                        ),
+                  LabelTextField(title: 'Confirm Password'),
+                  verticalSpace(8),
+                  // Password Field
+                  CustomTextFieldAuth(
+                    hintText: 'Enter Confirm Password',
+                    controller: _confirmPasswordController,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
-                    ],
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 3) {
+                        return 'Password must be at least 3 characters';
+                      }
+                      return null;
+                    },
                   ),
-                  verticalSpace(24),
+                  verticalSpace(48),
 
                   // Error Message
-                  if (authState.error != null)
-                    CustomErrorMessage(authState: authState),
+                  // if (authState.error != null)
+                  //   CustomErrorMessage(authState: authState),
 
                   // Login Button
                   LoginButton(
                     onPressed: () {
-                      authState.isLoading ? null : login();
+                      // authState.isLoading ? null : login();
                     },
                     authState: authState,
                   ),
                   verticalSpace(24),
-                  DividerRow(),
+                  DividerRow(spaceRow: 250, title: 'Or Register with'),
                   verticalSpace(32),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ContainerIconAuth(icon: Icon(Icons.apple)),
                       horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(Icons.facebook)),
+                      ContainerIconAuth(icon: Icon(FontAwesomeIcons.facebook)),
                       horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(Icons.gpp_good_outlined)),
+                      ContainerIconAuth(icon: Icon(FontAwesomeIcons.google)),
                     ],
                   ),
                   verticalSpace(30),
                   // when user do not have any account
-                  TextRich(gestureRecognizer: _signUpRecognizer),
+                  TextRich(
+                    gestureRecognizer: _signInRecognizer,
+                    title: 'Already have an account?',
+                    subtitle: ' Sign In',
+                  ),
                 ],
               ),
             ),
