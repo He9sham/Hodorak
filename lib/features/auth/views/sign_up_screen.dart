@@ -28,6 +28,39 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _confirmPasswordController = TextEditingController();
   late final TapGestureRecognizer _signInRecognizer;
   bool _obscurePassword = true;
+
+  Future<void> _onSubmit() async {
+    if (_formKey.currentState?.validate() != true) return;
+    if (_passwordController.text.trim() !=
+        _confirmPasswordController.text.trim()) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
+    await ref
+        .read(signUpNotifierProvider.notifier)
+        .signUpEmployee(
+          name: _emailController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+    final latest = ref.read(signUpNotifierProvider);
+    if (latest.error != null) {
+      final msg = latest.error!.contains('Not authorized')
+          ? 'Only admins can create accounts.'
+          : latest.error!;
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    } else if (latest.message != null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(latest.message!)));
+    }
+  }
+
   @override
   void initState() {
     _signInRecognizer = TapGestureRecognizer()
@@ -158,25 +191,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                   // Login Button
                   LoginButton(
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() != true) return;
-                      if (_passwordController.text.trim() !=
-                          _confirmPasswordController.text.trim()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Passwords do not match'),
-                          ),
-                        );
-                        return;
-                      }
-                      await ref
-                          .read(signUpNotifierProvider.notifier)
-                          .signUpEmployee(
-                            name: _emailController.text.trim(),
-                            email: _emailController.text.trim(),
-                            password: _passwordController.text.trim(),
-                          );
-                    },
+                    onPressed: _onSubmit,
                     isLoading: signUpState.isLoading,
                   ),
                   verticalSpace(24),

@@ -39,7 +39,10 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         message: 'User created with id $id',
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      final msg = e.toString().contains('Not authorized')
+          ? 'Not authorized'
+          : e.toString();
+      state = state.copyWith(isLoading: false, error: msg);
     }
   }
 }

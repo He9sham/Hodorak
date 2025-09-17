@@ -76,12 +76,20 @@ class OdooHttpService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('HTTP ${response.statusCode}: ${response.body}');
+      throw OdooServerException(
+        'HTTP ${response.statusCode}: ${response.body}',
+      );
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     if (data['error'] != null) {
-      throw Exception(data['error']['data']?['message'] ?? 'Odoo error');
+      final msg = data['error']['data']?['message']?.toString() ?? 'Odoo error';
+      if (msg.contains('Access Denied')) {
+        throw OdooAuthException(
+          'Invalid email/password or insufficient rights',
+        );
+      }
+      throw OdooServerException(msg);
     }
     return data['result'];
   }
@@ -108,11 +116,15 @@ class OdooHttpService {
     });
     final resp = await http.post(url, headers: _headers(), body: body);
     if (resp.statusCode != 200) {
-      throw Exception('HTTP ${resp.statusCode}: ${resp.body}');
+      throw OdooServerException('HTTP ${resp.statusCode}: ${resp.body}');
     }
     final data = jsonDecode(resp.body) as Map<String, dynamic>;
     if (data['error'] != null) {
-      throw Exception(data['error']['data']?['message'] ?? 'Odoo error');
+      final msg = data['error']['data']?['message']?.toString() ?? 'Odoo error';
+      if (msg.contains('Access Denied') || msg.contains('Not authorized')) {
+        throw OdooPermissionException('Not authorized');
+      }
+      throw OdooServerException(msg);
     }
     return Map<String, dynamic>.from(data);
   }
@@ -142,14 +154,14 @@ class OdooHttpService {
       }),
     );
     if (resp.statusCode != 200) {
-      throw Exception('Login failed: ${resp.statusCode}');
+      throw OdooAuthException('Login failed: ${resp.statusCode}');
     }
     final setCookie = resp.headers['set-cookie'];
     if (setCookie == null || !setCookie.contains('session_id=')) {
-      throw Exception('No session cookie received');
+      throw OdooAuthException('No session cookie received');
     }
     final sess = RegExp(r'session_id=([^;]+)').firstMatch(setCookie)?.group(1);
-    if (sess == null) throw Exception('Failed parsing session cookie');
+    if (sess == null) throw OdooAuthException('Failed parsing session cookie');
 
     await _saveSession(sess, uid);
 
@@ -188,6 +200,9 @@ class OdooHttpService {
     final isSys = (sys['result'] ?? sys) == true;
     final isHrMgr = (hrMgr['result'] ?? hrMgr) == true;
     final isLeaveMgr = (leaveMgr['result'] ?? leaveMgr) == true;
+    print(
+      'Admin check - System: $isSys, HR Manager: $isHrMgr, Leave Manager: $isLeaveMgr',
+    );
     return isSys || isHrMgr || isLeaveMgr;
   }
 
@@ -323,4 +338,26 @@ class OdooHttpService {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}:${two(dt.second)}';
   }
+}
+
+// Structured exceptions for clearer handling in UI
+class OdooPermissionException implements Exception {
+  final String message;
+  OdooPermissionException(this.message);
+  @override
+  String toString() => message;
+}
+
+class OdooAuthException implements Exception {
+  final String message;
+  OdooAuthException(this.message);
+  @override
+  String toString() => message;
+}
+
+class OdooServerException implements Exception {
+  final String message;
+  OdooServerException(this.message);
+  @override
+  String toString() => message;
 }
