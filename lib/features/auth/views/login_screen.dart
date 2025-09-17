@@ -4,17 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/auth_provider.dart';
+import 'package:hodorak/core/providers/login_notifier.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/auth/views/widgets/container_icon_auth.dart';
-import 'package:hodorak/features/auth/views/widgets/custom_error_message.dart';
 import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
 import 'package:hodorak/features/auth/views/widgets/divider_row.dart';
 import 'package:hodorak/features/auth/views/widgets/label_text_field.dart';
 import 'package:hodorak/features/auth/views/widgets/login_button.dart';
 import 'package:hodorak/features/auth/views/widgets/text_rich.dart';
-import 'package:hodorak/features/main_navigation/simple_main_navigation_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -48,29 +46,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       };
   }
 
-  /// Login function to login to the app
+  /// Login using HTTP service + role-based navigation
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
-
-    await ref
-        .read(authProvider.notifier)
-        .login(_emailController.text, _passwordController.text);
-
-    final authState = ref.read(authProvider);
-
-    if (authState.isAuthenticated && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) =>
-              SimpleMainNavigationScreen(odooService: authState.odooService!),
-        ),
-      );
-    }
+    try {
+      final route = await ref
+          .read(loginNotifierProvider.notifier)
+          .login(_emailController.text.trim(), _passwordController.text.trim());
+      if (!mounted) return;
+      context.pushReplacementNamed(route);
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    final session = ref.watch(loginNotifierProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -156,18 +146,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   verticalSpace(24),
 
                   // Error Message
-                  if (authState.error != null)
-                    CustomErrorMessage(authState: authState),
+                  if (session.error != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        session.error!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
 
                   // Login Button
                   LoginButton(
-                    onPressed: () {
-                      authState.isLoading ? null : login();
+                    onPressed: () async {
+                      session.isLoading ? null : await login();
                     },
-                    authState: authState,
+                    isLoading: session.isLoading,
                   ),
                   verticalSpace(24),
-                  DividerRow(title: 'Or Log in with', spaceRow: 235,),
+                  DividerRow(title: 'Or Log in with', spaceRow: 235),
                   verticalSpace(32),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

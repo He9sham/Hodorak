@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/auth_provider.dart';
+import 'package:hodorak/core/providers/signup_notifier.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/auth/views/widgets/container_icon_auth.dart';
@@ -39,7 +39,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    final signUpState = ref.watch(signUpNotifierProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -139,16 +139,45 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                   verticalSpace(48),
 
-                  // Error Message
-                  // if (authState.error != null)
-                  //   CustomErrorMessage(authState: authState),
+                  if (signUpState.error != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        signUpState.error!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  if (signUpState.message != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        signUpState.message!,
+                        style: const TextStyle(color: Colors.green),
+                      ),
+                    ),
 
                   // Login Button
                   LoginButton(
-                    onPressed: () {
-                      // authState.isLoading ? null : login();
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() != true) return;
+                      if (_passwordController.text.trim() !=
+                          _confirmPasswordController.text.trim()) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Passwords do not match'),
+                          ),
+                        );
+                        return;
+                      }
+                      await ref
+                          .read(signUpNotifierProvider.notifier)
+                          .signUpEmployee(
+                            name: _emailController.text.trim(),
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text.trim(),
+                          );
                     },
-                    authState: authState,
+                    isLoading: signUpState.isLoading,
                   ),
                   verticalSpace(24),
                   DividerRow(spaceRow: 250, title: 'Or Register with'),

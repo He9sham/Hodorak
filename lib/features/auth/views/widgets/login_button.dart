@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:hodorak/core/providers/auth_provider.dart';
 
 class LoginButton extends StatelessWidget {
-  const LoginButton({super.key, required this.onPressed, required this.authState});
+  const LoginButton({
+    super.key,
+    required this.onPressed,
+    required this.isLoading,
+  });
   final void Function() onPressed;
-  final AuthState authState;
+  final bool isLoading;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -14,7 +17,7 @@ class LoginButton extends StatelessWidget {
           height: 50,
           child: FilledButton(
             onPressed: onPressed,
-            child: authState.isLoading
+            child: isLoading
                 ? const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
