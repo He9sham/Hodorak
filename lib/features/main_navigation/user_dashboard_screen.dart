@@ -19,6 +19,7 @@ class UserDashboardScreen extends ConsumerWidget {
           children: [
             Text('UID: ${session.uid ?? '-'}'),
             Text('Role: ${session.isAdmin ? 'Admin' : 'User'}'),
+            Text("Email: ${session.name ?? ''}"),
             const SizedBox(height: 24),
             FilledButton(
               onPressed: () {
