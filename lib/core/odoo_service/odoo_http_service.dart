@@ -140,8 +140,12 @@ class OdooHttpService {
       password,
       {},
     ]);
-    final uid = result as int?;
-    if (uid == null) throw Exception('Invalid credentials');
+    int? uid;
+    if (result is int) {
+      uid = result;
+    } else {
+      throw OdooAuthException('your password or email has wrong make sure it');
+    }
 
     // fetch session id from cookie by hitting web/session/authenticate
     final authUrl = Uri.parse('$baseUrl/web/session/authenticate');
@@ -200,9 +204,9 @@ class OdooHttpService {
     final isSys = (sys['result'] ?? sys) == true;
     final isHrMgr = (hrMgr['result'] ?? hrMgr) == true;
     final isLeaveMgr = (leaveMgr['result'] ?? leaveMgr) == true;
-    print(
-      'Admin check - System: $isSys, HR Manager: $isHrMgr, Leave Manager: $isLeaveMgr',
-    );
+    // print(
+    //   'Admin check - System: $isSys, HR Manager: $isHrMgr, Leave Manager: $isLeaveMgr',
+    // );
     return isSys || isHrMgr || isLeaveMgr;
   }
 
@@ -323,7 +327,7 @@ class OdooHttpService {
     required String email,
     required String password,
   }) async {
-    if (!await isAdmin()) throw Exception('Not authorized');
+    if (!await isAdmin()) throw Exception('Only admins can create accounts.');
     final vals = {
       'name': name,
       'login': email,

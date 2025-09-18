@@ -48,7 +48,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     final latest = ref.read(signUpNotifierProvider);
     if (latest.error != null) {
-      final msg = latest.error!.contains('Not authorized')
+      final msg = latest.error!.contains('Only admins can create accounts.')
           ? 'Only admins can create accounts.'
           : latest.error!;
       if (!mounted) return;
@@ -197,12 +197,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   verticalSpace(24),
                   DividerRow(spaceRow: 250, title: 'Or Register with'),
                   verticalSpace(32),
+                  // row auth for social media
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ContainerIconAuth(icon: Icon(Icons.apple)),
                       horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(FontAwesomeIcons.facebook)),
+                      ContainerIconAuth(icon: Icon(Icons.facebook)),
                       horizontalSpace(10),
                       ContainerIconAuth(icon: Icon(FontAwesomeIcons.google)),
                     ],

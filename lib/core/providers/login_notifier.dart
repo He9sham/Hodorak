@@ -53,7 +53,7 @@ class LoginNotifier extends StateNotifier<UserSession> {
       return isAdmin ? '/admin-dashboard' : '/user-dashboard';
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
-      rethrow;
+      rethrow; // Rethrow so UI try-catch can handle it
     }
   }
 

@@ -53,9 +53,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final route = await ref
           .read(loginNotifierProvider.notifier)
           .login(_emailController.text.trim(), _passwordController.text.trim());
-      if (!mounted) return;
-      context.pushReplacementNamed(route);
-    } catch (_) {}
+      if (mounted) {
+        context.pushReplacementNamed(route);
+      }
+    } catch (e) {
+      // Handle wrong password and other errors with SnackBar
+      if (mounted) {
+        final errorMsg = e.toString().contains('Invalid credentials')
+            ? 'Wrong password'
+            : 'Login failed: ${e.toString()}';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMsg)));
+      }
+    }
   }
 
   @override
@@ -165,12 +176,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   verticalSpace(24),
                   DividerRow(title: 'Or Log in with', spaceRow: 235),
                   verticalSpace(32),
+                  // row auth for social media
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ContainerIconAuth(icon: Icon(Icons.apple)),
                       horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(FontAwesomeIcons.facebook)),
+                      ContainerIconAuth(icon: Icon(Icons.facebook)),
                       horizontalSpace(10),
                       ContainerIconAuth(icon: Icon(FontAwesomeIcons.google)),
                     ],

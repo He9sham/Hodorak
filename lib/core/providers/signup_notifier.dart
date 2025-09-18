@@ -39,8 +39,8 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         message: 'User created with id $id',
       );
     } catch (e) {
-      final msg = e.toString().contains('Not authorized')
-          ? 'Not authorized'
+      final msg = e.toString().contains('Only admins can create accounts.')
+          ? ''
           : e.toString();
       state = state.copyWith(isLoading: false, error: msg);
     }
