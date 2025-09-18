@@ -50,7 +50,7 @@ class LoginNotifier extends StateNotifier<UserSession> {
         isAdmin: isAdmin,
         isLoading: false,
       );
-      return isAdmin ? '/admin-dashboard' : '/user-dashboard';
+      return '/homeScreen';
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       rethrow; // Rethrow so UI try-catch can handle it
