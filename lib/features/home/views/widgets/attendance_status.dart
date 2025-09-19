@@ -1,0 +1,123 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hodorak/core/helper/spacing.dart';
+
+class AttendanceStatus extends StatelessWidget {
+  const AttendanceStatus({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          width: 343.w,
+          height: 242,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Color.fromARGB(237, 225, 225, 228),
+          ),
+        ),
+        Positioned(
+          left: 20,
+          top: 15,
+          child: Text(
+            'Attendance Status Today',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          ),
+        ),
+        Positioned(
+          top: 55,
+          left: 20,
+          child: Container(
+            width: 93.w,
+            height: 32.h,
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromARGB(255, 10, 22, 10)),
+              borderRadius: BorderRadius.circular(16),
+              color: Color.fromARGB(255, 187, 192, 175),
+            ),
+            child: Row(
+              children: [
+                horizontalSpace(3),
+                Icon(Icons.calendar_month_outlined),
+                horizontalSpace(5),
+                Text(
+                  '19/09/2025',
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 55,
+          left: 140,
+          child: Container(
+            height: 32.h,
+            width: 63.w,
+            decoration: BoxDecoration(
+              color: Color(0xffF4E1B1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(width: 1, color: Colors.red.shade300),
+            ),
+            child: Row(
+              children: [
+                horizontalSpace(3),
+                Icon(Icons.watch_later_outlined),
+                horizontalSpace(5),
+                Text(
+                  '01:03',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 110,
+          left: 20,
+          child: Row(
+            children: [
+              Image.asset('assets/Icon_False.png'),
+              horizontalSpace(5),
+              Text(
+                'You have not checked in yet',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          left: 20,
+          top: 150,
+          child: Container(
+            height: 36.h,
+            width: 135.w,
+            decoration: BoxDecoration(
+              color: Color(0xff8C9F5F),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                horizontalSpace(15),
+                Image.asset('assets/print_fing.png'),
+                horizontalSpace(15),
+                Text(
+                  'Check-In',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

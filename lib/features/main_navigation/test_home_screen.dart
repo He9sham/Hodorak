@@ -4,8 +4,8 @@ import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/providers/login_notifier.dart';
 import 'package:hodorak/core/utils/routes.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class TextHomeScreen extends ConsumerWidget {
+  const TextHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
