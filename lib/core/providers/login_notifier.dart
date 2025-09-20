@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
+import 'package:hodorak/core/utils/routes.dart';
 
 class UserSession {
   final int? uid;
@@ -50,7 +51,8 @@ class LoginNotifier extends StateNotifier<UserSession> {
         isAdmin: isAdmin,
         isLoading: false,
       );
-      return '/homeScreen';
+      // Return different routes based on user role
+      return isAdmin ? Routes.testHomeScreen : Routes.homeScreen;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       rethrow; // Rethrow so UI try-catch can handle it
