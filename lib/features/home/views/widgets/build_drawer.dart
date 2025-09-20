@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/login_notifier.dart';
+import 'package:hodorak/core/utils/routes.dart';
 
-Widget buildDrawer(BuildContext context, UserSession session) {
+Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
   return Drawer(
     child: Column(
       children: [
@@ -138,7 +141,32 @@ Widget buildDrawer(BuildContext context, UserSession session) {
             child: ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
-                // Add logout functionality here
+                // Show confirmation dialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Logout'),
+                      content: Text('Are you sure you want to logout?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close dialog
+                          },
+                          child: Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            ref.read(loginNotifierProvider.notifier).logout();
+                            context.pushReplacementNamed(Routes.loginScreen);
+                          },
+                          child: Text('Logout'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               icon: Icon(Icons.logout, color: Colors.white),
               label: Text(

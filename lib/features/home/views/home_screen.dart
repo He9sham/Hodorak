@@ -37,7 +37,7 @@ class HomeScreen extends ConsumerWidget {
           horizontalSpace(10),
         ],
       ),
-      drawer: buildDrawer(context, session),
+      drawer: buildDrawer(context, session, ref),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SingleChildScrollView(
