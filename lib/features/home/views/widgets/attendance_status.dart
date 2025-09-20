@@ -117,6 +117,55 @@ class AttendanceStatus extends StatelessWidget {
             ),
           ),
         ),
+        Positioned(
+          top: 150,
+          right: 35,
+          child: Container(
+            height: 36,
+            width: 135,
+            decoration: BoxDecoration(
+              color: Color(0xffF5BA3A),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                'Temporary Leave',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 5,
+          right: 115,
+          child: Container(
+            height: 36.h,
+            width: 135.w,
+            decoration: BoxDecoration(
+              color: Color(0xffE93B3B),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                horizontalSpace(15),
+                Icon(Icons.logout, color: Colors.white),
+                horizontalSpace(15),
+                Text(
+                  'Check-Out',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }

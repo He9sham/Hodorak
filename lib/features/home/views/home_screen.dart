@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_status.dart';
+import 'package:hodorak/features/home/views/widgets/geo_location.dart';
+import 'package:hodorak/features/home/views/widgets/quick_summary.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -27,7 +29,19 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(children: [verticalSpace(17), AttendanceStatus()]),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              verticalSpace(17),
+              AttendanceStatus(),
+              verticalSpace(16),
+              GeoLocation(),
+              verticalSpace(16),
+              QuickSummary(),
+              verticalSpace(16),
+            ],
+          ),
+        ),
       ),
     );
   }
