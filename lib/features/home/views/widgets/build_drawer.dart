@@ -1,0 +1,186 @@
+import 'package:flutter/material.dart';
+import 'package:hodorak/core/helper/spacing.dart';
+import 'package:hodorak/core/providers/login_notifier.dart';
+
+Widget buildDrawer(BuildContext context, UserSession session) {
+  return Drawer(
+    child: Column(
+      children: [
+        // Drawer Header with User Info
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xff8C9F5F),
+                Color(0xff8C9F5F).withValues(alpha: 0.8),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // User Avatar
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.white,
+                    child: CircleAvatar(
+                      radius: 38,
+                      backgroundColor: Color(0xff8C9F5F).withValues(alpha: 0.1),
+                      child: Text(
+                        session.name?.isNotEmpty == true
+                            ? session.name![0].toUpperCase()
+                            : 'U',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff8C9F5F),
+                        ),
+                      ),
+                    ),
+                  ),
+                  verticalSpace(16),
+                  // User Name
+                  Text(
+                    session.name ?? 'User',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  verticalSpace(4),
+                  // User Role
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      session.isAdmin ? 'Administrator' : 'Employee',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Drawer Menu Items
+        Expanded(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              _buildDrawerItem(
+                icon: Icons.person,
+                title: 'Profile',
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to profile screen
+                },
+              ),
+              _buildDrawerItem(
+                icon: Icons.work,
+                title: 'Attendance',
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to attendance screen
+                },
+              ),
+              _buildDrawerItem(
+                icon: Icons.calendar_today,
+                title: 'Calendar',
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to calendar screen
+                },
+              ),
+              _buildDrawerItem(
+                icon: Icons.settings,
+                title: 'Settings',
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to settings screen
+                },
+              ),
+              Divider(),
+              _buildDrawerItem(
+                icon: Icons.info,
+                title: 'User ID: ${session.uid ?? 'N/A'}',
+                onTap: () {},
+                isInfo: true,
+              ),
+              _buildDrawerItem(
+                icon: Icons.email,
+                title: 'Email: ${session.name ?? 'N/A'}',
+                onTap: () {},
+                isInfo: true,
+              ),
+            ],
+          ),
+        ),
+
+        // Logout Button
+        Container(
+          padding: EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                // Add logout functionality here
+              },
+              icon: Icon(Icons.logout, color: Colors.white),
+              label: Text(
+                'Logout',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildDrawerItem({
+  required IconData icon,
+  required String title,
+  required VoidCallback onTap,
+  bool isInfo = false,
+}) {
+  return ListTile(
+    leading: Icon(
+      icon,
+      color: isInfo ? Colors.grey[600] : Color(0xff8C9F5F),
+      size: isInfo ? 20 : 24,
+    ),
+    title: Text(
+      title,
+      style: TextStyle(
+        color: isInfo ? Colors.grey[600] : Colors.black87,
+        fontSize: isInfo ? 12 : 16,
+        fontWeight: isInfo ? FontWeight.normal : FontWeight.w500,
+      ),
+    ),
+    onTap: onTap,
+    contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+  );
+}
