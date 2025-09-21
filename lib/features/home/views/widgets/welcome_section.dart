@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-
-import 'package:hodorak/core/providers/login_notifier.dart';
+import 'package:hodorak/core/providers/auth_state_manager.dart';
 
 class WelcomeSection extends StatelessWidget {
-  const WelcomeSection({super.key, required this.session});
-  final UserSession session;
+  const WelcomeSection({super.key, required this.authState});
+  final AuthState authState;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,14 +29,14 @@ class WelcomeSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            session.name ?? 'User',
+            authState.name ?? 'User',
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(color: Colors.blue.shade600),
           ),
           const SizedBox(height: 4),
           Text(
-            'Role: ${session.isAdmin ? 'Administrator' : 'Employee'}',
+            'Role: ${authState.isAdmin ? 'Administrator' : 'Employee'}',
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.blue.shade700),

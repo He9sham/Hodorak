@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/login_notifier.dart';
+import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/build_item_cart.dart';
 import 'package:hodorak/features/home/views/widgets/recent_activity.dart';
@@ -13,7 +13,7 @@ class AdminHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(loginNotifierProvider);
+    final authState = ref.watch(authStateManagerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,9 +23,11 @@ class AdminHomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              ref.read(loginNotifierProvider.notifier).logout();
-              context.pushReplacementNamed(Routes.loginScreen);
+            onPressed: () async {
+              await ref.read(authStateManagerProvider.notifier).logout();
+              if (context.mounted) {
+                context.pushReplacementNamed(Routes.loginScreen);
+              }
             },
           ),
         ],
@@ -36,7 +38,7 @@ class AdminHomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Welcome Section
-            WelcomeSection(session: session),
+            WelcomeSection(authState: authState),
             verticalSpace(24),
 
             // Quick Actions

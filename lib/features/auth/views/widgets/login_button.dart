@@ -32,7 +32,7 @@ class LoginButton extends StatelessWidget {
                         ),
                       ),
 
-                      Text('Logging in...'),
+                      Text(' Logging in...'),
                     ],
                   )
                 : const Text(

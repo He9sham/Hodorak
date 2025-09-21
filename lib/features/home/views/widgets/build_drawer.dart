@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/login_notifier.dart';
+import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/utils/routes.dart';
 
-Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
+Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
   return Drawer(
     child: Column(
       children: [
@@ -37,8 +37,8 @@ Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
                       radius: 38,
                       backgroundColor: Color(0xff8C9F5F).withValues(alpha: 0.1),
                       child: Text(
-                        session.name?.isNotEmpty == true
-                            ? session.name![0].toUpperCase()
+                        authState.name?.isNotEmpty == true
+                            ? authState.name![0].toUpperCase()
                             : 'U',
                         style: TextStyle(
                           fontSize: 24,
@@ -51,7 +51,7 @@ Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
                   verticalSpace(16),
                   // User Name
                   Text(
-                    session.name ?? 'User',
+                    authState.name ?? 'User',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -67,7 +67,7 @@ Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      session.isAdmin ? 'Administrator' : 'Employee',
+                      authState.isAdmin ? 'Administrator' : 'Employee',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -121,13 +121,13 @@ Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
               Divider(),
               _buildDrawerItem(
                 icon: Icons.info,
-                title: 'User ID: ${session.uid ?? 'N/A'}',
+                title: 'User ID: ${authState.uid ?? 'N/A'}',
                 onTap: () {},
                 isInfo: true,
               ),
               _buildDrawerItem(
                 icon: Icons.email,
-                title: 'Email: ${session.name ?? 'N/A'}',
+                title: 'Email: ${authState.name ?? 'N/A'}',
                 onTap: () {},
                 isInfo: true,
               ),
@@ -158,10 +158,14 @@ Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
                           child: Text('Cancel'),
                         ),
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.of(context).pop();
-                            ref.read(loginNotifierProvider.notifier).logout();
-                            context.pushReplacementNamed(Routes.loginScreen);
+                            await ref
+                                .read(authStateManagerProvider.notifier)
+                                .logout();
+                            if (context.mounted) {
+                              context.pushReplacementNamed(Routes.loginScreen);
+                            }
                           },
                           child: Text('Logout'),
                         ),

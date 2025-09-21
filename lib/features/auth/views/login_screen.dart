@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/login_notifier.dart';
+import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/auth/views/widgets/container_icon_auth.dart';
@@ -50,10 +50,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
     try {
-      final route = await ref
-          .read(loginNotifierProvider.notifier)
+      await ref
+          .read(authStateManagerProvider.notifier)
           .login(_emailController.text.trim(), _passwordController.text.trim());
+
       if (mounted) {
+        final authState = ref.read(authStateManagerProvider);
+        final route = authState.isAdmin
+            ? Routes.adminHomeScreen
+            : Routes.homeScreen;
         context.pushReplacementNamed(route);
       }
     } catch (e) {
@@ -71,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(loginNotifierProvider);
+    final authState = ref.watch(authStateManagerProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -157,11 +162,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   verticalSpace(24),
 
                   // Error Message
-                  if (session.error != null)
+                  if (authState.error != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        session.error!,
+                        authState.error!,
                         style: const TextStyle(color: Colors.red),
                       ),
                     ),
@@ -169,9 +174,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // Login Button
                   LoginButton(
                     onPressed: () async {
-                      session.isLoading ? null : await login();
+                      authState.isLoading ? null : await login();
                     },
-                    isLoading: session.isLoading,
+                    isLoading: authState.isLoading,
                   ),
                   verticalSpace(24),
                   DividerRow(title: 'Or Log in with', spaceRow: 235),

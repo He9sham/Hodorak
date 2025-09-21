@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/login_notifier.dart';
+import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_status.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
 import 'package:hodorak/features/home/views/widgets/geo_location.dart';
@@ -12,7 +12,7 @@ class UserHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(loginNotifierProvider);
+    final authState = ref.watch(authStateManagerProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -37,7 +37,7 @@ class UserHomeScreen extends ConsumerWidget {
           horizontalSpace(10),
         ],
       ),
-      drawer: buildDrawer(context, session, ref),
+      drawer: buildDrawer(context, authState, ref),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SingleChildScrollView(
