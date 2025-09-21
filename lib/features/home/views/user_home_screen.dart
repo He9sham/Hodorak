@@ -7,8 +7,8 @@ import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
 import 'package:hodorak/features/home/views/widgets/geo_location.dart';
 import 'package:hodorak/features/home/views/widgets/quick_summary.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class UserHomeScreen extends ConsumerWidget {
+  const UserHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

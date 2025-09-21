@@ -11,6 +11,8 @@ Widget buildDrawer(BuildContext context, UserSession session, WidgetRef ref) {
       children: [
         // Drawer Header with User Info
         Container(
+          width: double.infinity,
+          height: MediaQuery.heightOf(context) * 0.31,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,

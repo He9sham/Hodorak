@@ -61,7 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         final errorMsg = e.toString().contains('Invalid credentials')
             ? 'Wrong password'
-            : 'Login failed: ${e.toString()}';
+            : e.toString();
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(errorMsg)));

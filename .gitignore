@@ -22,7 +22,10 @@ migrate_working_dir/
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
 #.vscode/
-
+# ignore file    by hesham
+lib/admin_dashboard_screen.dart
+lib/unknwon_for_database.dart
+lib/user_dashboard_screen.dart
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -32,7 +35,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
-lib/unknwon_for_database.dart
+
 # Symbolication related
 app.*.symbols
 
