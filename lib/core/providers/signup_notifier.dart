@@ -26,6 +26,11 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
     required String name,
     required String email,
     required String password,
+    required String jobTitle,
+    required String department,
+    required String phone,
+    required String nationalId,
+    required String gender,
   }) async {
     state = state.copyWith(isLoading: true, error: null, message: null);
     try {
@@ -33,6 +38,11 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         name: name,
         email: email,
         password: password,
+        jobTitle: jobTitle,
+        department: department,
+        phone: phone,
+        nationalId: nationalId,
+        gender: gender,
       );
       state = state.copyWith(
         isLoading: false,

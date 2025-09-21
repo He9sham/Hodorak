@@ -24,10 +24,16 @@ class SignUpScreen extends ConsumerStatefulWidget {
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _jobTitleController = TextEditingController();
+  final _departmentController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _nationalIdController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   late final TapGestureRecognizer _signInRecognizer;
   bool _obscurePassword = true;
+  String? _selectedGender;
 
   Future<void> _onSubmit() async {
     if (_formKey.currentState?.validate() != true) return;
@@ -41,9 +47,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     await ref
         .read(signUpNotifierProvider.notifier)
         .signUpEmployee(
-          name: _emailController.text.trim(),
+          name: _nameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
+          jobTitle: _jobTitleController.text.trim(),
+          department: _departmentController.text.trim(),
+          phone: _phoneController.text.trim(),
+          nationalId: _nationalIdController.text.trim(),
+          gender: _selectedGender ?? '',
         );
 
     final latest = ref.read(signUpNotifierProvider);
@@ -71,6 +82,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _nameController.dispose();
+    _jobTitleController.dispose();
+    _departmentController.dispose();
+    _phoneController.dispose();
+    _nationalIdController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _signInRecognizer.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final signUpState = ref.watch(signUpNotifierProvider);
     return Scaffold(
@@ -94,6 +119,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                   ),
                   verticalSpace(48),
+
+                  // Name Field
+                  LabelTextField(title: 'Full Name'),
+                  verticalSpace(8),
+                  CustomTextFieldAuth(
+                    controller: _nameController,
+                    hintText: 'Enter Full Name',
+                    validator: (value) {
+                      value = value!.trim();
+                      if (value.isEmpty) {
+                        return 'Please enter full name';
+                      }
+                      if (value.length < 2) {
+                        return 'Name must be at least 2 characters';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  verticalSpace(16),
                   LabelTextField(title: 'Email'),
                   verticalSpace(8),
                   // Email Field
@@ -107,6 +152,124 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       }
                       if (!value.contains('@')) {
                         return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  verticalSpace(16),
+                  // Job Title Field
+                  LabelTextField(title: 'Job Title'),
+                  verticalSpace(8),
+                  CustomTextFieldAuth(
+                    controller: _jobTitleController,
+                    hintText: 'Enter Job Title',
+                    validator: (value) {
+                      value = value!.trim();
+                      if (value.isEmpty) {
+                        return 'Please enter job title';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  verticalSpace(16),
+                  // Department Field
+                  LabelTextField(title: 'Department'),
+                  verticalSpace(8),
+                  CustomTextFieldAuth(
+                    controller: _departmentController,
+                    hintText: 'Enter Department',
+                    validator: (value) {
+                      value = value!.trim();
+                      if (value.isEmpty) {
+                        return 'Please enter department';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  verticalSpace(16),
+                  // Phone Number Field
+                  LabelTextField(title: 'Phone Number'),
+                  verticalSpace(8),
+                  CustomTextFieldAuth(
+                    controller: _phoneController,
+                    hintText: 'Enter Phone Number',
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      value = value!.trim();
+                      if (value.isEmpty) {
+                        return 'Please enter phone number';
+                      }
+                      if (value.length < 10) {
+                        return 'Phone number must be at least 10 digits';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  verticalSpace(16),
+                  // National ID Field
+                  LabelTextField(title: 'National ID'),
+                  verticalSpace(8),
+                  CustomTextFieldAuth(
+                    controller: _nationalIdController,
+                    hintText: 'Enter National ID',
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      value = value!.trim();
+                      if (value.isEmpty) {
+                        return 'Please enter national ID';
+                      }
+                      if (value.length < 8) {
+                        return 'National ID must be at least 8 digits';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  verticalSpace(16),
+                  // Gender Field
+                  LabelTextField(title: 'Gender'),
+                  verticalSpace(8),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedGender,
+                    decoration: InputDecoration(
+                      hintText: 'Select Gender',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(100),
+                        borderSide: BorderSide(color: Colors.black),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(100),
+                        borderSide: BorderSide(color: Colors.black),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(100),
+                        borderSide: BorderSide(color: Colors.black),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 15,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
+                    items: ['Male', 'Female'].map((String gender) {
+                      return DropdownMenuItem<String>(
+                        value: gender,
+                        child: Text(gender),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedGender = newValue;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select gender';
                       }
                       return null;
                     },

@@ -8,11 +8,13 @@ class CustomTextFieldAuth extends StatelessWidget {
     required this.controller,
     required this.hintText,
     required this.validator,
+    this.keyboardType,
   });
   final Widget? suffixIcon;
   final TextEditingController controller;
   final String hintText;
   final dynamic Function(String?) validator;
+  final TextInputType? keyboardType;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -30,7 +32,7 @@ class CustomTextFieldAuth extends StatelessWidget {
           ),
           hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           controller: controller,
-          keyboardType: TextInputType.emailAddress,
+          keyboardType: keyboardType ?? TextInputType.emailAddress,
           hintText: hintText,
           contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           validator: validator,

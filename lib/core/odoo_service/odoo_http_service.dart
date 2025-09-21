@@ -43,6 +43,12 @@ class OdooHttpService {
   String? get sessionId => _sessionId;
   int? get uid => _uid;
 
+  // Check if user is properly authenticated
+  Future<bool> isAuthenticated() async {
+    await _loadSession();
+    return _uid != null && _sessionId != null;
+  }
+
   // Helpers
   Uri _jsonRpcUrl([String path = '/jsonrpc']) => Uri.parse('$baseUrl$path');
   Map<String, String> _headers() => {
@@ -175,39 +181,41 @@ class OdooHttpService {
 
   Future<bool> isAdmin() async {
     await _loadSession();
-    if (_uid == null) return false;
-    // Use has_group to avoid accessing restricted fields like groups_id
-    final sys = await _callKw(
-      'res.users',
-      'has_group',
-      args: [
-        [_uid],
-        'base.group_system',
-      ],
-    );
-    final hrMgr = await _callKw(
-      'res.users',
-      'has_group',
-      args: [
-        [_uid],
-        'hr.group_hr_manager',
-      ],
-    );
-    final leaveMgr = await _callKw(
-      'res.users',
-      'has_group',
-      args: [
-        [_uid],
-        'hr_holidays.group_hr_holidays_manager',
-      ],
-    );
-    final isSys = (sys['result'] ?? sys) == true;
-    final isHrMgr = (hrMgr['result'] ?? hrMgr) == true;
-    final isLeaveMgr = (leaveMgr['result'] ?? leaveMgr) == true;
-    // print(
-    //   'Admin check - System: $isSys, HR Manager: $isHrMgr, Leave Manager: $isLeaveMgr',
-    // );
-    return isSys || isHrMgr || isLeaveMgr;
+    if (_uid == null) {
+      
+      return false;
+    }
+
+    try {
+      // Check if user has system admin privileges (most restrictive)
+      final sys = await _callKw(
+        'res.users',
+        'has_group',
+        args: [
+          [_uid],
+          'base.group_system',
+        ],
+      );
+      final isSys = (sys['result'] ?? sys) == true;
+
+      // Also check for HR manager as backup
+      final hrMgr = await _callKw(
+        'res.users',
+        'has_group',
+        args: [
+          [_uid],
+          'hr.group_hr_manager',
+        ],
+      );
+      final isHrMgr = (hrMgr['result'] ?? hrMgr) == true;
+
+      
+      // Only allow system admins or HR managers to create accounts
+      return isSys || isHrMgr;
+    } catch (e) {
+      
+      return false;
+    }
   }
 
   // Attendance
@@ -326,16 +334,89 @@ class OdooHttpService {
     required String name,
     required String email,
     required String password,
+    required String jobTitle,
+    required String department,
+    required String phone,
+    required String nationalId,
+    required String
+    gender, // Note: Gender field is collected but not stored due to Odoo field limitations
   }) async {
-    if (!await isAdmin()) throw Exception('Only admins can create accounts.');
-    final vals = {
+    // Double-check admin permissions
+    await _loadSession();
+    if (_uid == null) {
+      throw Exception('User not authenticated. Please login first.');
+    }
+
+    final adminCheck = await isAdmin();
+    if (!adminCheck) {
+    
+      throw Exception(
+        'Access denied. Only administrators can create employee accounts.',
+      );
+    }
+
+    
+
+    // First create the user account
+    final userVals = {
       'name': name,
       'login': email,
       'email': email,
       'password': password,
     };
-    final res = await _callKw('res.users', 'create', args: [vals]);
-    return (res['result'] ?? res) as int;
+    final userRes = await _callKw('res.users', 'create', args: [userVals]);
+    final userId = (userRes['result'] ?? userRes) as int;
+
+    // Then create the employee record linked to the user
+    final employeeVals = {
+      'name': name,
+      'user_id': userId,
+      'work_email': email,
+      'job_title': jobTitle,
+      'department_id': await _getOrCreateDepartment(department),
+      'work_phone': phone,
+      'identification_id': nationalId,
+    };
+    final employeeRes = await _callKw(
+      'hr.employee',
+      'create',
+      args: [employeeVals],
+    );
+    return (employeeRes['result'] ?? employeeRes) as int;
+  }
+
+  // Helper method to get or create department
+  Future<int> _getOrCreateDepartment(String departmentName) async {
+    try {
+      // First try to find existing department
+      final searchRes = await _callKw(
+        'hr.department',
+        'search',
+        args: [
+          [
+            ['name', '=', departmentName],
+          ],
+        ],
+      );
+      final departmentIds = (searchRes['result'] ?? searchRes) as List;
+
+      if (departmentIds.isNotEmpty) {
+        return departmentIds.first;
+      }
+
+      // If not found, create new department
+      final createRes = await _callKw(
+        'hr.department',
+        'create',
+        args: [
+          {'name': departmentName},
+        ],
+      );
+      return (createRes['result'] ?? createRes) as int;
+    } catch (e) {
+      // If department creation fails, return a default or handle gracefully
+      return 1; // Default department ID, you might want to adjust this
+    }
   }
 
   String _formatDateTime(DateTime dt) {
