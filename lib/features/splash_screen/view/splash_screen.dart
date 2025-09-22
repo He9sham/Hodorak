@@ -13,12 +13,13 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateManagerProvider);
+    // final authState = ref.watch(authStateManagerProvider);
 
     return AnimatedSplashScreen(
       backgroundColor: Colors.white,
       splash: SplashView(),
-      nextScreen: _getNextScreen(authState),
+      nextScreen: LoginScreen(),
+      // nextScreen: _getNextScreen(authState),
       splashIconSize: 1000,
       duration: 4000,
       splashTransition: SplashTransition.values[1],
@@ -27,13 +28,13 @@ class SplashScreen extends ConsumerWidget {
     );
   }
 
-  Widget _getNextScreen(AuthState authState) {
-    if (authState.isAuthenticated) {
-      return authState.isAdmin
-          ? const AdminHomeScreen()
-          : const UserHomeScreen();
-    }
+  // Widget _getNextScreen(AuthState authState) {
+  //   if (authState.isAuthenticated) {
+  //     return authState.isAdmin
+  //         ? const AdminHomeScreen()
+  //         : const UserHomeScreen();
+  //   }
 
-    return const LoginScreen();
-  }
+  //   return const LoginScreen();
+  // }
 }

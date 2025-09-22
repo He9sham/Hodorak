@@ -182,7 +182,6 @@ class OdooHttpService {
   Future<bool> isAdmin() async {
     await _loadSession();
     if (_uid == null) {
-      
       return false;
     }
 
@@ -209,11 +208,9 @@ class OdooHttpService {
       );
       final isHrMgr = (hrMgr['result'] ?? hrMgr) == true;
 
-      
       // Only allow system admins or HR managers to create accounts
       return isSys || isHrMgr;
     } catch (e) {
-      
       return false;
     }
   }
@@ -349,13 +346,10 @@ class OdooHttpService {
 
     final adminCheck = await isAdmin();
     if (!adminCheck) {
-    
       throw Exception(
         'Access denied. Only administrators can create employee accounts.',
       );
     }
-
-    
 
     // First create the user account
     final userVals = {
