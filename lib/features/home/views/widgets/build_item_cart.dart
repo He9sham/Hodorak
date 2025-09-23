@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/helper/extensions.dart';
+import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/build_action_card.dart';
 
@@ -62,9 +63,15 @@ class BuildItemCartRowThree extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(width: 12),
+        horizontalSpace(12),
         Expanded(
-          child: Container(), // Empty container to maintain layout
+          child: buildActionCard(
+            context,
+            icon: Icons.request_page_sharp,
+            title: 'Requests',
+            subtitle: 'Requests employees',
+            onTap: () {},
+          ),
         ),
       ],
     );

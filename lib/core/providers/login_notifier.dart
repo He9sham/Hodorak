@@ -52,7 +52,7 @@ class LoginNotifier extends StateNotifier<UserSession> {
         isLoading: false,
       );
       // Return different routes based on user role
-      return isAdmin ? Routes.adminHomeScreen : Routes.homeScreen;
+      return isAdmin ? Routes.adminHomeScreen : Routes.userHomeScreen;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       rethrow; // Rethrow so UI try-catch can handle it

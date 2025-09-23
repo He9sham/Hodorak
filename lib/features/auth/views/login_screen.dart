@@ -58,7 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final authState = ref.read(authStateManagerProvider);
         final route = authState.isAdmin
             ? Routes.adminHomeScreen
-            : Routes.homeScreen;
+            : Routes.userHomeScreen;
         context.pushReplacementNamed(route);
       }
     } catch (e) {

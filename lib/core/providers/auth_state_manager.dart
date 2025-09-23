@@ -88,7 +88,7 @@ class AuthStateManager extends StateNotifier<AuthState> {
     }
 
     if (state.isAuthenticated) {
-      return state.isAdmin ? Routes.adminHomeScreen : Routes.homeScreen;
+      return state.isAdmin ? Routes.adminHomeScreen : Routes.userHomeScreen;
     }
 
     return Routes.loginScreen;

@@ -90,13 +90,22 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                 icon: Icons.person,
                 title: 'Profile',
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
+                  // context.pushNamed(Routes.attendance);
                   // Navigate to profile screen
                 },
               ),
               _buildDrawerItem(
                 icon: Icons.work,
                 title: 'Attendance',
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to attendance screen
+                },
+              ),
+              _buildDrawerItem(
+                icon: Icons.real_estate_agent,
+                title: 'Requests',
                 onTap: () {
                   Navigator.pop(context);
                   // Navigate to attendance screen

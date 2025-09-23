@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/auth/views/login_screen.dart';
 import 'package:hodorak/features/auth/views/sign_up_screen.dart';
-import 'package:hodorak/features/home/views/user_home_screen.dart';
-import 'package:hodorak/admin_dashboard_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
-import 'package:hodorak/user_dashboard_screen.dart';
+import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
 
 class AppRouter {
@@ -24,14 +22,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const SignUpScreen());
       case Routes.loginScreen:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
-      case Routes.homeScreen:
+      case Routes.userHomeScreen:
         return MaterialPageRoute(builder: (_) => const UserHomeScreen());
       case Routes.adminHomeScreen:
         return MaterialPageRoute(builder: (_) => const AdminHomeScreen());
-      case Routes.adminDashboard:
-        return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
-      case Routes.userDashboard:
-        return MaterialPageRoute(builder: (_) => const UserDashboardScreen());
       default:
         return null;
     }
