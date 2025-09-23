@@ -341,7 +341,7 @@ class OdooHttpService {
     // Double-check admin permissions
     await _loadSession();
     if (_uid == null) {
-      throw Exception('User not authenticated. Please login first.');
+      throw Exception('Only admins can create accounts.');
     }
 
     final adminCheck = await isAdmin();

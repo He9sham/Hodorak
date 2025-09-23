@@ -109,7 +109,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  verticalSpace(50),
+                  verticalSpace(30),
                   // Logo/Title
                   Text(
                     'Sign Up',
@@ -354,6 +354,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                   // Login Button
                   LoginButton(
+                    title: 'Sign Up',
                     onPressed: _onSubmit,
                     isLoading: signUpState.isLoading,
                   ),

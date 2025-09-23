@@ -1,10 +1,7 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/features/auth/views/login_screen.dart';
-import 'package:hodorak/features/home/views/admin_home_screen.dart';
-import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/splash_screen/view/widgets/splash_view.dart';
 import 'package:page_transition/page_transition.dart';
 

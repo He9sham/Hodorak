@@ -173,6 +173,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   // Login Button
                   LoginButton(
+                    title: 'Sign in',
                     onPressed: () async {
                       authState.isLoading ? null : await login();
                     },

@@ -5,9 +5,11 @@ class LoginButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     required this.isLoading,
+    required this.title,
   });
   final void Function() onPressed;
   final bool isLoading;
+  final String title;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -32,11 +34,11 @@ class LoginButton extends StatelessWidget {
                         ),
                       ),
 
-                      Text(' Logging in...'),
+                      Text('  Logging in...'),
                     ],
                   )
-                : const Text(
-                    'Sign in',
+                :  Text(
+                    title,
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
           ),
