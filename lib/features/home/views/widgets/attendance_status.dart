@@ -3,8 +3,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:intl/intl.dart';
 
-class AttendanceStatus extends StatelessWidget {
+class AttendanceStatus extends StatefulWidget {
   const AttendanceStatus({super.key});
+
+  @override
+  State<AttendanceStatus> createState() => _AttendanceStatusState();
+}
+
+class _AttendanceStatusState extends State<AttendanceStatus> {
+  bool isCheckedIn = false;
+  DateTime? checkInTime;
+
+  void _handleCheckIn() {
+    setState(() {
+      isCheckedIn = true;
+      checkInTime = DateTime.now();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +58,7 @@ class AttendanceStatus extends StatelessWidget {
                 Icon(Icons.calendar_month_outlined),
                 horizontalSpace(5),
                 Text(
-                  '19/09/2025',
+                  DateFormat('dd/MM/yyyy').format(DateTime.now()),
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,
@@ -70,7 +85,9 @@ class AttendanceStatus extends StatelessWidget {
                 Icon(Icons.watch_later_outlined),
                 horizontalSpace(5),
                 Text(
-                  '01:03',
+                  isCheckedIn && checkInTime != null 
+                    ? DateFormat('HH:mm').format(checkInTime!)
+                    : '00:00',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
                 ),
               ],
@@ -82,10 +99,10 @@ class AttendanceStatus extends StatelessWidget {
           left: 20,
           child: Row(
             children: [
-              Image.asset('assets/Icon_False.png'),
+              Image.asset(isCheckedIn ? 'assets/Icon_true.png' : 'assets/Icon_False.png'),
               horizontalSpace(5),
               Text(
-                'You have not checked in yet',
+                isCheckedIn ? 'You have checked in successfully' : 'You have not checked in yet',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ],
@@ -94,27 +111,30 @@ class AttendanceStatus extends StatelessWidget {
         Positioned(
           left: 20,
           top: 150,
-          child: Container(
-            height: 36.h,
-            width: 135.w,
-            decoration: BoxDecoration(
-              color: Color(0xff8C9F5F),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                horizontalSpace(15),
-                Image.asset('assets/print_fing.png'),
-                horizontalSpace(15),
-                Text(
-                  'Check-In',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+          child: GestureDetector(
+            onTap: isCheckedIn ? null : _handleCheckIn,
+            child: Container(
+              height: 36.h,
+              width: 135.w,
+              decoration: BoxDecoration(
+                color: isCheckedIn ? Colors.grey : Color(0xff8C9F5F),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  horizontalSpace(15),
+                  Image.asset('assets/print_fing.png'),
+                  horizontalSpace(15),
+                  Text(
+                    isCheckedIn ? 'Checked-In' : 'Check-In',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
