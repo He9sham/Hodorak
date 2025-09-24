@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
+import 'package:intl/intl.dart';
 
 class AttendanceStatus extends StatelessWidget {
   const AttendanceStatus({super.key});
