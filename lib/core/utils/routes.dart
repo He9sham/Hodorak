@@ -5,5 +5,5 @@ class Routes {
   static const String loginScreen = '/loginScreen';
   static const String userHomeScreen = '/userHomeScreen';
   static const String adminHomeScreen = '/adminhomeScreen';
-  static const String attendance = '/attendance';
+  static const String profile = '/ProfileScreen';
 }

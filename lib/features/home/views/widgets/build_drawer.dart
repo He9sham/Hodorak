@@ -91,7 +91,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                 title: 'Profile',
                 onTap: () {
                   context.pop();
-                  // context.pushNamed(Routes.attendance);
+                  context.pushNamed(Routes.profile);
                   // Navigate to profile screen
                 },
               ),

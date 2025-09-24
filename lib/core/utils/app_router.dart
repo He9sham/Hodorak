@@ -4,6 +4,7 @@ import 'package:hodorak/features/auth/views/login_screen.dart';
 import 'package:hodorak/features/auth/views/sign_up_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
 import 'package:hodorak/features/home/views/user_home_screen.dart';
+import 'package:hodorak/features/profile/view/profile_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
 
 class AppRouter {
@@ -26,6 +27,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const UserHomeScreen());
       case Routes.adminHomeScreen:
         return MaterialPageRoute(builder: (_) => const AdminHomeScreen());
+      case Routes.profile:
+        return MaterialPageRoute(builder: (_) => const ProfileScreen());
       default:
         return null;
     }
