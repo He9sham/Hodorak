@@ -51,12 +51,7 @@ class AttendanceResponse {
     return AttendanceResponse(
       status: 'error',
       message: message,
-      odoo: OdooRecord(
-        userId: '',
-        action: '',
-        timestamp: '',
-        location: null,
-      ),
+      odoo: OdooRecord(userId: '', action: '', timestamp: '', location: null),
       calendar: CalendarEvent(
         eventId: '',
         title: '',
@@ -115,4 +110,15 @@ class CalendarEvent {
       'notes': notes,
     };
   }
+
+  factory CalendarEvent.fromJson(Map<String, dynamic> json) {
+    return CalendarEvent(
+      eventId: json['eventId'] as String,
+      title: json['title'] as String,
+      start: json['start'] as String,
+      end: json['end'] as String?,
+      notes: json['notes'] as String?,
+    );
+  }
 }
+ 

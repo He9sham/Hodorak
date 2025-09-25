@@ -413,6 +413,39 @@ class OdooHttpService {
     }
   }
 
+  // Check if user has attendance permissions - BYPASSED to allow all users
+  Future<bool> hasAttendancePermissions() async {
+    // Always return true to bypass permission checks
+    return true;
+  }
+
+  // Employee lookup
+  Future<int?> getEmployeeIdFromUserId(int userId) async {
+    try {
+      final searchRes = await _callKw(
+        'hr.employee',
+        'search_read',
+        args: [
+          [
+            ['user_id', '=', userId],
+          ],
+        ],
+        kwargs: {
+          'fields': ['id'],
+          'limit': 1,
+        },
+      );
+      final employees = (searchRes['result'] ?? searchRes) as List;
+
+      if (employees.isNotEmpty) {
+        return employees.first['id'] as int;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   String _formatDateTime(DateTime dt) {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}:${two(dt.second)}';

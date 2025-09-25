@@ -96,14 +96,6 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                 },
               ),
               _buildDrawerItem(
-                icon: Icons.work,
-                title: 'Attendance',
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navigate to attendance screen
-                },
-              ),
-              _buildDrawerItem(
                 icon: Icons.real_estate_agent,
                 title: 'Requests',
                 onTap: () {

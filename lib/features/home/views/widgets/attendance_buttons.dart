@@ -1,0 +1,589 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodorak/core/providers/attendance_provider.dart';
+import 'package:hodorak/core/providers/auth_state_manager.dart';
+
+class AttendanceButtons extends ConsumerStatefulWidget {
+  const AttendanceButtons({super.key});
+
+  @override
+  ConsumerState<AttendanceButtons> createState() => _AttendanceButtonsState();
+}
+
+class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
+  bool _isLoading = false;
+  late Timer _timer;
+  String _currentTime = '';
+  String _currentDate = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _updateDateTime();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _updateDateTime();
+    });
+  }
+
+  // Permission checking removed - all users allowed to use attendance features
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void _updateDateTime() {
+    final now = DateTime.now();
+    setState(() {
+      _currentTime = _formatTime(now);
+      _currentDate = _formatDate(now);
+    });
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final second = dateTime.second.toString().padLeft(2, '0');
+    return '$hour:$minute:$second';
+  }
+
+  String _formatDate(DateTime dateTime) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const weekdays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
+    final weekday = weekdays[dateTime.weekday - 1];
+    final month = months[dateTime.month - 1];
+    final day = dateTime.day;
+    final year = dateTime.year;
+
+    return '$weekday, $month $day, $year';
+  }
+
+  String _formatDateForOdoo(DateTime dateTime) {
+    final year = dateTime.year;
+    final month = dateTime.month.toString().padLeft(2, '0');
+    final day = dateTime.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
+  String _formatDateDisplay(DateTime dateTime) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    final month = months[dateTime.month - 1];
+    final day = dateTime.day;
+    final year = dateTime.year;
+
+    return '$month $day, $year';
+  }
+
+  Future<void> _handleCheckIn() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authState = ref.read(authStateManagerProvider);
+      final odooService = ref.read(odooHttpServiceProvider);
+
+      if (!authState.isAuthenticated || authState.uid == null) {
+        _showErrorMessage('You are not authenticated. Please login again.');
+        return;
+      }
+
+      // Get employee ID from user ID
+      final employeeId = await odooService.getEmployeeIdFromUserId(
+        authState.uid!,
+      );
+
+      if (employeeId == null) {
+        _showErrorMessage(
+          'You are not an employee in the company. Please contact the admin.',
+        );
+        return;
+      }
+
+      // Perform check in
+      await odooService.checkIn(employeeId);
+
+      // Refresh attendance data through the provider (optional)
+      _refreshAttendanceData();
+
+      _showSuccessMessage('Check In successful');
+    } catch (e) {
+      _showErrorMessage('Check In failed: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleCheckOut() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authState = ref.read(authStateManagerProvider);
+      final odooService = ref.read(odooHttpServiceProvider);
+
+      if (!authState.isAuthenticated || authState.uid == null) {
+        _showErrorMessage('You are not authenticated. Please login again.');
+        return;
+      }
+
+      // Get employee ID from user ID
+      final employeeId = await odooService.getEmployeeIdFromUserId(
+        authState.uid!,
+      );
+
+      if (employeeId == null) {
+        _showErrorMessage(
+          'You are not an employee in the company. Please contact the admin.',
+        );
+        return;
+      }
+
+      // Perform check out
+      final success = await odooService.checkOut(employeeId);
+
+      if (success) {
+        // Refresh attendance data through the provider (optional)
+        _refreshAttendanceData();
+
+        _showSuccessMessage('Check Out successful');
+      } else {
+        _showErrorMessage(
+          'No open attendance record found. Please check in first.',
+        );
+      }
+    } catch (e) {
+      _showErrorMessage('Check Out failed: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showSuccessMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void _showErrorMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
+  // Permission error dialog removed - all users allowed to use attendance features
+
+  Future<void> _handleTemporaryLeave() async {
+    if (_isLoading) return;
+
+    // Show dialog to get leave details
+    final result = await _showLeaveRequestDialog();
+    if (result == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authState = ref.read(authStateManagerProvider);
+      final odooService = ref.read(odooHttpServiceProvider);
+
+      if (!authState.isAuthenticated || authState.uid == null) {
+        _showErrorMessage('You are not authenticated. Please login again.');
+        return;
+      }
+
+      // Get employee ID from user ID
+      final employeeId = await odooService.getEmployeeIdFromUserId(
+        authState.uid!,
+      );
+
+      if (employeeId == null) {
+        _showErrorMessage(
+          'You are not an employee in the company. Please contact the admin.',
+        );
+        return;
+      }
+
+      // Request leave
+      await odooService.requestLeave(
+        employeeId: employeeId,
+        dateFrom: result['dateFrom']!,
+        dateTo: result['dateTo']!,
+        reason: result['reason']!,
+      );
+
+      _showSuccessMessage('Temporary leave request submitted successfully');
+    } catch (e) {
+      _showErrorMessage('Leave request failed: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<Map<String, String>?> _showLeaveRequestDialog() async {
+    final reasonController = TextEditingController();
+    DateTime? startDate;
+    DateTime? endDate;
+
+    return showDialog<Map<String, String>>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Request Temporary Leave'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: reasonController,
+                      decoration: const InputDecoration(
+                        labelText: 'Reason for leave',
+                        hintText: 'Enter the reason for your temporary leave',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton.icon(
+                            onPressed: () async {
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime.now().add(
+                                  const Duration(days: 365),
+                                ),
+                              );
+                              if (date != null) {
+                                setState(() {
+                                  startDate = date;
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.calendar_today),
+                            label: Text(
+                              startDate != null
+                                  ? _formatDateDisplay(startDate!)
+                                  : 'Start Date',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextButton.icon(
+                            onPressed: () async {
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: startDate ?? DateTime.now(),
+                                firstDate: startDate ?? DateTime.now(),
+                                lastDate: DateTime.now().add(
+                                  const Duration(days: 365),
+                                ),
+                              );
+                              if (date != null) {
+                                setState(() {
+                                  endDate = date;
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.calendar_today),
+                            label: Text(
+                              endDate != null
+                                  ? _formatDateDisplay(endDate!)
+                                  : 'End Date',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (reasonController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a reason for leave'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    if (startDate == null || endDate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please select start and end dates'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    Navigator.of(context).pop({
+                      'reason': reasonController.text.trim(),
+                      'dateFrom': _formatDateForOdoo(startDate!),
+                      'dateTo': _formatDateForOdoo(endDate!),
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff8C9F5F),
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _refreshAttendanceData() {
+    // Try to refresh attendance data through the provider
+    // This is optional and won't block the success message if it fails
+    Future.microtask(() async {
+      try {
+        final attendanceNotifier = ref.read(currentAttendanceProvider.notifier);
+        await attendanceNotifier.loadAttendance();
+      } catch (e) {
+        // If attendance provider fails, just log it but don't block success
+        print('Failed to refresh attendance data: $e');
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Attendance',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xff8C9F5F),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          // Date and Time Display
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xff8C9F5F).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  _currentTime,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff8C9F5F),
+                  ),
+                ),
+                Text(
+                  _currentDate,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _handleCheckIn,
+                  icon: _isLoading
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Icon(Icons.login, color: Colors.white),
+                  label: Text(
+                    'Check In',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff8C9F5F),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _handleCheckOut,
+                  icon: _isLoading
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Icon(Icons.logout, color: Colors.white),
+                  label: Text(
+                    'Check Out',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Temporary Leave Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _isLoading ? null : _handleTemporaryLeave,
+              icon: _isLoading
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Icon(Icons.schedule, color: Colors.white),
+              label: Text(
+                'Request Temporary Leave',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
