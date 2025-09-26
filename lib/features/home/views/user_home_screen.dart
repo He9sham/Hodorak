@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/providers/daily_summary_provider.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_buttons.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
 import 'package:hodorak/features/home/views/widgets/geo_location.dart';
@@ -13,6 +14,8 @@ class UserHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateManagerProvider);
+    final dailySummaryState = ref.watch(currentDailySummaryProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -48,7 +51,10 @@ class UserHomeScreen extends ConsumerWidget {
               verticalSpace(16),
               GeoLocation(),
               verticalSpace(16),
-              QuickSummary(),
+              QuickSummary(
+                attendanceSummary: dailySummaryState.summary,
+                currentUserId: authState.uid,
+              ),
               verticalSpace(16),
             ],
           ),
