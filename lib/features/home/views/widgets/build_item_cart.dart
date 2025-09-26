@@ -19,9 +19,7 @@ class BuildItemCartRowTwo extends StatelessWidget {
             subtitle: 'Manage your profile',
             onTap: () {
               // Navigate to profile screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile feature coming soon!')),
-              );
+              context.pushNamed(Routes.profile);
             },
           ),
         ),
