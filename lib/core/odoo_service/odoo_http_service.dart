@@ -446,6 +446,82 @@ class OdooHttpService {
     }
   }
 
+  // Get user profile information
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    await _loadSession();
+    if (_uid == null) {
+      return null;
+    }
+
+    try {
+      // First get the employee record linked to the user
+      final employeeRes = await _callKw(
+        'hr.employee',
+        'search_read',
+        args: [
+          [
+            ['user_id', '=', _uid],
+          ],
+        ],
+        kwargs: {
+          'fields': [
+            'id',
+            'name',
+            'job_title',
+            'work_email',
+            'work_phone',
+            'identification_id',
+            'create_date',
+            'department_id',
+          ],
+          'limit': 1,
+        },
+      );
+      final employees = (employeeRes['result'] ?? employeeRes) as List;
+
+      if (employees.isNotEmpty) {
+        final employee = employees.first;
+
+        // Get department name if department_id exists
+        String? departmentName;
+        if (employee['department_id'] != null &&
+            employee['department_id'] is List) {
+          final deptId = employee['department_id'][0] as int;
+          try {
+            final deptRes = await _callKw(
+              'hr.department',
+              'read',
+              args: [
+                [deptId],
+                ['name'],
+              ],
+            );
+            final departments = (deptRes['result'] ?? deptRes) as List;
+            if (departments.isNotEmpty) {
+              departmentName = departments.first['name'] as String;
+            }
+          } catch (e) {
+            // If department fetch fails, continue without it
+          }
+        }
+
+        return {
+          'employee_id': employee['id'],
+          'name': employee['name'],
+          'job_title': employee['job_title'] ?? 'N/A',
+          'work_email': employee['work_email'] ?? 'N/A',
+          'work_phone': employee['work_phone'] ?? 'N/A',
+          'national_id': employee['identification_id'] ?? 'N/A',
+          'hire_date': employee['create_date'] ?? 'N/A',
+          'department': departmentName ?? 'N/A',
+        };
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   String _formatDateTime(DateTime dt) {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}:${two(dt.second)}';
