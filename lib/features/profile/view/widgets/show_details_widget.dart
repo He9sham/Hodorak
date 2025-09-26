@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/providers/user_profile_provider.dart';
 
 class ShowDetailsWidget extends ConsumerWidget {
@@ -9,6 +10,7 @@ class ShowDetailsWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userProfileState = ref.watch(userProfileProvider);
+    final authState = ref.watch(authStateManagerProvider);
 
     return Stack(
       children: [
@@ -48,11 +50,23 @@ class ShowDetailsWidget extends ConsumerWidget {
           child: Container(
             width: 100.w,
             height: 100.h,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: const DecorationImage(
-                fit: BoxFit.cover,
-                image: AssetImage('assets/unsplash_CHqrLlwebdM.png'),
+            decoration: BoxDecoration(shape: BoxShape.circle),
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.white,
+              child: CircleAvatar(
+                radius: 38,
+                backgroundColor: Color(0xff8C9F5F).withValues(alpha: 0.1),
+                child: Text(
+                  authState.name?.isNotEmpty == true
+                      ? authState.name![0].toUpperCase()
+                      : 'U',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff8C9F5F),
+                  ),
+                ),
               ),
             ),
           ),
@@ -72,7 +86,7 @@ class ShowDetailsWidget extends ConsumerWidget {
         ),
         Positioned(
           bottom: 60.h,
-          left: 85.w,
+          left: 155.w,
           child: Text(
             _formatJobTitle(userProfileState.profileData),
             style: TextStyle(
@@ -98,7 +112,7 @@ class ShowDetailsWidget extends ConsumerWidget {
         ),
         Positioned(
           bottom: 29.h,
-          left: 200.w,
+          left: 150.w,
           child: Container(
             width: 5.w,
             height: 5.h,
@@ -110,7 +124,7 @@ class ShowDetailsWidget extends ConsumerWidget {
         ),
         Positioned(
           bottom: 24.h,
-          right: 143.w,
+          left: 160.w,
           child: Icon(Icons.email, size: 14.sp),
         ),
         Positioned(

@@ -6,8 +6,8 @@ import 'package:hodorak/core/providers/user_profile_provider.dart';
 import 'package:hodorak/features/profile/view/widgets/profile_details_employee.dart';
 
 class ProfileDetails extends ConsumerWidget {
-  const ProfileDetails({super.key});
-
+  ProfileDetails({super.key});
+  final List<String> modelTitle = ['employee_id', 'national_id', 'hire_date'];
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userProfileState = ref.watch(userProfileProvider);
@@ -49,7 +49,7 @@ class ProfileDetails extends ConsumerWidget {
                   ProfileDetailsEmployee(
                     title: 'Employee ID',
                     subtitle:
-                        userProfileState.profileData?['employee_id']
+                        userProfileState.profileData?[modelTitle[0]]
                             ?.toString() ??
                         'N/A',
                   ),
@@ -57,13 +57,13 @@ class ProfileDetails extends ConsumerWidget {
                   ProfileDetailsEmployee(
                     title: 'National ID',
                     subtitle:
-                        userProfileState.profileData?['national_id'] ?? 'N/A',
+                        userProfileState.profileData?[modelTitle[1]] ?? 'N/A',
                   ),
                   verticalSpace(16),
                   ProfileDetailsEmployee(
                     title: 'Hire Date',
                     subtitle: _formatHireDate(
-                      userProfileState.profileData?['hire_date'],
+                      userProfileState.profileData?[modelTitle[2]],
                     ),
                   ),
                 ],
