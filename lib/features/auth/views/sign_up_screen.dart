@@ -59,16 +59,49 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     final latest = ref.read(signUpNotifierProvider);
     if (latest.error != null) {
-      final msg = latest.error!.contains('Only admins can create accounts.')
-          ? 'Only admins can create accounts.'
-          : latest.error!;
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
+      String errorMsg = latest.error!;
+      Color backgroundColor = Colors.red;
+      SnackBarAction? action;
+
+      if (latest.error!.contains('No internet connection') ||
+          latest.error!.contains('Network error') ||
+          latest.error!.contains('HTTP error')) {
+        errorMsg =
+            'No internet connection. Please check your network settings and try again.';
+        backgroundColor = Colors.orange;
+        action = SnackBarAction(
+          label: 'Retry',
+          textColor: Colors.white,
+          onPressed: () => _onSubmit(),
+        );
+      } else if (latest.error!.contains('Only admins can create accounts.')) {
+        errorMsg = 'Only administrators can create new accounts.';
+        backgroundColor = Colors.red;
+      } else if (latest.error!.contains('Access denied')) {
+        errorMsg =
+            'Access denied. Only administrators can create employee accounts.';
+        backgroundColor = Colors.red;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: backgroundColor,
+          duration: const Duration(seconds: 4),
+          action: action,
+        ),
+      );
     } else if (latest.message != null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(latest.message!)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(latest.message!),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -336,11 +369,79 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   verticalSpace(48),
 
                   if (signUpState.error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        signUpState.error!,
-                        style: const TextStyle(color: Colors.red),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color:
+                            signUpState.error!.contains(
+                                  'No internet connection',
+                                ) ||
+                                signUpState.error!.contains('Network error') ||
+                                signUpState.error!.contains('HTTP error')
+                            ? Colors.orange.withOpacity(0.1)
+                            : Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color:
+                              signUpState.error!.contains(
+                                    'No internet connection',
+                                  ) ||
+                                  signUpState.error!.contains(
+                                    'Network error',
+                                  ) ||
+                                  signUpState.error!.contains('HTTP error')
+                              ? Colors.orange
+                              : Colors.red,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            signUpState.error!.contains(
+                                      'No internet connection',
+                                    ) ||
+                                    signUpState.error!.contains(
+                                      'Network error',
+                                    ) ||
+                                    signUpState.error!.contains('HTTP error')
+                                ? Icons.wifi_off
+                                : Icons.error,
+                            color:
+                                signUpState.error!.contains(
+                                      'No internet connection',
+                                    ) ||
+                                    signUpState.error!.contains(
+                                      'Network error',
+                                    ) ||
+                                    signUpState.error!.contains('HTTP error')
+                                ? Colors.orange
+                                : Colors.red,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              signUpState.error!,
+                              style: TextStyle(
+                                color:
+                                    signUpState.error!.contains(
+                                          'No internet connection',
+                                        ) ||
+                                        signUpState.error!.contains(
+                                          'Network error',
+                                        ) ||
+                                        signUpState.error!.contains(
+                                          'HTTP error',
+                                        )
+                                    ? Colors.orange.shade800
+                                    : Colors.red.shade800,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   if (signUpState.message != null)

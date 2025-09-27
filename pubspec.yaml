@@ -24,6 +24,7 @@ environment:
 
 dependencies:
   animated_splash_screen: ^1.3.0
+  connectivity_plus: ^6.1.0
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter

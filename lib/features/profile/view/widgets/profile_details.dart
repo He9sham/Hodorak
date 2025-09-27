@@ -57,7 +57,9 @@ class ProfileDetails extends ConsumerWidget {
                   ProfileDetailsEmployee(
                     title: 'National ID',
                     subtitle:
-                        userProfileState.profileData?[modelTitle[1]] ?? 'N/A',
+                        userProfileState.profileData?[modelTitle[1]]
+                            .toString() ??
+                        'Not Set',
                   ),
                   verticalSpace(16),
                   ProfileDetailsEmployee(

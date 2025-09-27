@@ -1,13 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../unknwon_for_database.dart';
+import '../services/network_service.dart';
 
 class OdooHttpService {
   final String baseUrl;
   final String dbName;
+  final NetworkService _networkService;
 
   String? _sessionId;
   int? _uid;
@@ -15,7 +18,8 @@ class OdooHttpService {
   OdooHttpService({
     this.baseUrl = OdooDatabase.baseUrl,
     this.dbName = OdooDatabase.kNameDatabase,
-  });
+    NetworkService? networkService,
+  }) : _networkService = networkService ?? NetworkService();
 
   // Session management
   Future<void> _loadSession() async {
@@ -49,6 +53,16 @@ class OdooHttpService {
     return _uid != null && _sessionId != null;
   }
 
+  // Check network connectivity before making requests
+  Future<void> _checkNetworkConnectivity() async {
+    final hasInternet = await _networkService.hasInternetConnection();
+    if (!hasInternet) {
+      throw OdooNetworkException(
+        'No internet connection. Please check your network settings.',
+      );
+    }
+  }
+
   // Helpers
   Uri _jsonRpcUrl([String path = '/jsonrpc']) => Uri.parse('$baseUrl$path');
   Map<String, String> _headers() => {
@@ -62,7 +76,9 @@ class OdooHttpService {
     List args, {
     Map<String, dynamic>? kwargs,
   }) async {
+    await _checkNetworkConnectivity();
     await _loadSession();
+
     final payload = {
       'jsonrpc': '2.0',
       'method': 'call',
@@ -75,29 +91,42 @@ class OdooHttpService {
       'id': DateTime.now().millisecondsSinceEpoch,
     };
 
-    final response = await http.post(
-      _jsonRpcUrl(),
-      headers: _headers(),
-      body: jsonEncode(payload),
-    );
-
-    if (response.statusCode != 200) {
-      throw OdooServerException(
-        'HTTP ${response.statusCode}: ${response.body}',
+    try {
+      final response = await http.post(
+        _jsonRpcUrl(),
+        headers: _headers(),
+        body: jsonEncode(payload),
       );
-    }
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (data['error'] != null) {
-      final msg = data['error']['data']?['message']?.toString() ?? 'Odoo error';
-      if (msg.contains('Access Denied')) {
-        throw OdooAuthException(
-          'Invalid email/password or insufficient rights',
+      if (response.statusCode != 200) {
+        throw OdooServerException(
+          'HTTP ${response.statusCode}: ${response.body}',
         );
       }
-      throw OdooServerException(msg);
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (data['error'] != null) {
+        final msg =
+            data['error']['data']?['message']?.toString() ?? 'Odoo error';
+        if (msg.contains('Access Denied')) {
+          throw OdooAuthException(
+            'Invalid email/password or insufficient rights',
+          );
+        }
+        throw OdooServerException(msg);
+      }
+      return data['result'];
+    } on SocketException {
+      throw OdooNetworkException(
+        'Network error. Please check your internet connection.',
+      );
+    } on HttpException {
+      throw OdooNetworkException(
+        'HTTP error. Please check your connection to the server.',
+      );
+    } on FormatException {
+      throw OdooServerException('Invalid response format from server.');
     }
-    return data['result'];
   }
 
   Future<Map<String, dynamic>> _callKw(
@@ -106,7 +135,9 @@ class OdooHttpService {
     List<dynamic>? args,
     Map<String, dynamic>? kwargs,
   }) async {
+    await _checkNetworkConnectivity();
     await _loadSession();
+
     final url = Uri.parse('$baseUrl/web/dataset/call_kw/$model/$method');
     final body = jsonEncode({
       'id': DateTime.now().millisecondsSinceEpoch,
@@ -120,19 +151,33 @@ class OdooHttpService {
         'context': {},
       },
     });
-    final resp = await http.post(url, headers: _headers(), body: body);
-    if (resp.statusCode != 200) {
-      throw OdooServerException('HTTP ${resp.statusCode}: ${resp.body}');
-    }
-    final data = jsonDecode(resp.body) as Map<String, dynamic>;
-    if (data['error'] != null) {
-      final msg = data['error']['data']?['message']?.toString() ?? 'Odoo error';
-      if (msg.contains('Access Denied') || msg.contains('Not authorized')) {
-        throw OdooPermissionException('Not authorized');
+
+    try {
+      final resp = await http.post(url, headers: _headers(), body: body);
+      if (resp.statusCode != 200) {
+        throw OdooServerException('HTTP ${resp.statusCode}: ${resp.body}');
       }
-      throw OdooServerException(msg);
+      final data = jsonDecode(resp.body) as Map<String, dynamic>;
+      if (data['error'] != null) {
+        final msg =
+            data['error']['data']?['message']?.toString() ?? 'Odoo error';
+        if (msg.contains('Access Denied') || msg.contains('Not authorized')) {
+          throw OdooPermissionException('Not authorized');
+        }
+        throw OdooServerException(msg);
+      }
+      return Map<String, dynamic>.from(data);
+    } on SocketException {
+      throw OdooNetworkException(
+        'Network error. Please check your internet connection.',
+      );
+    } on HttpException {
+      throw OdooNetworkException(
+        'HTTP error. Please check your connection to the server.',
+      );
+    } on FormatException {
+      throw OdooServerException('Invalid response format from server.');
     }
-    return Map<String, dynamic>.from(data);
   }
 
   // Auth
@@ -140,6 +185,8 @@ class OdooHttpService {
     required String login,
     required String password,
   }) async {
+    await _checkNetworkConnectivity();
+
     final result = await _jsonRpc('common', 'authenticate', [
       dbName,
       login,
@@ -155,28 +202,46 @@ class OdooHttpService {
 
     // fetch session id from cookie by hitting web/session/authenticate
     final authUrl = Uri.parse('$baseUrl/web/session/authenticate');
-    final resp = await http.post(
-      authUrl,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'jsonrpc': '2.0',
-        'params': {'db': dbName, 'login': login, 'password': password},
-      }),
-    );
-    if (resp.statusCode != 200) {
-      throw OdooAuthException('Login failed: ${resp.statusCode}');
-    }
-    final setCookie = resp.headers['set-cookie'];
-    if (setCookie == null || !setCookie.contains('session_id=')) {
-      throw OdooAuthException('No session cookie received');
-    }
-    final sess = RegExp(r'session_id=([^;]+)').firstMatch(setCookie)?.group(1);
-    if (sess == null) throw OdooAuthException('Failed parsing session cookie');
 
-    await _saveSession(sess, uid);
+    try {
+      final resp = await http.post(
+        authUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'jsonrpc': '2.0',
+          'params': {'db': dbName, 'login': login, 'password': password},
+        }),
+      );
+      if (resp.statusCode != 200) {
+        throw OdooAuthException('Login failed: ${resp.statusCode}');
+      }
+      final setCookie = resp.headers['set-cookie'];
+      if (setCookie == null || !setCookie.contains('session_id=')) {
+        throw OdooAuthException('No session cookie received');
+      }
+      final sess = RegExp(
+        r'session_id=([^;]+)',
+      ).firstMatch(setCookie)?.group(1);
+      if (sess == null)
+        throw OdooAuthException('Failed parsing session cookie');
 
-    // session established
-    return {'uid': uid, 'session_id': sess};
+      await _saveSession(sess, uid);
+
+      // session established
+      return {'uid': uid, 'session_id': sess};
+    } on SocketException {
+      throw OdooNetworkException(
+        'Network error during login. Please check your internet connection.',
+      );
+    } on HttpException {
+      throw OdooNetworkException(
+        'HTTP error during login. Please check your connection to the server.',
+      );
+    } on FormatException {
+      throw OdooServerException(
+        'Invalid response format from server during login.',
+      );
+    }
   }
 
   Future<bool> isAdmin() async {
@@ -546,6 +611,13 @@ class OdooAuthException implements Exception {
 class OdooServerException implements Exception {
   final String message;
   OdooServerException(this.message);
+  @override
+  String toString() => message;
+}
+
+class OdooNetworkException implements Exception {
+  final String message;
+  OdooNetworkException(this.message);
   @override
   String toString() => message;
 }

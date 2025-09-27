@@ -62,14 +62,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.pushReplacementNamed(route);
       }
     } catch (e) {
-      // Handle wrong password and other errors with SnackBar
+      // Handle different types of errors with appropriate messages
       if (mounted) {
-        final errorMsg = e.toString().contains('Invalid credentials')
-            ? 'Wrong password'
-            : e.toString();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errorMsg)));
+        String errorMsg;
+
+        if (e.toString().contains('No internet connection') ||
+            e.toString().contains('Network error') ||
+            e.toString().contains('HTTP error')) {
+          errorMsg =
+              'No internet connection. Please check your network settings and try again.';
+        } else if (e.toString().contains('Invalid credentials') ||
+            e.toString().contains('password or email has wrong')) {
+          errorMsg = 'Invalid email or password. Please try again.';
+        } else {
+          errorMsg = e.toString();
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: errorMsg.contains('No internet connection')
+                ? Colors.orange
+                : Colors.red,
+            duration: const Duration(seconds: 4),
+            action: errorMsg.contains('No internet connection')
+                ? SnackBarAction(
+                    label: 'Retry',
+                    textColor: Colors.white,
+                    onPressed: () => login(),
+                  )
+                : null,
+          ),
+        );
       }
     }
   }

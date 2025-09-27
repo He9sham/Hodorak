@@ -73,11 +73,21 @@ class AuthStateManager extends StateNotifier<AuthState> {
       }
     } catch (e) {
       // If there's an error checking auth state, clear it
+      String errorMessage = e.toString();
+
+      // Handle network connectivity errors specifically
+      if (e.toString().contains('Network error') ||
+          e.toString().contains('No internet connection') ||
+          e.toString().contains('HTTP error')) {
+        errorMessage =
+            'No internet connection. Please check your network settings.';
+      }
+
       state = state.copyWith(
         isAuthenticated: false,
         isAdmin: false,
         isLoading: false,
-        error: e.toString(),
+        error: errorMessage,
       );
     }
   }
@@ -110,11 +120,24 @@ class AuthStateManager extends StateNotifier<AuthState> {
         name: email,
       );
     } catch (e) {
+      String errorMessage = e.toString();
+
+      // Handle network connectivity errors specifically
+      if (e.toString().contains('Network error') ||
+          e.toString().contains('No internet connection') ||
+          e.toString().contains('HTTP error')) {
+        errorMessage =
+            'No internet connection. Please check your network settings.';
+      } else if (e.toString().contains('Invalid credentials') ||
+          e.toString().contains('password or email has wrong')) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      }
+
       state = state.copyWith(
         isAuthenticated: false,
         isAdmin: false,
         isLoading: false,
-        error: e.toString(),
+        error: errorMessage,
       );
       rethrow;
     }

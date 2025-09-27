@@ -49,10 +49,22 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         message: 'User created with id $id',
       );
     } catch (e) {
-      final msg = e.toString().contains('Only admins can create accounts.')
-          ? 'Only admins can create accounts.'
-          : e.toString();
-      state = state.copyWith(isLoading: false, error: msg);
+      String errorMessage = e.toString();
+
+      // Handle network connectivity errors specifically
+      if (e.toString().contains('Network error') ||
+          e.toString().contains('No internet connection') ||
+          e.toString().contains('HTTP error')) {
+        errorMessage =
+            'No internet connection. Please check your network settings.';
+      } else if (e.toString().contains('Only admins can create accounts.')) {
+        errorMessage = 'Only admins can create accounts.';
+      } else if (e.toString().contains('Access denied')) {
+        errorMessage =
+            'Access denied. Only administrators can create employee accounts.';
+      }
+
+      state = state.copyWith(isLoading: false, error: errorMessage);
     }
   }
 }
