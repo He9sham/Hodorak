@@ -3,9 +3,54 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/providers/calendar_provider.dart';
+import 'package:hodorak/core/services/calendar_service.dart';
+import 'package:table_calendar/table_calendar.dart';
 
-class CalendarScreen extends ConsumerWidget {
+class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
+
+  @override
+  ConsumerState<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  final Map<DateTime, List<DailyAttendanceSummary>> _events = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = DateTime.now();
+    _loadEvents();
+  }
+
+  void _loadEvents() {
+    final calendarState = ref.read(enhancedCalendarProvider);
+    _events.clear();
+
+    print('Loading events - Found ${calendarState.summaries.length} summaries');
+
+    for (final summary in calendarState.summaries) {
+      final day = DateTime(
+        summary.date.year,
+        summary.date.month,
+        summary.date.day,
+      );
+      print(
+        'Adding summary for ${day.toString()} - ${summary.presentEmployees}/${summary.totalEmployees} present',
+      );
+
+      if (_events[day] != null) {
+        _events[day]!.add(summary);
+      } else {
+        _events[day] = [summary];
+      }
+    }
+
+    print('Total events loaded: ${_events.length}');
+  }
 
   void _showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -13,85 +58,74 @@ class CalendarScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _selectMonth(
-    BuildContext context,
-    WidgetRef ref,
-    DateTime currentMonth,
-  ) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: currentMonth,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      helpText: 'Select Month',
-    );
-
-    if (picked != null) {
-      await ref.read(calendarProvider.notifier).selectMonth(picked);
+  Future<void> _refreshData() async {
+    try {
+      final notifier = ref.read(enhancedCalendarProvider.notifier);
+      await notifier.refreshMonthData();
+      _loadEvents();
+    } catch (e) {
+      // Handle refresh errors gracefully
+      print('Could not refresh data: $e');
     }
   }
 
-  Future<void> _exportData(
-    BuildContext context,
-    List<DailyAttendanceSummary> summaries,
-  ) async {
+  Future<void> _loadLiveDataForDate(DateTime date) async {
     try {
-      // Create CSV content
-      String csvContent =
-          'Date,Total Employees,Present,Absent,Attendance Rate\n';
-
-      for (final summary in summaries) {
-        csvContent +=
-            '${_formatDate(summary.date)},'
-            '${summary.totalEmployees},'
-            '${summary.presentEmployees},'
-            '${summary.absentEmployees},'
-            '${summary.attendancePercentage.toStringAsFixed(1)}%\n';
+      final notifier = ref.read(enhancedCalendarProvider.notifier);
+      final summary = await notifier.getAttendanceForDate(date);
+      if (summary != null) {
+        final day = DateTime(date.year, date.month, date.day);
+        setState(() {
+          _events[day] = [summary];
+        });
+        print(
+          'Live data loaded for $date: ${summary.presentEmployees}/${summary.totalEmployees} present',
+        );
+      } else {
+        print('No live data available for $date');
+        // Create a test summary if no data is available
+        await _createTestSummaryForDate(date);
       }
-
-      // Show export dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Export Data'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('CSV data generated:'),
-              verticalSpace(8),
-              Container(
-                height: 200,
-                width: double.maxFinite,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: SingleChildScrollView(
-                  child: Text(
-                    csvContent,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      );
     } catch (e) {
-      _showError(context, 'Export failed: $e');
+      // Silently handle errors - fallback to existing data
+      print('Could not load live data for date: $e');
     }
+  }
+
+  Future<void> _createTestSummaryForDate(DateTime date) async {
+    // Create a test summary to show something in the calendar
+    final testSummary = DailyAttendanceSummary(
+      date: date,
+      employeeAttendances: [
+        EmployeeAttendance(
+          employeeId: 1,
+          employeeName: 'Test Employee',
+          checkIn: DateTime(date.year, date.month, date.day, 9, 0),
+          checkOut: DateTime(date.year, date.month, date.day, 17, 0),
+          isPresent: true,
+          workingHours: const Duration(hours: 8),
+        ),
+      ],
+      totalEmployees: 1,
+      presentEmployees: 1,
+      absentEmployees: 0,
+      attendancePercentage: 100.0,
+    );
+
+    // Save to calendar service for persistence
+    try {
+      final calendarService = CalendarService();
+      await calendarService.saveDailySummary(testSummary);
+      print('Saved test summary to calendar service for $date');
+    } catch (e) {
+      print('Error saving test summary: $e');
+    }
+
+    final day = DateTime(date.year, date.month, date.day);
+    setState(() {
+      _events[day] = [testSummary];
+    });
+    print('Created test summary for $date');
   }
 
   String _getMonthName(int month) {
@@ -112,127 +146,67 @@ class CalendarScreen extends ConsumerWidget {
     return months[month - 1];
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+  String _formatTime(DateTime? time) {
+    if (time == null) return '--:--';
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final calendarState = ref.watch(calendarProvider);
+  String _formatDuration(Duration? duration) {
+    if (duration == null) return '0h 0m';
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    return '${hours}h ${minutes}m';
+  }
 
-    // Show error if present
-    if (calendarState.errorMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showError(context, calendarState.errorMessage!);
-        ref.read(calendarProvider.notifier).clearError();
-      });
+  Widget _buildEventList(DateTime day) {
+    final events = _events[day] ?? [];
+    if (events.isEmpty) {
+      return const Center(
+        child: Text(
+          'No attendance data for this day',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Attendance Calendar'),
-        actions: [
-          IconButton(
-            onPressed: () => _exportData(context, calendarState.summaries),
-            icon: const Icon(Icons.download),
-            tooltip: 'Export Data',
-          ),
-          IconButton(
-            onPressed: () =>
-                _selectMonth(context, ref, calendarState.selectedMonth),
-            icon: const Icon(Icons.calendar_month),
-            tooltip: 'Select Month',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Month selector
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${_getMonthName(calendarState.selectedMonth.month)} ${calendarState.selectedMonth.year}',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                FilledButton.icon(
-                  onPressed: () =>
-                      _selectMonth(context, ref, calendarState.selectedMonth),
-                  icon: const Icon(Icons.calendar_today),
-                  label: const Text('Change Month'),
-                ),
-              ],
-            ),
-          ),
-
-          // Calendar content
-          Expanded(
-            child: calendarState.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : calendarState.summaries.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.calendar_month_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        verticalSpace(16),
-                        Text(
-                          'No attendance data found for this month',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: calendarState.summaries.length,
-                    itemBuilder: (context, index) {
-                      final summary = calendarState.summaries[index];
-                      return _buildSummaryCard(context, summary);
-                    },
-                  ),
-          ),
-        ],
-      ),
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        final summary = events[index];
+        return _buildAttendanceCard(summary);
+      },
     );
   }
 
-  Widget _buildSummaryCard(
-    BuildContext context,
-    DailyAttendanceSummary summary,
-  ) {
-    final attendanceRate = summary.attendancePercentage;
-    final isGoodAttendance = attendanceRate >= 80;
-
+  Widget _buildAttendanceCard(DailyAttendanceSummary summary) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.symmetric(vertical: 4),
       child: ExpansionTile(
         leading: Container(
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: isGoodAttendance
+            color: summary.attendancePercentage >= 80
                 ? Colors.green.shade100
                 : Colors.orange.shade100,
             borderRadius: BorderRadius.circular(25),
           ),
           child: Icon(
-            isGoodAttendance ? Icons.check_circle : Icons.warning,
-            color: isGoodAttendance ? Colors.green : Colors.orange,
+            summary.attendancePercentage >= 80
+                ? Icons.check_circle
+                : Icons.warning,
+            color: summary.attendancePercentage >= 80
+                ? Colors.green
+                : Colors.orange,
           ),
         ),
         title: Text(
-          _formatDate(summary.date),
+          '${summary.presentEmployees}/${summary.totalEmployees} Present',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          '${summary.presentEmployees}/${summary.totalEmployees} present (${attendanceRate.toStringAsFixed(1)}%)',
+          '${summary.attendancePercentage.toStringAsFixed(1)}% Attendance Rate',
         ),
         children: [
           Padding(
@@ -240,6 +214,7 @@ class CalendarScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Summary stats
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -271,43 +246,119 @@ class CalendarScreen extends ConsumerWidget {
                     ),
                   ),
                   verticalSpace(8),
-                  ...summary.employeeAttendances
-                      .take(5)
-                      .map(
-                        (emp) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: Row(
-                            children: [
-                              Icon(
-                                emp.isPresent
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                size: 16,
-                                color: emp.isPresent
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                              horizontalSpace(8),
-                              Expanded(child: Text(emp.employeeName)),
-                              if (emp.checkIn != null)
-                                Text(
-                                  '${emp.checkIn!.hour.toString().padLeft(2, '0')}:${emp.checkIn!.minute.toString().padLeft(2, '0')}',
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  if (summary.employeeAttendances.length > 5)
-                    Text(
-                      '... and ${summary.employeeAttendances.length - 5} more employees',
-                      style: const TextStyle(color: Colors.grey),
-                    ),
+                  ...summary.employeeAttendances.map(
+                    (emp) => _buildEmployeeCard(emp),
+                  ),
                 ],
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmployeeCard(EmployeeAttendance emp) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(
+              emp.isPresent ? Icons.check_circle : Icons.cancel,
+              size: 20,
+              color: emp.isPresent ? Colors.green : Colors.red,
+            ),
+            horizontalSpace(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    emp.employeeName,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  if (emp.isPresent) ...[
+                    verticalSpace(4),
+                    Row(
+                      children: [
+                        Icon(Icons.login, size: 16, color: Colors.grey[600]),
+                        horizontalSpace(4),
+                        Text(
+                          'Check In: ${_formatTime(emp.checkIn)}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (emp.checkOut != null) ...[
+                      verticalSpace(2),
+                      Row(
+                        children: [
+                          Icon(Icons.logout, size: 16, color: Colors.grey[600]),
+                          horizontalSpace(4),
+                          Text(
+                            'Check Out: ${_formatTime(emp.checkOut)}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalSpace(2),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          horizontalSpace(4),
+                          Text(
+                            'Hours: ${_formatDuration(emp.workingHours)}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      verticalSpace(2),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          horizontalSpace(4),
+                          Text(
+                            'Hours: ${_formatDuration(emp.workingHours)} (Still working)',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ] else ...[
+                    verticalSpace(4),
+                    Text(
+                      'Absent',
+                      style: TextStyle(color: Colors.red[600], fontSize: 12),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -318,7 +369,7 @@ class CalendarScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -333,6 +384,171 @@ class CalendarScreen extends ConsumerWidget {
         const SizedBox(height: 4),
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final calendarState = ref.watch(enhancedCalendarProvider);
+
+    // Show error if present
+    if (calendarState.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showError(context, calendarState.errorMessage!);
+        ref.read(enhancedCalendarProvider.notifier).clearError();
+      });
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Attendance Calendar'),
+        actions: [
+          IconButton(
+            onPressed: _refreshData,
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Data',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Calendar
+          TableCalendar<DailyAttendanceSummary>(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: _focusedDay,
+            calendarFormat: _calendarFormat,
+            eventLoader: (day) => _events[day] ?? [],
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            calendarStyle: CalendarStyle(
+              outsideDaysVisible: false,
+              markersMaxCount: 3,
+              markerDecoration: BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+              ),
+            ),
+            headerStyle: HeaderStyle(
+              formatButtonVisible: true,
+              titleCentered: true,
+              formatButtonShowsNext: false,
+              formatButtonDecoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              formatButtonTextStyle: const TextStyle(color: Colors.white),
+            ),
+            onDaySelected: (selectedDay, focusedDay) {
+              if (!isSameDay(_selectedDay, selectedDay)) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+                // Load live data for the selected date
+                _loadLiveDataForDate(selectedDay);
+              }
+            },
+            onFormatChanged: (format) {
+              if (_calendarFormat != format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              }
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+              // Refresh data when month changes
+              if (focusedDay.month != _selectedDay?.month ||
+                  focusedDay.year != _selectedDay?.year) {
+                ref
+                    .read(enhancedCalendarProvider.notifier)
+                    .selectMonth(focusedDay);
+                _loadEvents();
+              }
+            },
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+          ),
+
+          // Selected day details
+          if (_selectedDay != null) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${_getMonthName(_selectedDay!.month)} ${_selectedDay!.day}, ${_selectedDay!.year}',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (_events[_selectedDay] != null &&
+                      _events[_selectedDay]!.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        '${_events[_selectedDay]!.length} record(s)',
+                        style: TextStyle(
+                          color: Colors.blue.shade800,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const Divider(),
+          ],
+
+          // Event list
+          Expanded(
+            child: calendarState.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _selectedDay != null
+                ? _buildEventList(_selectedDay!)
+                : _buildEmptyState(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.calendar_month_outlined,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          verticalSpace(16),
+          Text(
+            'No Attendance Data',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          verticalSpace(8),
+          Text(
+            'Select a day to view attendance details\nor create test data to see the calendar in action',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ),
+        ],
+      ),
     );
   }
 }

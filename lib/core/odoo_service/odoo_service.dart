@@ -49,7 +49,7 @@ class OdooService {
     try {
       return await operation();
     } on OdooSessionExpiredException {
-      print('Session expired, attempting re-authentication...');
+     
       await _reAuthenticate();
       // Retry the operation once after re-authentication
       return await operation();

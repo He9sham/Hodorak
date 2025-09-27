@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/auth/views/login_screen.dart';
 import 'package:hodorak/features/auth/views/sign_up_screen.dart';
+import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
 import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
@@ -29,6 +30,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const AdminHomeScreen());
       case Routes.profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
+      case Routes.calendarScreen:
+        return MaterialPageRoute(builder: (_) => const CalendarScreen());
       default:
         return null;
     }

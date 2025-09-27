@@ -107,8 +107,8 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                 icon: Icons.calendar_today,
                 title: 'Calendar',
                 onTap: () {
-                  Navigator.pop(context);
-                  // Navigate to calendar screen
+                  context.pop();
+                  context.pushNamed(Routes.calendarScreen);
                 },
               ),
               _buildDrawerItem(

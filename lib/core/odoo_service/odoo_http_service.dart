@@ -222,8 +222,9 @@ class OdooHttpService {
       final sess = RegExp(
         r'session_id=([^;]+)',
       ).firstMatch(setCookie)?.group(1);
-      if (sess == null)
+      if (sess == null) {
         throw OdooAuthException('Failed parsing session cookie');
+      }
 
       await _saveSession(sess, uid);
 

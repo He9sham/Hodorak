@@ -33,7 +33,12 @@ class DailyAttendanceService {
   /// Get today's attendance records for all employees
   Future<List<Map<String, dynamic>>> getTodayAttendance() async {
     final today = DateTime.now();
-    final startOfDay = DateTime(today.year, today.month, today.day);
+    return getAttendanceForDate(today);
+  }
+
+  /// Get attendance records for a specific date
+  Future<List<Map<String, dynamic>>> getAttendanceForDate(DateTime date) async {
+    final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     try {
@@ -53,19 +58,26 @@ class DailyAttendanceService {
       });
       return List<Map<String, dynamic>>.from(result);
     } catch (e) {
-      throw Exception('Failed to fetch today\'s attendance: $e');
+      throw Exception('Failed to fetch attendance for date: $e');
     }
   }
 
-  /// Create daily attendance summary
+  /// Create daily attendance summary for today
   Future<DailyAttendanceSummary> createDailySummary() async {
-    final employees = await getAllEmployees();
-    final todayAttendance = await getTodayAttendance();
     final today = DateTime.now();
+    return createDailySummaryForDate(today);
+  }
+
+  /// Create daily attendance summary for a specific date
+  Future<DailyAttendanceSummary> createDailySummaryForDate(
+    DateTime date,
+  ) async {
+    final employees = await getAllEmployees();
+    final attendance = await getAttendanceForDate(date);
 
     // Create a map of employee attendance for quick lookup
     final attendanceMap = <int, Map<String, dynamic>>{};
-    for (final record in todayAttendance) {
+    for (final record in attendance) {
       final empId = record['employee_id'] is List
           ? record['employee_id'][0]
           : record['employee_id'];
@@ -120,7 +132,7 @@ class DailyAttendanceService {
         : 0.0;
 
     return DailyAttendanceSummary(
-      date: today,
+      date: date,
       employeeAttendances: employeeAttendances,
       totalEmployees: totalEmployees,
       presentEmployees: presentCount,
