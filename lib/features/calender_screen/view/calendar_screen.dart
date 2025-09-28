@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/providers/calendar_provider.dart';
+import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/calender_screen/utils/utils.dart';
 import 'package:hodorak/features/calender_screen/view/widgets/widgets.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -30,21 +31,21 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final calendarState = ref.read(enhancedCalendarProvider);
     CalendarHelpers.clearEvents(_events);
 
-    print(
+    Logger.debug(
       'CalendarScreen: Loading events - Found ${calendarState.summaries.length} summaries',
     );
-    print(
+    Logger.debug(
       'CalendarScreen: Calendar state - loading: ${calendarState.isLoading}, error: ${calendarState.errorMessage}',
     );
 
     for (final summary in calendarState.summaries) {
-      print(
+      Logger.debug(
         'CalendarScreen: Adding summary for ${summary.date.toString()} - ${summary.presentEmployees}/${summary.totalEmployees} present',
       );
       CalendarHelpers.addAttendanceToEvents(_events, summary);
     }
 
-    print('CalendarScreen: Total events loaded: ${_events.length}');
+    Logger.info('CalendarScreen: Total events loaded: ${_events.length}');
 
     // Force a rebuild to show the events
     if (mounted) {
@@ -59,24 +60,25 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       _loadEvents();
     } catch (e) {
       // Handle refresh errors gracefully
-      print('Could not refresh data: $e');
+      Logger.error('Could not refresh data: $e');
     }
   }
 
   Future<void> _testDataFetch() async {
-    print('CalendarScreen: Testing data fetch...');
+    Logger.debug('CalendarScreen: Testing data fetch...');
     try {
       final notifier = ref.read(enhancedCalendarProvider.notifier);
       final today = CalendarDateUtils.getToday();
 
-      print('CalendarScreen: Testing fetch for today: $today');
+      Logger.debug('CalendarScreen: Testing fetch for today: $today');
       final summary = await notifier.getAttendanceForDate(today);
 
       if (summary != null) {
-        print(
+        Logger.info(
           'CalendarScreen: SUCCESS - Got user summary: ${summary.presentEmployees > 0 ? "Present" : "Absent"}',
         );
         CalendarHelpers.showSuccess(
+          // ignore: use_build_context_synchronously
           context,
           'Test SUCCESS: You are ${summary.presentEmployees > 0 ? "present" : "absent"} today',
         );
@@ -86,11 +88,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           CalendarHelpers.addAttendanceToEvents(_events, summary);
         });
       } else {
-        print('CalendarScreen: FAILED - No summary returned');
+        Logger.error('CalendarScreen: FAILED - No summary returned');
+        // ignore: use_build_context_synchronously
         CalendarHelpers.showError(context, 'Test FAILED: No data returned');
       }
     } catch (e) {
-      print('CalendarScreen: Test ERROR: $e');
+      Logger.error('CalendarScreen: Test ERROR: $e');
+      // ignore: use_build_context_synchronously
       CalendarHelpers.showError(context, 'Test ERROR: $e');
     }
   }
@@ -99,7 +103,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     try {
       // First check if we already have data for this date
       if (CalendarHelpers.hasAttendanceData(_events, date)) {
-        print('CalendarScreen: Using existing data for $date');
+        Logger.debug('CalendarScreen: Using existing data for $date');
         return;
       }
 
@@ -110,17 +114,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         setState(() {
           CalendarHelpers.addAttendanceToEvents(_events, summary);
         });
-        print(
+        Logger.info(
           'CalendarScreen: Live data loaded for $date: ${summary.presentEmployees}/${summary.totalEmployees} present',
         );
       } else {
-        print('CalendarScreen: No live data available for $date');
+        Logger.info('CalendarScreen: No live data available for $date');
         // Create a test summary if no data is available
         await _createTestSummaryForDate(date);
       }
     } catch (e) {
       // Silently handle errors - fallback to existing data
-      print('CalendarScreen: Could not load live data for date: $e');
+      Logger.error('CalendarScreen: Could not load live data for date: $e');
     }
   }
 
@@ -131,7 +135,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     setState(() {
       CalendarHelpers.addAttendanceToEvents(_events, testSummary);
     });
-    print('Created test summary for $date');
+    Logger.info('Created test summary for $date');
   }
 
   @override

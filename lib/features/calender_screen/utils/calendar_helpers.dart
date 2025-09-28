@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/services/calendar_service.dart';
+import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/calender_screen/utils/date_utils.dart';
 
 /// Helper functions for calendar screen operations
@@ -46,9 +47,9 @@ class CalendarHelpers {
     try {
       final calendarService = CalendarService();
       await calendarService.saveDailySummary(testSummary);
-      print('Saved test summary to calendar service for $date');
+      Logger.info('Saved test summary to calendar service for $date');
     } catch (e) {
-      print('Error saving test summary: $e');
+      Logger.error('Error saving test summary: $e');
     }
 
     return testSummary;

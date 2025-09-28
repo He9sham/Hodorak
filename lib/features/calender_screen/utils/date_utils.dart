@@ -1,5 +1,3 @@
-/// Utility functions for date and time formatting in calendar screen
-
 class CalendarDateUtils {
   /// Get month name from month number (1-12)
   static String getMonthName(int month) {

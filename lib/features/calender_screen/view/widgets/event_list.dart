@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/calender_screen/view/widgets/attendance_card.dart';
 
 class EventList extends StatelessWidget {
@@ -10,7 +11,7 @@ class EventList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(
+    Logger.debug(
       'EventList: Building event list for $day - Found ${events.length} events',
     );
 
@@ -28,7 +29,7 @@ class EventList extends StatelessWidget {
       itemCount: events.length,
       itemBuilder: (context, index) {
         final summary = events[index];
-        print(
+        Logger.debug(
           'EventList: Building card for ${summary.date} - ${summary.presentEmployees}/${summary.totalEmployees} present',
         );
         return AttendanceCard(summary: summary);

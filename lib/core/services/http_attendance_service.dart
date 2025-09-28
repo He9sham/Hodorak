@@ -1,6 +1,7 @@
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
 import 'package:hodorak/core/services/calendar_service.dart';
+import 'package:hodorak/core/utils/logger.dart';
 
 class HttpAttendanceService {
   final OdooHttpService odooService;
@@ -37,7 +38,7 @@ class HttpAttendanceService {
   Future<DailyAttendanceSummary> createCurrentUserSummaryForDate(
     DateTime date,
   ) async {
-    print(
+    Logger.debug(
       'HttpAttendanceService: Creating current user summary for date: $date',
     );
 
@@ -48,16 +49,16 @@ class HttpAttendanceService {
         throw Exception('Could not get current user profile');
       }
 
-      print(
+      Logger.info(
         'HttpAttendanceService: Current user: ${userProfile['name']} (ID: ${userProfile['id']})',
       );
-      print('HttpAttendanceService: User profile data: $userProfile');
+      Logger.debug('HttpAttendanceService: User profile data: $userProfile');
 
       // Get current user's attendance for the date
       final attendance = await odooService.getCurrentUserAttendanceForDate(
         date,
       );
-      print(
+      Logger.debug(
         'HttpAttendanceService: Found ${attendance.length} attendance records for current user on $date',
       );
 
@@ -75,13 +76,15 @@ class HttpAttendanceService {
 
       if (attendance.isNotEmpty) {
         final record = attendance.first; // Get the first (most recent) record
-        print('HttpAttendanceService: Attendance record: $record');
+        Logger.debug('HttpAttendanceService: Attendance record: $record');
 
         // Get employee ID from the attendance record
         employeeId = record['employee_id'] is List
             ? record['employee_id'][0]
             : record['employee_id'] ?? 0;
-        print('HttpAttendanceService: Extracted employee ID: $employeeId');
+        Logger.debug(
+          'HttpAttendanceService: Extracted employee ID: $employeeId',
+        );
 
         checkIn = _parseDateTime(record['check_in']);
         checkOut = _parseDateTime(record['check_out']);
@@ -129,12 +132,12 @@ class HttpAttendanceService {
         attendancePercentage: attendancePercentage,
       );
 
-      print(
+      Logger.info(
         'HttpAttendanceService: Created current user summary - ${isPresent ? "Present" : "Absent"} on $date',
       );
       return summary;
     } catch (e) {
-      print(
+      Logger.error(
         'HttpAttendanceService: Error creating current user summary for $date: $e',
       );
       rethrow;
@@ -145,14 +148,14 @@ class HttpAttendanceService {
   Future<DailyAttendanceSummary> createDailySummaryForDate(
     DateTime date,
   ) async {
-    print('HttpAttendanceService: Creating summary for date: $date');
+    Logger.debug('HttpAttendanceService: Creating summary for date: $date');
 
     try {
       final employees = await getAllEmployees();
-      print('HttpAttendanceService: Found ${employees.length} employees');
+      Logger.info('HttpAttendanceService: Found ${employees.length} employees');
 
       final attendance = await getAttendanceForDate(date);
-      print(
+      Logger.info(
         'HttpAttendanceService: Found ${attendance.length} attendance records for $date',
       );
 
@@ -221,12 +224,14 @@ class HttpAttendanceService {
         attendancePercentage: attendancePercentage,
       );
 
-      print(
-        'HttpAttendanceService: Created summary - ${presentCount}/${totalEmployees} present (${attendancePercentage.toStringAsFixed(1)}%)',
+      Logger.info(
+        'HttpAttendanceService: Created summary - $presentCount/$totalEmployees present (${attendancePercentage.toStringAsFixed(1)}%)',
       );
       return summary;
     } catch (e) {
-      print('HttpAttendanceService: Error creating summary for $date: $e');
+      Logger.error(
+        'HttpAttendanceService: Error creating summary for $date: $e',
+      );
       rethrow;
     }
   }

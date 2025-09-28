@@ -4,6 +4,7 @@ import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/services/calendar_service.dart';
 import 'package:hodorak/core/services/http_attendance_service.dart';
+import 'package:hodorak/core/utils/logger.dart';
 
 // Calendar state class
 class CalendarState {
@@ -92,24 +93,28 @@ final enhancedCalendarProvider =
     StateNotifierProvider<EnhancedCalendarNotifier, CalendarState>((ref) {
       try {
         final authState = ref.watch(authStateManagerProvider);
-        print(
+        Logger.debug(
           'CalendarProvider: Auth state - authenticated: ${authState.isAuthenticated}, loading: ${authState.isLoading}, error: ${authState.error}',
         );
 
         if (authState.isAuthenticated) {
           final httpService = ref.read(odooHttpServiceProvider);
-          print('CalendarProvider: Creating calendar with HTTP service');
+          Logger.info('CalendarProvider: Creating calendar with HTTP service');
           return EnhancedCalendarNotifier(CalendarService(), httpService);
         } else {
-          print('CalendarProvider: User not authenticated, using fallback');
+          Logger.info(
+            'CalendarProvider: User not authenticated, using fallback',
+          );
         }
       } catch (e) {
-        print('CalendarProvider: Error in auth check: $e');
+        Logger.error('CalendarProvider: Error in auth check: $e');
         // Fallback to basic calendar provider if auth fails
       }
 
       // Return a basic enhanced notifier without Odoo service
-      print('CalendarProvider: Using fallback calendar without Odoo service');
+      Logger.info(
+        'CalendarProvider: Using fallback calendar without Odoo service',
+      );
       return EnhancedCalendarNotifier.withoutOdoo(CalendarService());
     });
 
@@ -121,7 +126,7 @@ class EnhancedCalendarNotifier extends StateNotifier<CalendarState> {
 
   EnhancedCalendarNotifier(this.calendarService, this.httpService)
     : super(CalendarState(selectedMonth: DateTime.now())) {
-    print(
+    Logger.debug(
       'EnhancedCalendarNotifier: Constructor called with httpService: ${httpService != null}',
     );
     if (httpService != null) {
@@ -129,9 +134,9 @@ class EnhancedCalendarNotifier extends StateNotifier<CalendarState> {
         odooService: httpService!,
         calendarService: calendarService,
       );
-      print('EnhancedCalendarNotifier: HttpAttendanceService created');
+      Logger.info('EnhancedCalendarNotifier: HttpAttendanceService created');
     } else {
-      print('EnhancedCalendarNotifier: No HTTP service available');
+      Logger.info('EnhancedCalendarNotifier: No HTTP service available');
     }
     loadSummaries();
   }
@@ -183,19 +188,19 @@ class EnhancedCalendarNotifier extends StateNotifier<CalendarState> {
 
             return;
           } else {
-            print('No live summary found for today');
+            Logger.info('No live summary found for today');
           }
         } else {
-          print('Today is not in selected month');
+          Logger.debug('Today is not in selected month');
         }
       } else {
-        print('No Odoo service available, using saved summaries only');
+        Logger.info('No Odoo service available, using saved summaries only');
       }
 
       state = state.copyWith(summaries: savedSummaries, isLoading: false);
-      print('Final state: ${savedSummaries.length} summaries loaded');
+      Logger.info('Final state: ${savedSummaries.length} summaries loaded');
     } catch (e) {
-      print('Error loading summaries: $e');
+      Logger.error('Error loading summaries: $e');
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load summaries: $e',
@@ -215,21 +220,21 @@ class EnhancedCalendarNotifier extends StateNotifier<CalendarState> {
   /// Fetch live attendance data for current user on a specific date
   Future<DailyAttendanceSummary?> getAttendanceForDate(DateTime date) async {
     if (httpAttendanceService == null) {
-      print('No attendance service available for date: $date');
+      Logger.info('No attendance service available for date: $date');
       return null; // No service available
     }
 
     try {
-      print('Fetching current user data for date: $date');
+      Logger.debug('Fetching current user data for date: $date');
       final summary = await httpAttendanceService!
           .createCurrentUserSummaryForDate(date);
 
-      print(
+      Logger.info(
         'Current user data found: ${summary.presentEmployees}/${summary.totalEmployees} present',
       );
       return summary;
     } catch (e) {
-      print('Error fetching current user data for $date: $e');
+      Logger.error('Error fetching current user data for $date: $e');
       state = state.copyWith(errorMessage: 'Failed to fetch attendance: $e');
       return null;
     }

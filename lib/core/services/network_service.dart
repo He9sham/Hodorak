@@ -13,7 +13,7 @@ class NetworkService {
       final connectivityResult = await _connectivity.checkConnectivity();
 
       // If no connectivity at all
-      if (connectivityResult == ConnectivityResult.none) {
+      if (connectivityResult.contains(ConnectivityResult.none)) {
         return false;
       }
 

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../unknwon_for_database.dart';
 import '../services/network_service.dart';
+import '../utils/logger.dart';
 
 class OdooHttpService {
   final String baseUrl;
@@ -383,7 +384,7 @@ class OdooHttpService {
   /// Get all employees from Odoo
   Future<List<Map<String, dynamic>>> getAllEmployees() async {
     try {
-      print('OdooHttpService: Fetching all employees...');
+      Logger.debug('OdooHttpService: Fetching all employees...');
       final res = await _callKw(
         'hr.employee',
         'search_read',
@@ -397,10 +398,10 @@ class OdooHttpService {
       final employees = List<Map<String, dynamic>>.from(
         data.map((e) => Map<String, dynamic>.from(e)),
       );
-      print('OdooHttpService: Found ${employees.length} employees');
+      Logger.info('OdooHttpService: Found ${employees.length} employees');
       return employees;
     } catch (e) {
-      print('OdooHttpService: Error fetching employees: $e');
+      Logger.error('OdooHttpService: Error fetching employees: $e');
       throw Exception('Failed to fetch employees: $e');
     }
   }
@@ -411,7 +412,7 @@ class OdooHttpService {
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     try {
-      print(
+      Logger.debug(
         'OdooHttpService: Fetching attendance for date: $date (${_formatDateTime(startOfDay)} to ${_formatDateTime(endOfDay)})',
       );
       final res = await _callKw(
@@ -432,12 +433,14 @@ class OdooHttpService {
       final attendance = List<Map<String, dynamic>>.from(
         data.map((e) => Map<String, dynamic>.from(e)),
       );
-      print(
+      Logger.info(
         'OdooHttpService: Found ${attendance.length} attendance records for $date',
       );
       return attendance;
     } catch (e) {
-      print('OdooHttpService: Error fetching attendance for date $date: $e');
+      Logger.error(
+        'OdooHttpService: Error fetching attendance for date $date: $e',
+      );
       throw Exception('Failed to fetch attendance for date: $e');
     }
   }
@@ -461,7 +464,7 @@ class OdooHttpService {
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     try {
-      print(
+      Logger.debug(
         'OdooHttpService: Fetching current user attendance for date: $date (Employee ID: $employeeId)',
       );
       final res = await _callKw(
@@ -483,12 +486,12 @@ class OdooHttpService {
       final attendance = List<Map<String, dynamic>>.from(
         data.map((e) => Map<String, dynamic>.from(e)),
       );
-      print(
+      Logger.info(
         'OdooHttpService: Found ${attendance.length} attendance records for current user on $date',
       );
       return attendance;
     } catch (e) {
-      print(
+      Logger.error(
         'OdooHttpService: Error fetching current user attendance for date $date: $e',
       );
       throw Exception('Failed to fetch current user attendance for date: $e');
