@@ -101,130 +101,133 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateManagerProvider);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  verticalSpace(50),
-                  // Logo/Title
-                  Text(
-                    'Sign in',
-                    style: Styles.textSize13Black600.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 32,
-                    ),
-                  ),
-                  verticalSpace(48),
-                  LabelTextField(title: 'Email'),
-                  verticalSpace(8),
-                  // Email Field
-                  CustomTextFieldAuth(
-                    controller: _emailController,
-                    hintText: 'Enter Your Email',
-                    validator: (value) {
-                      value = value!.trim();
-                      if (value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  verticalSpace(16),
-                  LabelTextField(title: 'Password'),
-                  verticalSpace(8),
-                  // Password Field
-                  CustomTextFieldAuth(
-                    hintText: 'Enter your password',
-                    controller: _passwordController,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    verticalSpace(50),
+                    // Logo/Title
+                    Text(
+                      'Sign in',
+                      style: Styles.textSize13Black600.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 32,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
+                    ),
+                    verticalSpace(48),
+                    LabelTextField(title: 'Email'),
+                    verticalSpace(8),
+                    // Email Field
+                    CustomTextFieldAuth(
+                      controller: _emailController,
+                      hintText: 'Enter Your Email',
+                      validator: (value) {
+                        value = value!.trim();
+                        if (value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
                       },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 3) {
-                        return 'Password must be at least 3 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpace(16),
-                  Row(
-                    textDirection: TextDirection.rtl,
-                    children: [
-                      Text(
-                        'Forget Password?',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff8C9F5F),
+
+                    verticalSpace(16),
+                    LabelTextField(title: 'Password'),
+                    verticalSpace(8),
+                    // Password Field
+                    CustomTextFieldAuth(
+                      hintText: 'Enter your password',
+                      controller: _passwordController,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 3) {
+                          return 'Password must be at least 3 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    verticalSpace(16),
+                    Row(
+                      textDirection: TextDirection.rtl,
+                      children: [
+                        Text(
+                          'Forget Password?',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff8C9F5F),
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpace(24),
+
+                    // Error Message
+                    if (authState.error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          authState.error!,
+                          style: const TextStyle(color: Colors.red),
                         ),
                       ),
-                    ],
-                  ),
-                  verticalSpace(24),
 
-                  // Error Message
-                  if (authState.error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        authState.error!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
+                    // Login Button
+                    LoginButton(
+                      title: 'Sign in',
+                      onPressed: () async {
+                        authState.isLoading ? null : await login();
+                      },
+                      isLoading: authState.isLoading,
                     ),
-
-                  // Login Button
-                  LoginButton(
-                    title: 'Sign in',
-                    onPressed: () async {
-                      authState.isLoading ? null : await login();
-                    },
-                    isLoading: authState.isLoading,
-                  ),
-                  verticalSpace(24),
-                  DividerRow(title: 'Or Log in with', spaceRow: 235),
-                  verticalSpace(32),
-                  // row auth for social media
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ContainerIconAuth(icon: Icon(Icons.apple)),
-                      horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(Icons.facebook)),
-                      horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(FontAwesomeIcons.google)),
-                    ],
-                  ),
-                  verticalSpace(30),
-                  // when user do not have any account
-                  TextRich(
-                    subtitle: '  Sign Up',
-                    title: 'Don’t have an account?',
-                    gestureRecognizer: _signUpRecognizer,
-                  ),
-                ],
+                    verticalSpace(24),
+                    DividerRow(title: 'Or Log in with', spaceRow: 235),
+                    verticalSpace(32),
+                    // row auth for social media
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ContainerIconAuth(icon: Icon(Icons.apple)),
+                        horizontalSpace(10),
+                        ContainerIconAuth(icon: Icon(Icons.facebook)),
+                        horizontalSpace(10),
+                        ContainerIconAuth(icon: Icon(FontAwesomeIcons.google)),
+                      ],
+                    ),
+                    verticalSpace(30),
+                    // when user do not have any account
+                    TextRich(
+                      subtitle: '  Sign Up',
+                      title: 'Don’t have an account?',
+                      gestureRecognizer: _signUpRecognizer,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

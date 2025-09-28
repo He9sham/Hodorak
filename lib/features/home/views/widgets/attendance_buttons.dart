@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/core/providers/attendance_provider.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
 
 class AttendanceButtons extends ConsumerStatefulWidget {
@@ -416,17 +415,8 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
   }
 
   void _refreshAttendanceData() {
-    // Try to refresh attendance data through the provider
-    // This is optional and won't block the success message if it fails
-    Future.microtask(() async {
-      try {
-        final attendanceNotifier = ref.read(currentAttendanceProvider.notifier);
-        await attendanceNotifier.loadAttendance();
-      } catch (e) {
-        // If attendance provider fails, just log it but don't block success
-        print('Failed to refresh attendance data: $e');
-      }
-    });
+    // Attendance data refresh is now handled by the calendar system
+    // No additional refresh needed here
   }
 
   @override

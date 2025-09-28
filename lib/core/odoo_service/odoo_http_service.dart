@@ -380,6 +380,121 @@ class OdooHttpService {
     );
   }
 
+  /// Get all employees from Odoo
+  Future<List<Map<String, dynamic>>> getAllEmployees() async {
+    try {
+      print('OdooHttpService: Fetching all employees...');
+      final res = await _callKw(
+        'hr.employee',
+        'search_read',
+        args: [[]],
+        kwargs: {
+          'fields': ['id', 'name', 'work_email'],
+          'order': 'name',
+        },
+      );
+      final data = (res['result'] ?? res) as List;
+      final employees = List<Map<String, dynamic>>.from(
+        data.map((e) => Map<String, dynamic>.from(e)),
+      );
+      print('OdooHttpService: Found ${employees.length} employees');
+      return employees;
+    } catch (e) {
+      print('OdooHttpService: Error fetching employees: $e');
+      throw Exception('Failed to fetch employees: $e');
+    }
+  }
+
+  /// Get attendance records for a specific date
+  Future<List<Map<String, dynamic>>> getAttendanceForDate(DateTime date) async {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    try {
+      print(
+        'OdooHttpService: Fetching attendance for date: $date (${_formatDateTime(startOfDay)} to ${_formatDateTime(endOfDay)})',
+      );
+      final res = await _callKw(
+        'hr.attendance',
+        'search_read',
+        args: [
+          [
+            ['check_in', '>=', _formatDateTime(startOfDay)],
+            ['check_in', '<', _formatDateTime(endOfDay)],
+          ],
+        ],
+        kwargs: {
+          'fields': ['employee_id', 'check_in', 'check_out'],
+          'order': 'check_in desc',
+        },
+      );
+      final data = (res['result'] ?? res) as List;
+      final attendance = List<Map<String, dynamic>>.from(
+        data.map((e) => Map<String, dynamic>.from(e)),
+      );
+      print(
+        'OdooHttpService: Found ${attendance.length} attendance records for $date',
+      );
+      return attendance;
+    } catch (e) {
+      print('OdooHttpService: Error fetching attendance for date $date: $e');
+      throw Exception('Failed to fetch attendance for date: $e');
+    }
+  }
+
+  /// Get current user's attendance records for a specific date
+  Future<List<Map<String, dynamic>>> getCurrentUserAttendanceForDate(
+    DateTime date,
+  ) async {
+    await _loadSession();
+    if (_uid == null) {
+      throw Exception('User not authenticated');
+    }
+
+    // Get the employee ID for the current user
+    final employeeId = await getEmployeeIdFromUserId(_uid!);
+    if (employeeId == null) {
+      throw Exception('No employee record found for current user');
+    }
+
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    try {
+      print(
+        'OdooHttpService: Fetching current user attendance for date: $date (Employee ID: $employeeId)',
+      );
+      final res = await _callKw(
+        'hr.attendance',
+        'search_read',
+        args: [
+          [
+            ['employee_id', '=', employeeId],
+            ['check_in', '>=', _formatDateTime(startOfDay)],
+            ['check_in', '<', _formatDateTime(endOfDay)],
+          ],
+        ],
+        kwargs: {
+          'fields': ['employee_id', 'check_in', 'check_out'],
+          'order': 'check_in desc',
+        },
+      );
+      final data = (res['result'] ?? res) as List;
+      final attendance = List<Map<String, dynamic>>.from(
+        data.map((e) => Map<String, dynamic>.from(e)),
+      );
+      print(
+        'OdooHttpService: Found ${attendance.length} attendance records for current user on $date',
+      );
+      return attendance;
+    } catch (e) {
+      print(
+        'OdooHttpService: Error fetching current user attendance for date $date: $e',
+      );
+      throw Exception('Failed to fetch current user attendance for date: $e');
+    }
+  }
+
   Future<bool> approveLeave(int leaveId) async {
     if (!await isAdmin()) throw Exception('Not authorized');
     // action_approve requires proper server-side rights
