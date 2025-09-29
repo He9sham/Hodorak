@@ -64,41 +64,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     }
   }
 
-  Future<void> _testDataFetch() async {
-    Logger.debug('CalendarScreen: Testing data fetch...');
-    try {
-      final notifier = ref.read(enhancedCalendarProvider.notifier);
-      final today = CalendarDateUtils.getToday();
-
-      Logger.debug('CalendarScreen: Testing fetch for today: $today');
-      final summary = await notifier.getAttendanceForDate(today);
-
-      if (summary != null) {
-        Logger.info(
-          'CalendarScreen: SUCCESS - Got user summary: ${summary.presentEmployees > 0 ? "Present" : "Absent"}',
-        );
-        CalendarHelpers.showSuccess(
-          // ignore: use_build_context_synchronously
-          context,
-          'Test SUCCESS: You are ${summary.presentEmployees > 0 ? "present" : "absent"} today',
-        );
-
-        // Update the calendar with the test data
-        setState(() {
-          CalendarHelpers.addAttendanceToEvents(_events, summary);
-        });
-      } else {
-        Logger.error('CalendarScreen: FAILED - No summary returned');
-        // ignore: use_build_context_synchronously
-        CalendarHelpers.showError(context, 'Test FAILED: No data returned');
-      }
-    } catch (e) {
-      Logger.error('CalendarScreen: Test ERROR: $e');
-      // ignore: use_build_context_synchronously
-      CalendarHelpers.showError(context, 'Test ERROR: $e');
-    }
-  }
-
   Future<void> _loadLiveDataForDate(DateTime date) async {
     try {
       // First check if we already have data for this date
@@ -161,11 +126,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       appBar: AppBar(
         title: const Text('Attendance Calendar'),
         actions: [
-          IconButton(
-            onPressed: _testDataFetch,
-            icon: const Icon(Icons.bug_report),
-            tooltip: 'Test Data Fetch',
-          ),
           IconButton(
             onPressed: _refreshData,
             icon: const Icon(Icons.refresh),

@@ -17,7 +17,7 @@ class ShowDetailsWidget extends ConsumerWidget {
         Container(
           height: 316.h,
           width: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
@@ -27,44 +27,50 @@ class ShowDetailsWidget extends ConsumerWidget {
               ],
             ),
             borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
+              bottomLeft: Radius.circular(20.r),
+              bottomRight: Radius.circular(20.r),
             ),
           ),
         ),
         Positioned(
           top: 70.h,
-          left: 160.w,
-          child: Text(
-            'Profile',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Text(
+              'Profile',
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
         Positioned(
           top: 101.h,
-          left: 137.w,
-          child: Container(
-            width: 100.w,
-            height: 100.h,
-            decoration: BoxDecoration(shape: BoxShape.circle),
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.white,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              width: 100.w,
+              height: 100.h,
+              decoration: BoxDecoration(shape: BoxShape.circle),
               child: CircleAvatar(
-                radius: 38,
-                backgroundColor: Color(0xff8C9F5F).withValues(alpha: 0.1),
-                child: Text(
-                  authState.name?.isNotEmpty == true
-                      ? authState.name![0].toUpperCase()
-                      : 'U',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff8C9F5F),
+                radius: 40.r,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 38.r,
+                  backgroundColor: Color(0xff8C9F5F).withValues(alpha: 0.1),
+                  child: Text(
+                    authState.name?.isNotEmpty == true
+                        ? authState.name![0].toUpperCase()
+                        : 'U',
+                    style: TextStyle(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff8C9F5F),
+                    ),
                   ),
                 ),
               ),
@@ -73,66 +79,85 @@ class ShowDetailsWidget extends ConsumerWidget {
         ),
         Positioned(
           bottom: 80.h,
-          left: 95.w,
-          child: Text(
-            userProfileState.profileData?['name'] ?? 'Loading...',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Text(
+              userProfileState.profileData?['name'] ?? 'Loading...',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         ),
         Positioned(
           bottom: 60.h,
-          left: 155.w,
-          child: Text(
-            _formatJobTitle(userProfileState.profileData),
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.white,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Text(
+              _formatJobTitle(userProfileState.profileData),
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         ),
         Positioned(
           bottom: 23.h,
-          left: 30.w,
-          child: Icon(Icons.phone, size: 14.sp),
-        ),
-        Positioned(
-          bottom: 20.h,
-          left: 50.w,
-          child: Text(
-            userProfileState.profileData?['work_phone'] ?? 'N/A',
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
-          ),
-        ),
-        Positioned(
-          bottom: 29.h,
-          left: 150.w,
-          child: Container(
-            width: 5.w,
-            height: 5.h,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 24.h,
-          left: 160.w,
-          child: Icon(Icons.email, size: 14.sp),
-        ),
-        Positioned(
-          bottom: 21.h,
-          right: 25.w,
-          child: Text(
-            userProfileState.profileData?['work_email'] ?? 'N/A',
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.phone, size: 14.sp, color: Colors.white),
+                  SizedBox(width: 8.w),
+                  Text(
+                    userProfileState.profileData?['work_phone'] ?? 'N/A',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 5.w,
+                height: 5.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.email, size: 14.sp, color: Colors.white),
+                  SizedBox(width: 8.w),
+                  Flexible(
+                    child: Text(
+                      userProfileState.profileData?['work_email'] ?? 'N/A',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],

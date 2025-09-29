@@ -14,13 +14,13 @@ class ProfileDetails extends ConsumerWidget {
 
     return Container(
       width: 343.w,
-      height: 125.h,
+      height: 136.h,
       decoration: BoxDecoration(
         color: Color.fromARGB(237, 225, 225, 228),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Padding(
-        padding: EdgeInsetsGeometry.symmetric(vertical: 20),
+        padding: EdgeInsets.symmetric(vertical: 20.h),
         child: userProfileState.isLoading
             ? Center(child: CircularProgressIndicator(color: Colors.blue))
             : userProfileState.error != null
@@ -28,18 +28,18 @@ class ProfileDetails extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, color: Colors.red, size: 24),
-                    SizedBox(height: 8),
+                    Icon(Icons.error_outline, color: Colors.red, size: 24.sp),
+                    SizedBox(height: 8.h),
                     Text(
                       'Failed to load profile',
-                      style: TextStyle(color: Colors.red, fontSize: 12),
+                      style: TextStyle(color: Colors.red, fontSize: 12.sp),
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     TextButton(
                       onPressed: () => ref
                           .read(userProfileProvider.notifier)
                           .refreshProfile(),
-                      child: Text('Retry', style: TextStyle(fontSize: 12)),
+                      child: Text('Retry', style: TextStyle(fontSize: 12.sp)),
                     ),
                   ],
                 ),
