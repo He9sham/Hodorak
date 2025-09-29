@@ -252,3 +252,8 @@ class EnhancedCalendarNotifier extends StateNotifier<CalendarState> {
         date1.day == date2.day;
   }
 }
+
+// Calendar service provider
+final calendarServiceProvider = Provider<CalendarService>((ref) {
+  return CalendarService();
+});

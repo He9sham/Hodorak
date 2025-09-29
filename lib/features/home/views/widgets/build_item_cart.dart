@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/utils/routes.dart';
+import 'package:hodorak/features/admin_calendar/admin_calendar_screen.dart';
 import 'package:hodorak/features/home/views/widgets/build_action_card.dart';
 
 class BuildItemCartRowTwo extends StatelessWidget {
@@ -106,9 +107,11 @@ class BuildItemCartRowOne extends StatelessWidget {
             title: 'Calendar',
             subtitle: 'View your schedule',
             onTap: () {
-              // Navigate to calendar screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Calendar feature coming soon!')),
+              // Navigate to admin calendar screen
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AdminCalendarScreen(),
+                ),
               );
             },
           ),
