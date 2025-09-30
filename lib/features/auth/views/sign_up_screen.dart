@@ -454,7 +454,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
 
                   // Login Button
-                  LoginButton(
+                  CustomButtonAuth(
                     title: 'Sign Up',
                     onPressed: _onSubmit,
                     isLoading: signUpState.isLoading,

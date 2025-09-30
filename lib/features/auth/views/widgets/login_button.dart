@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class LoginButton extends StatelessWidget {
-  const LoginButton({
+class CustomButtonAuth extends StatelessWidget {
+  const CustomButtonAuth({
     super.key,
     required this.onPressed,
     required this.isLoading,
@@ -37,7 +37,7 @@ class LoginButton extends StatelessWidget {
                       Text('  Logging in...'),
                     ],
                   )
-                :  Text(
+                : Text(
                     title,
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),

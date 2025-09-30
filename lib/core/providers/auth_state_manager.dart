@@ -147,6 +147,39 @@ class AuthStateManager extends StateNotifier<AuthState> {
     await _odooService.clearSession();
     state = const AuthState();
   }
+
+  Future<void> resetPassword(String email) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final success = await _odooService.resetPassword(email: email);
+      if (success) {
+        state = state.copyWith(isLoading: false, error: null);
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Failed to send password reset email. Please try again.',
+        );
+      }
+    } catch (e) {
+      String errorMessage = e.toString();
+
+      // Handle specific error types
+      if (e.toString().contains('Network error') ||
+          e.toString().contains('No internet connection') ||
+          e.toString().contains('HTTP error')) {
+        errorMessage =
+            'No internet connection. Please check your network settings.';
+      } else if (e.toString().contains('No user found with this email')) {
+        errorMessage = 'No account found with this email address.';
+      } else if (e.toString().contains('Failed to reset password')) {
+        errorMessage = 'Failed to send password reset email. Please try again.';
+      }
+
+      state = state.copyWith(isLoading: false, error: errorMessage);
+      rethrow;
+    }
+  }
 }
 
 final odooHttpServiceProvider = Provider<OdooHttpService>(

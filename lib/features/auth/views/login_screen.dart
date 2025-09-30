@@ -175,12 +175,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Row(
                       textDirection: TextDirection.rtl,
                       children: [
-                        Text(
-                          'Forget Password?',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff8C9F5F),
+                        GestureDetector(
+                          onTap: () {
+                            context.pushReplacementNamed(
+                              Routes.forgotPasswordScreen,
+                            );
+                          },
+                          child: Text(
+                            'Forget Password?',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff8C9F5F),
+                            ),
                           ),
                         ),
                       ],
@@ -198,7 +205,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
 
                     // Login Button
-                    LoginButton(
+                    CustomButtonAuth(
                       title: 'Sign in',
                       onPressed: () async {
                         authState.isLoading ? null : await login();

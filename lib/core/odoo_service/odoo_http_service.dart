@@ -182,6 +182,65 @@ class OdooHttpService {
   }
 
   // Auth
+  Future<bool> resetPassword({required String email}) async {
+    await _checkNetworkConnectivity();
+
+    try {
+      // First, check if the user exists
+      final userSearch = await _callKw(
+        'res.users',
+        'search_read',
+        args: [
+          [
+            ['login', '=', email],
+          ],
+        ],
+        kwargs: {
+          'fields': ['id', 'login', 'email'],
+          'limit': 1,
+        },
+      );
+
+      final users = (userSearch['result'] ?? userSearch) as List;
+      if (users.isEmpty) {
+        throw OdooAuthException('No user found with this email address');
+      }
+
+      final userId = users.first['id'] as int;
+
+      // Call the password reset method
+      final resetResult = await _callKw(
+        'res.users',
+        'action_reset_password',
+        args: [
+          [userId],
+        ],
+      );
+
+      // The method returns true if successful
+      return (resetResult['result'] ?? resetResult) == true;
+    } on SocketException {
+      throw OdooNetworkException(
+        'Network error during password reset. Please check your internet connection.',
+      );
+    } on HttpException {
+      throw OdooNetworkException(
+        'HTTP error during password reset. Please check your connection to the server.',
+      );
+    } on FormatException {
+      throw OdooServerException(
+        'Invalid response format from server during password reset.',
+      );
+    } catch (e) {
+      if (e is OdooAuthException ||
+          e is OdooNetworkException ||
+          e is OdooServerException) {
+        rethrow;
+      }
+      throw OdooServerException('Failed to reset password: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> login({
     required String login,
     required String password,
