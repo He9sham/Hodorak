@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../unknwon_for_database.dart';
 import '../services/network_service.dart';
 import '../utils/logger.dart';
@@ -181,18 +179,32 @@ class OdooHttpService {
     }
   }
 
-  // Auth
-  Future<bool> resetPassword({required String email}) async {
-    await _checkNetworkConnectivity();
+  // Admin-only password reset functionality
+  Future<bool> adminResetUserPassword({
+    required String userEmail,
+    required String newPassword,
+  }) async {
+    await _loadSession();
+    if (_uid == null) {
+      throw OdooAuthException('User not authenticated');
+    }
+
+    // Check if current user is admin
+    final isAdminUser = await isAdmin();
+    if (!isAdminUser) {
+      throw OdooPermissionException(
+        'Only administrators can reset user passwords',
+      );
+    }
 
     try {
-      // First, check if the user exists
+      // Search for user by email
       final userSearch = await _callKw(
         'res.users',
         'search_read',
         args: [
           [
-            ['login', '=', email],
+            ['login', '=', userEmail],
           ],
         ],
         kwargs: {
@@ -208,36 +220,25 @@ class OdooHttpService {
 
       final userId = users.first['id'] as int;
 
-      // Call the password reset method
-      final resetResult = await _callKw(
+      // Update the user's password
+      final updateResult = await _callKw(
         'res.users',
-        'action_reset_password',
+        'write',
         args: [
           [userId],
+          {'password': newPassword},
         ],
       );
 
-      // The method returns true if successful
-      return (resetResult['result'] ?? resetResult) == true;
-    } on SocketException {
-      throw OdooNetworkException(
-        'Network error during password reset. Please check your internet connection.',
-      );
-    } on HttpException {
-      throw OdooNetworkException(
-        'HTTP error during password reset. Please check your connection to the server.',
-      );
-    } on FormatException {
-      throw OdooServerException(
-        'Invalid response format from server during password reset.',
-      );
+      return (updateResult['result'] ?? updateResult) == true;
     } catch (e) {
       if (e is OdooAuthException ||
+          e is OdooPermissionException ||
           e is OdooNetworkException ||
           e is OdooServerException) {
         rethrow;
       }
-      throw OdooServerException('Failed to reset password: $e');
+      throw OdooServerException('Failed to reset user password: $e');
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/auth/views/forgot_password_screen.dart';
+import 'package:hodorak/features/auth/views/admin_password_reset_screen.dart';
 import 'package:hodorak/features/auth/views/login_screen.dart';
 import 'package:hodorak/features/auth/views/sign_up_screen.dart';
 import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
@@ -33,8 +33,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       case Routes.calendarScreen:
         return MaterialPageRoute(builder: (_) => const CalendarScreen());
-      case Routes.forgotPasswordScreen:
-        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+      case Routes.adminPasswordResetScreen:
+        return MaterialPageRoute(
+          builder: (_) => const AdminPasswordResetScreen(),
+        );
       default:
         return null;
     }

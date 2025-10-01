@@ -87,15 +87,11 @@ class BuildItemCartRowOne extends StatelessWidget {
         Expanded(
           child: buildActionCard(
             context,
-            icon: Icons.access_time,
-            title: 'Attendance',
-            subtitle: 'Mark your attendance',
+            icon: Icons.admin_panel_settings,
+            title: 'Change Password',
+            subtitle: 'Change your password',
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Attendance feature coming soon!'),
-                ),
-              );
+              context.pushNamed(Routes.adminPasswordResetScreen);
             },
           ),
         ),
@@ -120,3 +116,4 @@ class BuildItemCartRowOne extends StatelessWidget {
     );
   }
 }
+

@@ -148,17 +148,23 @@ class AuthStateManager extends StateNotifier<AuthState> {
     state = const AuthState();
   }
 
-  Future<void> resetPassword(String email) async {
+  Future<void> adminResetUserPassword(
+    String userEmail,
+    String newPassword,
+  ) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final success = await _odooService.resetPassword(email: email);
+      final success = await _odooService.adminResetUserPassword(
+        userEmail: userEmail,
+        newPassword: newPassword,
+      );
       if (success) {
         state = state.copyWith(isLoading: false, error: null);
       } else {
         state = state.copyWith(
           isLoading: false,
-          error: 'Failed to send password reset email. Please try again.',
+          error: 'Failed to reset user password. Please try again.',
         );
       }
     } catch (e) {
@@ -170,10 +176,16 @@ class AuthStateManager extends StateNotifier<AuthState> {
           e.toString().contains('HTTP error')) {
         errorMessage =
             'No internet connection. Please check your network settings.';
-      } else if (e.toString().contains('No user found with this email')) {
+      } else if (e.toString().contains('No user found with this email') ||
+          e.toString().contains('Invalid email')) {
         errorMessage = 'No account found with this email address.';
-      } else if (e.toString().contains('Failed to reset password')) {
-        errorMessage = 'Failed to send password reset email. Please try again.';
+      } else if (e.toString().contains('Only administrators can reset')) {
+        errorMessage = 'Only administrators can reset user passwords.';
+      } else if (e.toString().contains('Not authorized') ||
+          e.toString().contains('Access Denied')) {
+        errorMessage = 'You do not have permission to reset passwords.';
+      } else if (e.toString().contains('Failed to reset user password')) {
+        errorMessage = 'Failed to reset user password. Please try again.';
       }
 
       state = state.copyWith(isLoading: false, error: errorMessage);

@@ -2,25 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
-import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
+import 'package:hodorak/core/widgets/custom_text_form_field.dart';
 import 'package:hodorak/features/auth/views/widgets/login_button.dart';
 
-class ForgotPasswordScreen extends ConsumerStatefulWidget {
-  const ForgotPasswordScreen({super.key});
+class AdminPasswordResetScreen extends ConsumerStatefulWidget {
+  const AdminPasswordResetScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() =>
-      _ForgotPasswordScreenState();
+  ConsumerState<AdminPasswordResetScreen> createState() =>
+      _AdminPasswordResetScreenState();
 }
 
-class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
+class _AdminPasswordResetScreenState
+    extends ConsumerState<AdminPasswordResetScreen> {
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -32,7 +34,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final authStateManager = ref.read(authStateManagerProvider.notifier);
 
     try {
-      await authStateManager.resetPassword(_emailController.text.trim());
+      await authStateManager.adminResetUserPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
 
       if (mounted) {
         // Show success dialog
@@ -40,17 +45,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            title: const Text('Password Reset Email Sent'),
-            content: const Text(
-              'If an account with this email exists, you will receive a password reset link shortly. Please check your email and follow the instructions.',
+            title: const Text('Password Reset Successful'),
+            content: Text(
+              'Password has been successfully reset for user: ${_emailController.text.trim()}',
             ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(
-                    context,
-                  ).pushReplacementNamed(Routes.loginScreen);
+                  Navigator.of(context).pop(); // Go back to admin dashboard
                 },
                 child: const Text('OK'),
               ),
@@ -72,34 +75,62 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final authState = ref.watch(authStateManagerProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Reset User Password'),
+        backgroundColor: Colors.blue.shade600,
+        foregroundColor: Colors.white,
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              verticalSpace(120),
-              const Text(
-                'Forgot password?',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              verticalSpace(32),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.blue.shade600,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Admin Only: Reset User Password',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              verticalSpace(48),
+              verticalSpace(32),
               const Row(
                 children: [
                   Text(
-                    'Email',
+                    'User Email',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               verticalSpace(8),
-              CustomTextFieldAuth(
-                hintText: 'Enter your email',
+              AppTextFormField(
+                hintText: 'Enter user email',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return 'Please enter user email';
                   }
                   if (!RegExp(
                     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
@@ -109,18 +140,42 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   return null;
                 },
               ),
+              verticalSpace(24),
+              const Row(
+                children: [
+                  Text(
+                    'New Password',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              verticalSpace(8),
+              AppTextFormField(
+                hintText: 'Enter new password',
+                controller: _passwordController,
+                isObscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter new password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
               verticalSpace(32),
               const Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'We will send you a message to set or reset your new password',
-                      style: TextStyle(fontSize: 14),
+                      'This will reset the password for the specified user. The user will need to use this new password to log in.',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ),
                 ],
               ),
-              verticalSpace(16),
+              verticalSpace(24),
               CustomButtonAuth(
                 title: 'Reset Password',
                 onPressed: _handleResetPassword,

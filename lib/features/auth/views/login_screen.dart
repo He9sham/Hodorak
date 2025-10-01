@@ -171,29 +171,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         return null;
                       },
                     ),
-                    verticalSpace(16),
-                    Row(
-                      textDirection: TextDirection.rtl,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            context.pushReplacementNamed(
-                              Routes.forgotPasswordScreen,
-                            );
-                          },
-                          child: Text(
-                            'Forget Password?',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff8C9F5F),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpace(24),
-
+                    verticalSpace(30),
                     // Error Message
                     if (authState.error != null)
                       Padding(
