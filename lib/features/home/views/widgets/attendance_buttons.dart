@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
 
 class AttendanceButtons extends ConsumerStatefulWidget {
-  const AttendanceButtons({super.key});
+  final VoidCallback? onLeaveRequestSubmitted;
+
+  const AttendanceButtons({super.key, this.onLeaveRequestSubmitted});
 
   @override
   ConsumerState<AttendanceButtons> createState() => _AttendanceButtonsState();
@@ -80,36 +83,6 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
     final year = dateTime.year;
 
     return '$weekday, $month $day, $year';
-  }
-
-  String _formatDateForOdoo(DateTime dateTime) {
-    final year = dateTime.year;
-    final month = dateTime.month.toString().padLeft(2, '0');
-    final day = dateTime.day.toString().padLeft(2, '0');
-    return '$year-$month-$day';
-  }
-
-  String _formatDateDisplay(DateTime dateTime) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-
-    final month = months[dateTime.month - 1];
-    final day = dateTime.day;
-    final year = dateTime.year;
-
-    return '$month $day, $year';
   }
 
   Future<void> _handleCheckIn() async {
@@ -235,182 +208,22 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
   Future<void> _handleTemporaryLeave() async {
     if (_isLoading) return;
 
-    // Show dialog to get leave details
-    final result = await _showLeaveRequestDialog();
-    if (result == null) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final authState = ref.read(authStateManagerProvider);
-      final odooService = ref.read(odooHttpServiceProvider);
-
-      if (!authState.isAuthenticated || authState.uid == null) {
-        _showErrorMessage('You are not authenticated. Please login again.');
-        return;
-      }
-
-      // Get employee ID from user ID
-      final employeeId = await odooService.getEmployeeIdFromUserId(
-        authState.uid!,
-      );
-
-      if (employeeId == null) {
-        _showErrorMessage(
-          'You are not an employee in the company. Please contact the admin.',
-        );
-        return;
-      }
-
-      // Request leave
-      await odooService.requestLeave(
-        employeeId: employeeId,
-        dateFrom: result['dateFrom']!,
-        dateTo: result['dateTo']!,
-        reason: result['reason']!,
-      );
-
-      _showSuccessMessage('Temporary leave request submitted successfully');
-    } catch (e) {
-      _showErrorMessage('Leave request failed: ${e.toString()}');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+    final authState = ref.read(authStateManagerProvider);
+    if (!authState.isAuthenticated || authState.uid == null) {
+      _showErrorMessage('You are not authenticated. Please login again.');
+      return;
     }
-  }
 
-  Future<Map<String, String>?> _showLeaveRequestDialog() async {
-    final reasonController = TextEditingController();
-    DateTime? startDate;
-    DateTime? endDate;
-
-    return showDialog<Map<String, String>>(
+    // Show the new Firebase leave request form
+    await showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Request Temporary Leave'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: reasonController,
-                      decoration: const InputDecoration(
-                        labelText: 'Reason for leave',
-                        hintText: 'Enter the reason for your temporary leave',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 2,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextButton.icon(
-                            onPressed: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime.now(),
-                                lastDate: DateTime.now().add(
-                                  const Duration(days: 365),
-                                ),
-                              );
-                              if (date != null) {
-                                setState(() {
-                                  startDate = date;
-                                });
-                              }
-                            },
-                            icon: const Icon(Icons.calendar_today),
-                            label: Text(
-                              startDate != null
-                                  ? _formatDateDisplay(startDate!)
-                                  : 'Start Date',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextButton.icon(
-                            onPressed: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: startDate ?? DateTime.now(),
-                                firstDate: startDate ?? DateTime.now(),
-                                lastDate: DateTime.now().add(
-                                  const Duration(days: 365),
-                                ),
-                              );
-                              if (date != null) {
-                                setState(() {
-                                  endDate = date;
-                                });
-                              }
-                            },
-                            icon: const Icon(Icons.calendar_today),
-                            label: Text(
-                              endDate != null
-                                  ? _formatDateDisplay(endDate!)
-                                  : 'End Date',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (reasonController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please enter a reason for leave'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-                    if (startDate == null || endDate == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please select start and end dates'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-
-                    Navigator.of(context).pop({
-                      'reason': reasonController.text.trim(),
-                      'dateFrom': _formatDateForOdoo(startDate!),
-                      'dateTo': _formatDateForOdoo(endDate!),
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff8C9F5F),
-                  ),
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (context) => LeaveRequestForm(
+        userId: authState.uid.toString(),
+        onSubmitted: () {
+          Navigator.of(context).pop();
+          widget.onLeaveRequestSubmitted?.call();
+        },
+      ),
     );
   }
 

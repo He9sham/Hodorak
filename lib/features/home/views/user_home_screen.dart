@@ -6,6 +6,7 @@ import 'package:hodorak/core/providers/daily_summary_provider.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_buttons.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
 import 'package:hodorak/features/home/views/widgets/geo_location.dart';
+import 'package:hodorak/features/home/views/widgets/leave_status_display.dart';
 import 'package:hodorak/features/home/views/widgets/quick_summary.dart';
 
 class UserHomeScreen extends ConsumerWidget {
@@ -47,7 +48,13 @@ class UserHomeScreen extends ConsumerWidget {
           child: Column(
             children: [
               verticalSpace(17),
-              AttendanceButtons(),
+              AttendanceButtons(
+                onLeaveRequestSubmitted: () {
+                  // The LeaveStatusDisplay will automatically refresh via StreamBuilder
+                },
+              ),
+              verticalSpace(16),
+              LeaveStatusDisplay(userId: authState.uid.toString()),
               verticalSpace(16),
               GeoLocation(),
               verticalSpace(16),

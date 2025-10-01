@@ -69,7 +69,9 @@ class BuildItemCartRowThree extends StatelessWidget {
             icon: Icons.request_page_sharp,
             title: 'Requests',
             subtitle: 'Requests employees',
-            onTap: () {},
+            onTap: () {
+              context.pushNamed(Routes.adminLeaveRequestsScreen);
+            },
           ),
         ),
       ],

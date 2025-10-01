@@ -8,4 +8,5 @@ class Routes {
   static const String profile = '/ProfileScreen';
   static const String calendarScreen = '/calendarScreen';
   static const String adminPasswordResetScreen = '/adminPasswordResetScreen';
+  static const String adminLeaveRequestsScreen = '/adminLeaveRequestsScreen';
 }
