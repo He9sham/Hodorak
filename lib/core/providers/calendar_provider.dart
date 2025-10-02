@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/services/calendar_service.dart';
 import 'package:hodorak/core/services/http_attendance_service.dart';
 import 'package:hodorak/core/utils/logger.dart';
@@ -36,12 +35,15 @@ class CalendarState {
 }
 
 // Calendar provider
-class CalendarNotifier extends StateNotifier<CalendarState> {
+class CalendarNotifier extends Notifier<CalendarState> {
   final CalendarService calendarService;
 
-  CalendarNotifier(this.calendarService)
-    : super(CalendarState(selectedMonth: DateTime.now())) {
+  CalendarNotifier(this.calendarService);
+
+  @override
+  CalendarState build() {
     loadSummaries();
+    return CalendarState(selectedMonth: DateTime.now());
   }
 
   Future<void> loadSummaries() async {
@@ -82,36 +84,15 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
 }
 
 // Provider instance
-final calendarProvider = StateNotifierProvider<CalendarNotifier, CalendarState>(
-  (ref) {
-    return CalendarNotifier(CalendarService());
-  },
+final calendarProvider = NotifierProvider<CalendarNotifier, CalendarState>(
+  () => CalendarNotifier(CalendarService()),
 );
 
 // Enhanced calendar provider that can fetch live data
 final enhancedCalendarProvider =
-    StateNotifierProvider<EnhancedCalendarNotifier, CalendarState>((ref) {
-      try {
-        final authState = ref.watch(authStateManagerProvider);
-        Logger.debug(
-          'CalendarProvider: Auth state - authenticated: ${authState.isAuthenticated}, loading: ${authState.isLoading}, error: ${authState.error}',
-        );
-
-        if (authState.isAuthenticated) {
-          final httpService = ref.read(odooHttpServiceProvider);
-          Logger.info('CalendarProvider: Creating calendar with HTTP service');
-          return EnhancedCalendarNotifier(CalendarService(), httpService);
-        } else {
-          Logger.info(
-            'CalendarProvider: User not authenticated, using fallback',
-          );
-        }
-      } catch (e) {
-        Logger.error('CalendarProvider: Error in auth check: $e');
-        // Fallback to basic calendar provider if auth fails
-      }
-
-      // Return a basic enhanced notifier without Odoo service
+    NotifierProvider<EnhancedCalendarNotifier, CalendarState>(() {
+      // For now, return a basic enhanced notifier without Odoo service
+      // The auth state checking will need to be handled differently in the new Riverpod
       Logger.info(
         'CalendarProvider: Using fallback calendar without Odoo service',
       );
@@ -119,13 +100,19 @@ final enhancedCalendarProvider =
     });
 
 // Enhanced calendar notifier that can fetch live attendance data
-class EnhancedCalendarNotifier extends StateNotifier<CalendarState> {
+class EnhancedCalendarNotifier extends Notifier<CalendarState> {
   final CalendarService calendarService;
   final OdooHttpService? httpService;
   HttpAttendanceService? httpAttendanceService;
 
-  EnhancedCalendarNotifier(this.calendarService, this.httpService)
-    : super(CalendarState(selectedMonth: DateTime.now())) {
+  EnhancedCalendarNotifier(this.calendarService, this.httpService);
+
+  // Constructor without Odoo service for fallback
+  EnhancedCalendarNotifier.withoutOdoo(this.calendarService)
+    : httpService = null;
+
+  @override
+  CalendarState build() {
     Logger.debug(
       'EnhancedCalendarNotifier: Constructor called with httpService: ${httpService != null}',
     );
@@ -139,13 +126,7 @@ class EnhancedCalendarNotifier extends StateNotifier<CalendarState> {
       Logger.info('EnhancedCalendarNotifier: No HTTP service available');
     }
     loadSummaries();
-  }
-
-  // Constructor without Odoo service for fallback
-  EnhancedCalendarNotifier.withoutOdoo(this.calendarService)
-    : httpService = null,
-      super(CalendarState(selectedMonth: DateTime.now())) {
-    loadSummaries();
+    return CalendarState(selectedMonth: DateTime.now());
   }
 
   Future<void> loadSummaries() async {

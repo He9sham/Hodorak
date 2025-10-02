@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
-import 'package:hodorak/core/providers/login_notifier.dart';
 
 class SignUpState {
   final bool isLoading;
@@ -18,9 +17,14 @@ class SignUpState {
   }
 }
 
-class SignUpNotifier extends StateNotifier<SignUpState> {
+class SignUpNotifier extends Notifier<SignUpState> {
   final OdooHttpService _service;
-  SignUpNotifier(this._service) : super(const SignUpState());
+  SignUpNotifier(this._service);
+
+  @override
+  SignUpState build() {
+    return const SignUpState();
+  }
 
   Future<void> signUpEmployee({
     required String name,
@@ -69,8 +73,9 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
   }
 }
 
-final signUpNotifierProvider =
-    StateNotifierProvider<SignUpNotifier, SignUpState>((ref) {
-      final service = ref.read(odooHttpServiceProvider);
-      return SignUpNotifier(service);
-    });
+final signUpNotifierProvider = NotifierProvider<SignUpNotifier, SignUpState>(
+  () {
+    final service = OdooHttpService();
+    return SignUpNotifier(service);
+  },
+);

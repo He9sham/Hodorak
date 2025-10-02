@@ -38,11 +38,15 @@ class AuthState {
   }
 }
 
-class AuthStateManager extends StateNotifier<AuthState> {
+class AuthStateManager extends Notifier<AuthState> {
   final OdooHttpService _odooService;
 
-  AuthStateManager(this._odooService) : super(const AuthState()) {
+  AuthStateManager(this._odooService);
+
+  @override
+  AuthState build() {
     _checkAuthState();
+    return const AuthState();
   }
 
   Future<void> _checkAuthState() async {
@@ -198,8 +202,9 @@ final odooHttpServiceProvider = Provider<OdooHttpService>(
   (ref) => OdooHttpService(),
 );
 
-final authStateManagerProvider =
-    StateNotifierProvider<AuthStateManager, AuthState>((ref) {
-      final service = ref.read(odooHttpServiceProvider);
-      return AuthStateManager(service);
-    });
+final authStateManagerProvider = NotifierProvider<AuthStateManager, AuthState>(
+  () {
+    final service = OdooHttpService();
+    return AuthStateManager(service);
+  },
+);

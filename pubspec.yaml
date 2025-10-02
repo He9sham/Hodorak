@@ -24,17 +24,17 @@ environment:
 dependencies:
   animated_splash_screen: ^1.3.0
   cloud_firestore: ^6.0.2
-  connectivity_plus: ^6.1.0
+  connectivity_plus: ^7.0.0
   cupertino_icons: ^1.0.8
   firebase_core: ^4.1.1
   flutter:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.0.1
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.2.0
   font_awesome_flutter: ^10.10.0
-  get_it: ^7.7.0
+  get_it: ^8.2.0
   google_fonts: ^6.3.1
   http: ^1.5.0
   odoo_rpc: ^0.7.1
@@ -44,7 +44,7 @@ dependencies:
   table_calendar: ^3.1.2
 
 dev_dependencies:
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
 
 class UserProfileState {
   final Map<String, dynamic>? profileData;
@@ -26,11 +25,15 @@ class UserProfileState {
   }
 }
 
-class UserProfileNotifier extends StateNotifier<UserProfileState> {
+class UserProfileNotifier extends Notifier<UserProfileState> {
   final OdooHttpService _odooService;
 
-  UserProfileNotifier(this._odooService) : super(const UserProfileState()) {
+  UserProfileNotifier(this._odooService);
+
+  @override
+  UserProfileState build() {
     loadUserProfile();
+    return const UserProfileState();
   }
 
   Future<void> loadUserProfile() async {
@@ -50,7 +53,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 }
 
 final userProfileProvider =
-    StateNotifierProvider<UserProfileNotifier, UserProfileState>((ref) {
-      final odooService = ref.read(odooHttpServiceProvider);
+    NotifierProvider<UserProfileNotifier, UserProfileState>(() {
+      final odooService = OdooHttpService();
       return UserProfileNotifier(odooService);
     });

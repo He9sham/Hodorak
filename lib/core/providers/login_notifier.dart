@@ -34,10 +34,15 @@ class UserSession {
   }
 }
 
-class LoginNotifier extends StateNotifier<UserSession> {
+class LoginNotifier extends Notifier<UserSession> {
   final OdooHttpService _service;
 
-  LoginNotifier(this._service) : super(const UserSession());
+  LoginNotifier(this._service);
+
+  @override
+  UserSession build() {
+    return const UserSession();
+  }
 
   Future<String> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -69,9 +74,7 @@ final odooHttpServiceProvider = Provider<OdooHttpService>(
   (ref) => OdooHttpService(),
 );
 
-final loginNotifierProvider = StateNotifierProvider<LoginNotifier, UserSession>(
-  (ref) {
-    final service = ref.read(odooHttpServiceProvider);
-    return LoginNotifier(service);
-  },
-);
+final loginNotifierProvider = NotifierProvider<LoginNotifier, UserSession>(() {
+  final service = OdooHttpService();
+  return LoginNotifier(service);
+});

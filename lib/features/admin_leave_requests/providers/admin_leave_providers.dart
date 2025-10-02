@@ -16,16 +16,24 @@ final leaveRequestsStreamProvider = StreamProvider<List<LeaveRequest>>((ref) {
 
 // Provider for processing requests state
 final processingRequestsProvider =
-    StateNotifierProvider<ProcessingRequestsNotifier, Map<String, bool>>((ref) {
+    NotifierProvider<ProcessingRequestsNotifier, Map<String, bool>>(() {
       return ProcessingRequestsNotifier();
     });
 
 // Provider for delete all loading state
-final deleteAllLoadingProvider = StateProvider<bool>((ref) => false);
+final deleteAllLoadingProvider =
+    NotifierProvider<DeleteAllLoadingNotifier, bool>(() {
+      return DeleteAllLoadingNotifier();
+    });
 
 // Notifier for managing processing state
-class ProcessingRequestsNotifier extends StateNotifier<Map<String, bool>> {
-  ProcessingRequestsNotifier() : super({});
+class ProcessingRequestsNotifier extends Notifier<Map<String, bool>> {
+  ProcessingRequestsNotifier();
+
+  @override
+  Map<String, bool> build() {
+    return {};
+  }
 
   void setProcessing(String requestId, bool isProcessing) {
     state = {...state, requestId: isProcessing};
@@ -39,6 +47,20 @@ class ProcessingRequestsNotifier extends StateNotifier<Map<String, bool>> {
     final newState = Map<String, bool>.from(state);
     newState.remove(requestId);
     state = newState;
+  }
+}
+
+// Notifier for delete all loading state
+class DeleteAllLoadingNotifier extends Notifier<bool> {
+  DeleteAllLoadingNotifier();
+
+  @override
+  bool build() {
+    return false;
+  }
+
+  void setLoading(bool loading) {
+    state = loading;
   }
 }
 
@@ -58,7 +80,7 @@ final leaveRequestActionsProvider = Provider<LeaveRequestActions>((ref) {
 class LeaveRequestActions {
   final FirebaseLeaveService _service;
   final ProcessingRequestsNotifier _processingNotifier;
-  final StateController<bool> _deleteAllLoadingNotifier;
+  final DeleteAllLoadingNotifier _deleteAllLoadingNotifier;
 
   LeaveRequestActions(
     this._service,
@@ -85,12 +107,12 @@ class LeaveRequestActions {
   }
 
   Future<void> deleteAllRequests() async {
-    _deleteAllLoadingNotifier.state = true;
+    _deleteAllLoadingNotifier.setLoading(true);
 
     try {
       await _service.deleteAllLeaveRequests();
     } finally {
-      _deleteAllLoadingNotifier.state = false;
+      _deleteAllLoadingNotifier.setLoading(false);
     }
   }
 }
