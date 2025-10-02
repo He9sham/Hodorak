@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/services/biometric_auth_service.dart';
 import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
 
 class AttendanceButtons extends ConsumerStatefulWidget {
@@ -19,6 +20,7 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
   late Timer _timer;
   String _currentTime = '';
   String _currentDate = '';
+  final BiometricAuthService _biometricAuthService = BiometricAuthService();
 
   @override
   void initState() {
@@ -101,6 +103,20 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         return;
       }
 
+      // Perform biometric authentication first
+      try {
+        final bool isAuthenticated = await _biometricAuthService.authenticate(
+          action: 'check in',
+        );
+        if (!isAuthenticated) {
+          _showErrorMessage('Authentication failed. Please try again.');
+          return;
+        }
+      } catch (e) {
+        _showErrorMessage('Authentication failed. Please try again.');
+        return;
+      }
+
       // Get employee ID from user ID
       final employeeId = await odooService.getEmployeeIdFromUserId(
         authState.uid!,
@@ -142,6 +158,20 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
 
       if (!authState.isAuthenticated || authState.uid == null) {
         _showErrorMessage('You are not authenticated. Please login again.');
+        return;
+      }
+
+      // Perform biometric authentication first
+      try {
+        final bool isAuthenticated = await _biometricAuthService.authenticate(
+          action: 'check out',
+        );
+        if (!isAuthenticated) {
+          _showErrorMessage('Authentication failed. Please try again.');
+          return;
+        }
+      } catch (e) {
+        _showErrorMessage('Authentication failed. Please try again.');
         return;
       }
 

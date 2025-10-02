@@ -95,14 +95,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                   // Navigate to profile screen
                 },
               ),
-              _buildDrawerItem(
-                icon: Icons.real_estate_agent,
-                title: 'Requests',
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navigate to attendance screen
-                },
-              ),
+
               _buildDrawerItem(
                 icon: Icons.calendar_today,
                 title: 'Calendar',
