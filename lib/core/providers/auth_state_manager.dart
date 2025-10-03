@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 import 'package:hodorak/core/utils/routes.dart';
 
 class AuthState {
@@ -210,7 +211,6 @@ final odooHttpServiceProvider = Provider<OdooHttpService>(
 
 final authStateManagerProvider = NotifierProvider<AuthStateManager, AuthState>(
   () {
-    final service = OdooHttpService();
-    return AuthStateManager(service);
+    return AuthStateManager(odooService);
   },
 );

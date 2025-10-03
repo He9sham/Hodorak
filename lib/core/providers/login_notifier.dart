@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 import 'package:hodorak/core/utils/routes.dart';
 
 class UserSession {
@@ -70,11 +71,8 @@ class LoginNotifier extends Notifier<UserSession> {
   }
 }
 
-final odooHttpServiceProvider = Provider<OdooHttpService>(
-  (ref) => OdooHttpService(),
-);
+final odooHttpServiceProvider = Provider<OdooHttpService>((ref) => odooService);
 
 final loginNotifierProvider = NotifierProvider<LoginNotifier, UserSession>(() {
-  final service = OdooHttpService();
-  return LoginNotifier(service);
+  return LoginNotifier(odooService);
 });

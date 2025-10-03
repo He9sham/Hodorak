@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hodorak/core/models/leave_request.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 
 class FirebaseLeaveService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -26,6 +28,34 @@ class FirebaseLeaveService {
       final docRef = await _firestore
           .collection(_collectionName)
           .add(leaveRequest.toMap());
+
+      // Show notification to user that request was submitted
+      try {
+        await notificationService.showLeaveRequestSubmittedNotification(
+          userId: userId,
+        );
+      } catch (e) {
+        // Log error but don't fail the leave request submission
+        debugPrint('Failed to show leave request submitted notification: $e');
+      }
+
+      // Show notification to manager (if admin is logged in)
+      try {
+        final userProfile = await odooService.getUserProfile();
+        if (userProfile != null && userProfile['name'] != null) {
+          await notificationService.showManagerLeaveRequestNotification(
+            username: userProfile['name'],
+          );
+        } else {
+          // If we can't get user profile, still show notification with userId
+          await notificationService.showManagerLeaveRequestNotification(
+            username: 'User $userId',
+          );
+        }
+      } catch (e) {
+        // Log error but don't fail the leave request submission
+        debugPrint('Failed to show manager notification: $e');
+      }
 
       return docRef.id;
     } catch (e) {
@@ -94,10 +124,38 @@ class FirebaseLeaveService {
         throw Exception('Invalid status: $status');
       }
 
+      // Get the leave request to get the userId before updating
+      final docSnapshot = await _firestore
+          .collection(_collectionName)
+          .doc(requestId)
+          .get();
+      if (!docSnapshot.exists) {
+        throw Exception('Leave request not found');
+      }
+
+      final leaveRequestData = docSnapshot.data()!;
+      final userId = leaveRequestData['userId'] as String;
+
       await _firestore.collection(_collectionName).doc(requestId).update({
         'status': status,
         'updatedAt': DateTime.now().toIso8601String(),
       });
+
+      // Show appropriate notification based on status
+      try {
+        if (status == 'approved') {
+          await notificationService.showLeaveRequestApprovedNotification(
+            userId: userId,
+          );
+        } else if (status == 'rejected') {
+          await notificationService.showLeaveRequestRejectedNotification(
+            userId: userId,
+          );
+        }
+      } catch (e) {
+        // Log error but don't fail the status update
+        debugPrint('Failed to show leave status notification: $e');
+      }
     } catch (e) {
       throw Exception('Failed to update leave status: $e');
     }

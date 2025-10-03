@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 
 class DailySummaryState {
   final DailyAttendanceSummary? summary;
@@ -147,6 +148,5 @@ class DailySummaryNotifier extends Notifier<DailySummaryState> {
 
 final currentDailySummaryProvider =
     NotifierProvider<DailySummaryNotifier, DailySummaryState>(() {
-      final odooHttpService = OdooHttpService();
-      return DailySummaryNotifier(odooHttpService);
+      return DailySummaryNotifier(odooService);
     });

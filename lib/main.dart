@@ -12,6 +12,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupServiceLocator();
+  await notificationService.initialize();
+
   runApp(ProviderScope(child: const Hodorak()));
 }
 

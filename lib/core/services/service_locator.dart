@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
 import 'package:hodorak/core/services/firebase_leave_service.dart';
+import 'package:hodorak/core/services/notification_service.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -12,8 +13,12 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<FirebaseLeaveService>(
     () => FirebaseLeaveService(),
   );
+
+  // Register Notification Service
+  getIt.registerLazySingleton<NotificationService>(() => NotificationService());
 }
 
 // Helper functions for easy access
 OdooHttpService get odooService => getIt<OdooHttpService>();
 FirebaseLeaveService get firebaseLeaveService => getIt<FirebaseLeaveService>();
+NotificationService get notificationService => getIt<NotificationService>();

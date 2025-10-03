@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 
 class UserProfileState {
   final Map<String, dynamic>? profileData;
@@ -60,6 +61,5 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
 
 final userProfileProvider =
     NotifierProvider<UserProfileNotifier, UserProfileState>(() {
-      final odooService = OdooHttpService();
       return UserProfileNotifier(odooService);
     });
