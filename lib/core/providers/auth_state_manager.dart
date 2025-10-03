@@ -45,8 +45,14 @@ class AuthStateManager extends Notifier<AuthState> {
 
   @override
   AuthState build() {
-    _checkAuthState();
+    // Don't call async methods in build() - this causes initialization issues
+    // The auth check should be triggered from the UI when needed
     return const AuthState();
+  }
+
+  /// Initialize auth state - call this when the app starts
+  Future<void> initializeAuthState() async {
+    await _checkAuthState();
   }
 
   Future<void> _checkAuthState() async {

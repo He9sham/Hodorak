@@ -61,11 +61,13 @@ class AdminCalendarNotifier extends Notifier<AdminCalendarState> {
 
   @override
   AdminCalendarState build() {
-    _loadInitialData();
+    // Don't call async methods in build() - this causes initialization issues
+    // Data loading should be triggered when needed
     return AdminCalendarState();
   }
 
-  Future<void> _loadInitialData() async {
+  /// Initialize admin calendar data - call this when the admin calendar screen loads
+  Future<void> initializeAdminCalendar() async {
     await loadEmployees();
     await loadAttendanceData();
     // Set today as selected day after data is loaded

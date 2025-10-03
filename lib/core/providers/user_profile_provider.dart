@@ -32,8 +32,14 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
 
   @override
   UserProfileState build() {
-    loadUserProfile();
+    // Don't call async methods in build() - this causes initialization issues
+    // Profile loading should be triggered when needed
     return const UserProfileState();
+  }
+
+  /// Initialize user profile - call this when the profile screen loads
+  Future<void> initializeUserProfile() async {
+    await loadUserProfile();
   }
 
   Future<void> loadUserProfile() async {

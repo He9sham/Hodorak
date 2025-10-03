@@ -28,6 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
+  bool _isLoggingIn = false; // Track if user is actively logging in
   late final TapGestureRecognizer _signUpRecognizer;
 
   @override
@@ -50,6 +51,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   /// Login using HTTP service + role-based navigation
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoggingIn = true;
+    });
+
     try {
       await ref
           .read(authStateManagerProvider.notifier)
@@ -96,12 +102,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         );
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoggingIn = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authStateManagerProvider);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -173,23 +184,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       },
                     ),
                     verticalSpace(30),
-                    // Error Message
-                    if (authState.error != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          authState.error!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-
                     // Login Button
                     CustomButtonAuth(
                       title: 'Sign in',
                       onPressed: () async {
-                        authState.isLoading ? null : await login();
+                        _isLoggingIn ? null : await login();
                       },
-                      isLoading: authState.isLoading,
+                      isLoading: _isLoggingIn,
                     ),
                     verticalSpace(24),
                     DividerRow(title: 'Or Log in with', spaceRow: 235),

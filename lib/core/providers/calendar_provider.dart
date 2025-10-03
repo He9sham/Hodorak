@@ -42,7 +42,8 @@ class CalendarNotifier extends Notifier<CalendarState> {
 
   @override
   CalendarState build() {
-    loadSummaries();
+    // Don't call async methods in build() - this causes initialization issues
+    // Data loading should be triggered when needed
     return CalendarState(selectedMonth: DateTime.now());
   }
 
@@ -125,7 +126,8 @@ class EnhancedCalendarNotifier extends Notifier<CalendarState> {
     } else {
       Logger.info('EnhancedCalendarNotifier: No HTTP service available');
     }
-    loadSummaries();
+    // Don't call async methods in build() - this causes initialization issues
+    // Data loading should be triggered when needed
     return CalendarState(selectedMonth: DateTime.now());
   }
 
