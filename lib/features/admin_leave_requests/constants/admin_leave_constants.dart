@@ -56,7 +56,7 @@ class AdminLeaveConstants {
   static const String startDateLabel = 'Start Date';
   static const String endDateLabel = 'End Date';
   static const String submittedLabel = 'Submitted';
-  static const String userIdLabel = 'User ID';
+  static const String userNameLabel = 'User Name';
 
   // Success Messages
   static const String approveSuccessMessage =

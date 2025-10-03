@@ -3,6 +3,7 @@ import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
 import 'package:hodorak/core/services/calendar_service.dart';
 import 'package:hodorak/core/services/http_attendance_service.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 import 'package:hodorak/core/utils/logger.dart';
 
 class AdminCalendarState {
@@ -270,7 +271,6 @@ final adminCalendarProvider =
     NotifierProvider<AdminCalendarNotifier, AdminCalendarState>(() {
       // For now, return a basic notifier without auth checking
       // The auth state checking will need to be handled differently in the new Riverpod
-      final odooService = OdooHttpService();
       final calendarService = CalendarService();
       return AdminCalendarNotifier(odooService, calendarService);
     });

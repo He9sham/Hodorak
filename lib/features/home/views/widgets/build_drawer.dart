@@ -121,8 +121,8 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                 isInfo: true,
               ),
               _buildDrawerItem(
-                icon: Icons.email,
-                title: 'Email: ${authState.name ?? 'N/A'}',
+                icon: Icons.person,
+                title: 'Name: ${authState.name ?? 'N/A'}',
                 onTap: () {},
                 isInfo: true,
               ),

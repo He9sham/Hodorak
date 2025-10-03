@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../unknwon_for_database.dart';
 import '../services/network_service.dart';
 import '../utils/logger.dart';
@@ -403,7 +405,6 @@ class OdooHttpService {
   }
 
   // Leaves (hr.leave)
- 
 
   Future<List<Map<String, dynamic>>> getEmployeesAttendance() async {
     if (!await isAdmin()) throw Exception('Not authorized');
@@ -538,8 +539,6 @@ class OdooHttpService {
       throw Exception('Failed to fetch current user attendance for date: $e');
     }
   }
-
-
 
   Future<int> signUpEmployee({
     required String name,
@@ -729,6 +728,36 @@ class OdooHttpService {
           'hire_date': employee['create_date'] ?? 'N/A',
           'department': departmentName ?? 'N/A',
         };
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Get user name from user ID
+  Future<String?> getUserNameFromUserId(String userId) async {
+    try {
+      final userIdInt = int.tryParse(userId);
+      if (userIdInt == null) return null;
+
+      final employeeRes = await _callKw(
+        'hr.employee',
+        'search_read',
+        args: [
+          [
+            ['user_id', '=', userIdInt],
+          ],
+        ],
+        kwargs: {
+          'fields': ['name'],
+          'limit': 1,
+        },
+      );
+      final employees = (employeeRes['result'] ?? employeeRes) as List;
+
+      if (employees.isNotEmpty) {
+        return employees.first['name'] as String?;
       }
       return null;
     } catch (e) {

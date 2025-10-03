@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 
 class SignUpState {
   final bool isLoading;
@@ -75,7 +76,6 @@ class SignUpNotifier extends Notifier<SignUpState> {
 
 final signUpNotifierProvider = NotifierProvider<SignUpNotifier, SignUpState>(
   () {
-    final service = OdooHttpService();
-    return SignUpNotifier(service);
+    return SignUpNotifier(odooService);
   },
 );

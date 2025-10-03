@@ -205,10 +205,6 @@ class AuthStateManager extends Notifier<AuthState> {
   }
 }
 
-final odooHttpServiceProvider = Provider<OdooHttpService>(
-  (ref) => OdooHttpService(),
-);
-
 final authStateManagerProvider = NotifierProvider<AuthStateManager, AuthState>(
   () {
     return AuthStateManager(odooService);

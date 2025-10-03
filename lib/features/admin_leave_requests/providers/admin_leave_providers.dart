@@ -1,11 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/leave_request.dart';
+import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
 import 'package:hodorak/core/services/firebase_leave_service.dart';
 import 'package:hodorak/core/services/service_locator.dart';
 
 // Provider for Firebase Leave Service
 final firebaseLeaveServiceProvider = Provider<FirebaseLeaveService>((ref) {
   return firebaseLeaveService;
+});
+
+// Provider for Odoo HTTP Service
+final odooHttpServiceProvider = Provider<OdooHttpService>((ref) {
+  return odooService;
 });
 
 // Provider for leave requests stream
@@ -25,6 +31,15 @@ final deleteAllLoadingProvider =
     NotifierProvider<DeleteAllLoadingNotifier, bool>(() {
       return DeleteAllLoadingNotifier();
     });
+
+// Provider for user name lookups
+final userNameProvider = FutureProvider.family<String?, String>((
+  ref,
+  userId,
+) async {
+  final odooService = ref.watch(odooHttpServiceProvider);
+  return await odooService.getUserNameFromUserId(userId);
+});
 
 // Notifier for managing processing state
 class ProcessingRequestsNotifier extends Notifier<Map<String, bool>> {
