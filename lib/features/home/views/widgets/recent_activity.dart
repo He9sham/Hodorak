@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RecentActivity extends StatelessWidget {
   const RecentActivity({super.key, required this.title});
@@ -15,7 +16,7 @@ class RecentActivity extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(Icons.history, size: 48, color: Colors.grey.shade400),
+          Icon(Icons.history, size: 48.sp, color: Colors.grey.shade400),
           const SizedBox(height: 8),
           Text(
             title,

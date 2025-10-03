@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/features/admin_leave_requests/constants/admin_leave_constants.dart';
 
 class LeaveRequestsEmptyState extends StatelessWidget {
@@ -6,16 +7,16 @@ class LeaveRequestsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+          Icon(Icons.inbox_outlined, size: 64.sp, color: Colors.grey),
           SizedBox(height: AdminLeaveConstants.cardMargin),
           Text(
             AdminLeaveConstants.noRequestsTitle,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w500,
               color: Colors.grey,
             ),

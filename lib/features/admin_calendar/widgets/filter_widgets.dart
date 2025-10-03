@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 
 class FilterWidgets extends StatelessWidget {
@@ -32,7 +33,7 @@ class FilterWidgets extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.filter_list, color: Colors.blue[600], size: 20),
+              Icon(Icons.filter_list, color: Colors.blue[600], size: 20.sp),
               const SizedBox(width: 8),
               Text(
                 'Filters',
@@ -41,12 +42,12 @@ class FilterWidgets extends StatelessWidget {
                   color: Colors.blue[600],
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               if (selectedDate != null || selectedUserId != null)
                 TextButton.icon(
                   onPressed: onClearFilters,
-                  icon: const Icon(Icons.clear, size: 16),
-                  label: const Text('Clear'),
+                  icon: Icon(Icons.clear, size: 16.sp),
+                  label: Text('Clear'),
                   style: TextButton.styleFrom(foregroundColor: Colors.red[600]),
                 ),
             ],
@@ -91,7 +92,11 @@ class FilterWidgets extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                Icon(
+                  Icons.calendar_today,
+                  size: 16.sp,
+                  color: Colors.grey[600],
+                ),
                 horizontalSpace(8),
                 Expanded(
                   child: Text(
@@ -108,7 +113,11 @@ class FilterWidgets extends StatelessWidget {
                 if (selectedDate != null)
                   GestureDetector(
                     onTap: () => onDateChanged(null),
-                    child: Icon(Icons.clear, size: 16, color: Colors.grey[600]),
+                    child: Icon(
+                      Icons.clear,
+                      size: 16.sp,
+                      color: Colors.grey[600],
+                    ),
                   ),
               ],
             ),
@@ -146,7 +155,11 @@ class FilterWidgets extends StatelessWidget {
               borderSide: BorderSide(color: Colors.blue[600]!),
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            prefixIcon: Icon(Icons.person, size: 16, color: Colors.grey[600]),
+            prefixIcon: Icon(
+              Icons.person,
+              size: 16.sp,
+              color: Colors.grey[600],
+            ),
           ),
           hint: Text('Select employee'),
           items: [

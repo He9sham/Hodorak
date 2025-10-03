@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
@@ -41,7 +42,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                             ? authState.name![0].toUpperCase()
                             : 'U',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                           color: Color(0xff8C9F5F),
                         ),
@@ -54,7 +55,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                     authState.name ?? 'User',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -70,7 +71,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                       authState.isAdmin ? 'Administrator' : 'Employee',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -171,7 +172,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
               icon: Icon(Icons.logout, color: Colors.white),
               label: Text(
                 'Logout',
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: Colors.white, fontSize: 16.sp),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,

@@ -1,6 +1,5 @@
-
 import 'package:flutter/material.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StatusSummaryContainer extends StatelessWidget {
   const StatusSummaryContainer({
@@ -32,11 +31,11 @@ class StatusSummaryContainer extends StatelessWidget {
 
             Text(
               title,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400),
             ),
             Text(
               subtitle,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w400),
             ),
           ],
         ),

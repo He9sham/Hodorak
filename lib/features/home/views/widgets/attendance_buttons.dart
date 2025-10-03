@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/services/biometric_auth_service.dart';
 import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
@@ -284,7 +285,7 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
           Text(
             'Attendance',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Color(0xff8C9F5F),
             ),
@@ -302,15 +303,15 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
               children: [
                 Text(
                   _currentTime,
-                  style: const TextStyle(
-                    fontSize: 24,
+                  style: TextStyle(
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
                     color: Color(0xff8C9F5F),
                   ),
                 ),
                 Text(
                   _currentDate,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
                 ),
               ],
             ),

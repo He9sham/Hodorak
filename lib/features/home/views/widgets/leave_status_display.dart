@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/models/leave_request.dart';
 import 'package:hodorak/core/services/service_locator.dart';
 
@@ -143,7 +144,7 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
           children: [
             Row(
               children: [
-                Icon(statusIcon, color: statusColor, size: 24),
+                Icon(statusIcon, color: statusColor, size: 24.sp),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -151,7 +152,7 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: statusColor,
-                      fontSize: 16,
+                      fontSize: 16.sp,
                     ),
                   ),
                 ),
@@ -161,12 +162,12 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
               const SizedBox(height: 8),
               Text(
                 'Leave Period: ${_latestRequest!.startDate.day}/${_latestRequest!.startDate.month}/${_latestRequest!.startDate.year} - ${_latestRequest!.endDate.day}/${_latestRequest!.endDate.month}/${_latestRequest!.endDate.year}',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 14.sp),
               ),
               const SizedBox(height: 4),
               Text(
                 'Reason: ${_latestRequest!.reason}',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 14.sp),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -174,7 +175,7 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
               const SizedBox(height: 8),
               Text(
                 'Submitted on: ${_latestRequest!.createdAt.day}/${_latestRequest!.createdAt.month}/${_latestRequest!.createdAt.year}',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 14.sp),
               ),
             ],
           ],

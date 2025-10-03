@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/providers/daily_summary_provider.dart';
@@ -22,7 +23,7 @@ class UserHomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Hodorak',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Color(0xff8C9F5F),
         leading: Builder(
@@ -32,7 +33,7 @@ class UserHomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
-          Icon(Icons.notifications_active_outlined, size: 30),
+          Icon(Icons.notifications_active_outlined, size: 30.sp),
           horizontalSpace(8),
           Container(
             decoration: BoxDecoration(shape: BoxShape.circle),

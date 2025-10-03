@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/widgets/custom_text_form_field.dart';
@@ -99,14 +100,14 @@ class _AdminPasswordResetScreenState
                     Icon(
                       Icons.admin_panel_settings,
                       color: Colors.blue.shade600,
-                      size: 24,
+                      size: 24.sp,
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Admin Only: Reset User Password',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -115,11 +116,14 @@ class _AdminPasswordResetScreenState
                 ),
               ),
               verticalSpace(32),
-              const Row(
+              Row(
                 children: [
                   Text(
                     'User Email',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -141,11 +145,14 @@ class _AdminPasswordResetScreenState
                 },
               ),
               verticalSpace(24),
-              const Row(
+              Row(
                 children: [
                   Text(
                     'New Password',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -165,12 +172,12 @@ class _AdminPasswordResetScreenState
                 },
               ),
               verticalSpace(32),
-              const Row(
+              Row(
                 children: [
                   Expanded(
                     child: Text(
                       'This will reset the password for the specified user. The user will need to use this new password to log in.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      style: TextStyle(fontSize: 14.sp, color: Colors.grey),
                     ),
                   ),
                 ],
@@ -195,7 +202,7 @@ class _AdminPasswordResetScreenState
                       Icon(
                         Icons.error_outline,
                         color: Colors.red.shade600,
-                        size: 20,
+                        size: 20.sp,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -203,7 +210,7 @@ class _AdminPasswordResetScreenState
                           authState.error!,
                           style: TextStyle(
                             color: Colors.red.shade600,
-                            fontSize: 14,
+                            fontSize: 14.sp,
                           ),
                         ),
                       ),

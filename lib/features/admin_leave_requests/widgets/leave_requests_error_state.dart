@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/features/admin_leave_requests/constants/admin_leave_constants.dart';
 
 class LeaveRequestsErrorState extends StatelessWidget {
@@ -17,7 +18,7 @@ class LeaveRequestsErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+          Icon(Icons.error_outline, size: 64.sp, color: Colors.red.shade300),
           const SizedBox(height: AdminLeaveConstants.cardMargin),
           Text(
             AdminLeaveConstants.errorTitle,

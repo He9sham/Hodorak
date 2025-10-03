@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -47,7 +48,7 @@ class AdminCalendarWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            Icon(Icons.error_outline, size: 64.sp, color: Colors.red[300]),
             verticalSpace(16),
             Text(
               'Error loading data',

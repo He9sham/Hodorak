@@ -22,7 +22,7 @@ class GeoLocation extends StatelessWidget {
           left: 20,
           child: Text(
             'Geo Location',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
         ),
 
@@ -45,7 +45,7 @@ class GeoLocation extends StatelessWidget {
               horizontalSpace(8),
               Text(
                 'You are inside the allowed zone',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
               ),
             ],
           ),

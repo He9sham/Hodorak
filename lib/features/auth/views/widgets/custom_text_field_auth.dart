@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/widgets/custom_text_form_field.dart';
 
 class CustomTextFieldAuth extends StatelessWidget {
@@ -30,7 +31,7 @@ class CustomTextFieldAuth extends StatelessWidget {
             borderRadius: BorderRadius.circular(100),
             borderSide: BorderSide(color: Colors.black),
           ),
-          hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          hintStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400),
           controller: controller,
           keyboardType: keyboardType ?? TextInputType.emailAddress,
           hintText: hintText,

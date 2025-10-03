@@ -37,7 +37,7 @@ class AttendanceSummaryWidget extends StatelessWidget {
           // Date header
           Row(
             children: [
-              Icon(Icons.calendar_today, size: 20, color: Colors.blue[600]),
+              Icon(Icons.calendar_today, size: 20.sp, color: Colors.blue[600]),
               horizontalSpace(8),
               Text(
                 _formatDate(summary.date),
@@ -137,19 +137,22 @@ class AttendanceSummaryWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 20),
+          Icon(icon, color: color, size: 20.sp),
           const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
           Text(
             label,
-            style: TextStyle(fontSize: 12, color: color.withValues(alpha: 0.8)),
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: color.withValues(alpha: 0.8),
+            ),
           ),
         ],
       ),
@@ -165,7 +168,7 @@ class AttendanceSummaryWidget extends StatelessWidget {
           child: Icon(
             employee.isPresent ? Icons.check : Icons.close,
             color: Colors.white,
-            size: 20,
+            size: 20.sp,
           ),
         ),
         title: Text(
@@ -187,7 +190,7 @@ class AttendanceSummaryWidget extends StatelessWidget {
           ],
         ),
         trailing: employee.isPresent
-            ? const Icon(Icons.arrow_forward_ios, size: 16)
+            ? Icon(Icons.arrow_forward_ios, size: 16.sp)
             : null,
         onTap: employee.isPresent ? () => onUserTap(employee) : null,
       ),

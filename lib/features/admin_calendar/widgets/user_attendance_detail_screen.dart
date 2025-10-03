@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 
@@ -46,7 +47,7 @@ class UserAttendanceDetailScreen extends StatelessWidget {
                                   ? Icons.check
                                   : Icons.close,
                               color: Colors.white,
-                              size: 30,
+                              size: 30.sp,
                             ),
                           ),
                           horizontalSpace(16),
@@ -148,9 +149,9 @@ class UserAttendanceDetailScreen extends StatelessWidget {
                     subtitle: employeeAttendance.checkIn != null
                         ? Text(
                             _formatDateTime(employeeAttendance.checkIn!),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 16.sp,
                             ),
                           )
                         : const Text('Not recorded'),
@@ -169,9 +170,9 @@ class UserAttendanceDetailScreen extends StatelessWidget {
                     subtitle: employeeAttendance.checkOut != null
                         ? Text(
                             _formatDateTime(employeeAttendance.checkOut!),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 16.sp,
                             ),
                           )
                         : const Text('Still at work'),
@@ -190,9 +191,9 @@ class UserAttendanceDetailScreen extends StatelessWidget {
                     subtitle: employeeAttendance.workingHours != null
                         ? Text(
                             _formatDuration(employeeAttendance.workingHours!),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 16.sp,
                             ),
                           )
                         : const Text('Calculating...'),
@@ -207,7 +208,7 @@ class UserAttendanceDetailScreen extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.person_off,
-                          size: 64,
+                          size: 64.sp,
                           color: Colors.red[300],
                         ),
                         verticalSpace(16),

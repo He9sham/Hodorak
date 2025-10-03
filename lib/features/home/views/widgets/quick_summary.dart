@@ -64,7 +64,7 @@ class QuickSummary extends StatelessWidget {
           left: 20,
           child: Text(
             'Quick Summary',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
         ),
         Positioned(

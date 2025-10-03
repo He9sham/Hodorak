@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AdminLeaveConstants {
   // Colors
@@ -22,22 +23,22 @@ class AdminLeaveConstants {
   static const double buttonSpacing = 12.0;
 
   // Text Styles
-  static const TextStyle statusChipTextStyle = TextStyle(
+  static TextStyle statusChipTextStyle = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12,
+    fontSize: 12.sp,
   );
 
-  static const TextStyle detailLabelStyle = TextStyle(
+  static TextStyle detailLabelStyle = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 14,
+    fontSize: 14.sp,
   );
 
-  static const TextStyle detailValueStyle = TextStyle(
-    fontSize: 16,
+  static TextStyle detailValueStyle = TextStyle(
+    fontSize: 16.sp,
     fontWeight: FontWeight.w500,
   );
 
-  static const TextStyle userIdStyle = TextStyle(fontSize: 14);
+  static TextStyle userIdStyle = TextStyle(fontSize: 14.sp);
 
   // Strings
   static const String screenTitle = 'Leave Requests Management';

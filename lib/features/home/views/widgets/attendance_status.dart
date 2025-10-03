@@ -22,7 +22,7 @@ class AttendanceStatus extends StatelessWidget {
           top: 15,
           child: Text(
             'Attendance Status Today',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
           ),
         ),
         Positioned(
@@ -70,7 +70,10 @@ class AttendanceStatus extends StatelessWidget {
                 horizontalSpace(5),
                 Text(
                   '01:03',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10.sp,
+                  ),
                 ),
               ],
             ),
@@ -85,7 +88,7 @@ class AttendanceStatus extends StatelessWidget {
               horizontalSpace(5),
               Text(
                 'You have not checked in yet',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -108,7 +111,7 @@ class AttendanceStatus extends StatelessWidget {
                 Text(
                   'Check-In',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -131,7 +134,7 @@ class AttendanceStatus extends StatelessWidget {
               child: Text(
                 'Temporary Leave',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w400,
                   color: Colors.white,
                 ),
@@ -157,7 +160,7 @@ class AttendanceStatus extends StatelessWidget {
                 Text(
                   'Check-Out',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),

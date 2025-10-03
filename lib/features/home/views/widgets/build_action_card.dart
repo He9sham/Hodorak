@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Widget buildActionCard(
   BuildContext context, {
@@ -26,7 +26,7 @@ Widget buildActionCard(
       ),
       child: Column(
         children: [
-          Icon(icon, size: 32, color: Colors.blue.shade600),
+          Icon(icon, size: 32.sp, color: Colors.blue.shade600),
           const SizedBox(height: 8),
           Text(
             title,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomButtonAuth extends StatelessWidget {
   const CustomButtonAuth({
@@ -39,7 +40,10 @@ class CustomButtonAuth extends StatelessWidget {
                   )
                 : Text(
                     title,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
           ),
         ),

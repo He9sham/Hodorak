@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
@@ -148,7 +149,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     'Sign Up',
                     style: Styles.textSize13Black600.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 32,
+                      fontSize: 32.sp,
                     ),
                   ),
                   verticalSpace(48),
@@ -418,7 +419,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     signUpState.error!.contains('HTTP error')
                                 ? Colors.orange
                                 : Colors.red,
-                            size: 20,
+                            size: 20.sp,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
@@ -437,7 +438,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                         )
                                     ? Colors.orange.shade800
                                     : Colors.red.shade800,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                             ),
                           ),

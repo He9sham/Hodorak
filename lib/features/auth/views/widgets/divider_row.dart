@@ -27,7 +27,7 @@ class DividerRow extends StatelessWidget {
               title,
               style: TextStyle(
                 color: Color(0xff929292),
-                fontSize: 15,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w400,
               ),
             ),

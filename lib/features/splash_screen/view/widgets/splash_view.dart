@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SplashView extends StatelessWidget {
   const SplashView({super.key});
@@ -9,11 +10,11 @@ class SplashView extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-          left: -120,
-          top: -105,
+          left: -120.w,
+          top: -105.h,
           child: Container(
-            height: 360,
-            width: 360,
+            height: 360.h,
+            width: 360.w,
             decoration: BoxDecoration(
               color: Color(0xffF5BA3A),
               shape: BoxShape.circle,
@@ -21,16 +22,16 @@ class SplashView extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 350,
-          left: 100,
-          child: Image.asset('assets/Hodorak.png', height: 150),
+          top: 350.h,
+          left: 100.w,
+          child: Image.asset('assets/Hodorak.png', height: 150.h),
         ),
         Positioned(
-          bottom: -120,
-          right: -100,
+          bottom: -120.h,
+          right: -100.w,
           child: Container(
-            height: 360,
-            width: 360,
+            height: 360.h,
+            width: 360.w,
             decoration: BoxDecoration(
               color: Color(0xff8C9F5F),
               shape: BoxShape.circle,

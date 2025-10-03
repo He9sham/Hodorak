@@ -403,26 +403,7 @@ class OdooHttpService {
   }
 
   // Leaves (hr.leave)
-  Future<int> requestLeave({
-    required int employeeId,
-    required String dateFrom,
-    required String dateTo,
-    required String reason,
-  }) async {
-    final res = await _callKw(
-      'hr.leave',
-      'create',
-      args: [
-        {
-          'employee_id': employeeId,
-          'request_date_from': dateFrom,
-          'request_date_to': dateTo,
-          'name': reason,
-        },
-      ],
-    );
-    return (res['result'] ?? res) as int;
-  }
+ 
 
   Future<List<Map<String, dynamic>>> getEmployeesAttendance() async {
     if (!await isAdmin()) throw Exception('Not authorized');
@@ -558,18 +539,7 @@ class OdooHttpService {
     }
   }
 
-  Future<bool> approveLeave(int leaveId) async {
-    if (!await isAdmin()) throw Exception('Not authorized');
-    // action_approve requires proper server-side rights
-    final res = await _callKw(
-      'hr.leave',
-      'action_approve',
-      args: [
-        [leaveId],
-      ],
-    );
-    return (res['result'] ?? res) == true || (res['result'] ?? res) == null;
-  }
+
 
   Future<int> signUpEmployee({
     required String name,

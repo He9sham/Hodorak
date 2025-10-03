@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/services/service_locator.dart';
 
 class LeaveRequestForm extends ConsumerStatefulWidget {
@@ -123,11 +124,14 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.event_available, size: 24),
+                  Icon(Icons.event_available, size: 24.sp),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Request Leave',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Spacer(),
                   IconButton(
