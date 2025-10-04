@@ -201,6 +201,7 @@ class EnhancedCalendarNotifier extends Notifier<CalendarState> {
   }
 
   /// Fetch live attendance data for current user on a specific date
+  /// Only returns summary if user actually attended on that date
   Future<DailyAttendanceSummary?> getAttendanceForDate(DateTime date) async {
     if (httpAttendanceService == null) {
       Logger.info('No attendance service available for date: $date');
@@ -212,10 +213,17 @@ class EnhancedCalendarNotifier extends Notifier<CalendarState> {
       final summary = await httpAttendanceService!
           .createCurrentUserSummaryForDate(date);
 
-      Logger.info(
-        'Current user data found: ${summary.presentEmployees}/${summary.totalEmployees} present',
-      );
-      return summary;
+      if (summary != null) {
+        Logger.info(
+          'Current user data found: ${summary.presentEmployees}/${summary.totalEmployees} present',
+        );
+        return summary;
+      } else {
+        Logger.info(
+          'No attendance data found for date: $date (user did not attend)',
+        );
+        return null;
+      }
     } catch (e) {
       Logger.error('Error fetching current user data for $date: $e');
       state = state.copyWith(errorMessage: 'Failed to fetch attendance: $e');

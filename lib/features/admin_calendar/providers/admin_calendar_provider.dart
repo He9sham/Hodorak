@@ -113,7 +113,7 @@ class AdminCalendarNotifier extends Notifier<AdminCalendarState> {
 
       final summaries = <DailyAttendanceSummary>[];
 
-      // Load data for each day in the month
+      // Load data for each day in the month - only include days with actual attendance
       for (int day = 1; day <= endDate.day; day++) {
         final date = DateTime(
           state.focusedDay.year,
@@ -122,13 +122,16 @@ class AdminCalendarNotifier extends Notifier<AdminCalendarState> {
         );
         try {
           final summary = await httpService.createDailySummaryForDate(date);
-          summaries.add(summary);
+          // Only add summary if it exists (meaning there are actual attendance records)
+          if (summary != null) {
+            summaries.add(summary);
+          }
+          // Skip days without any attendance records
         } catch (e) {
           Logger.warning(
             'AdminCalendarNotifier: Failed to load data for $date: $e',
           );
-          // Create empty summary for days without data
-          summaries.add(_createEmptySummary(date));
+          // Don't create empty summaries - only show days with actual attendance
         }
       }
 

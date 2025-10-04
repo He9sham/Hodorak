@@ -29,13 +29,14 @@ class HttpAttendanceService {
   }
 
   /// Create daily attendance summary for today
-  Future<DailyAttendanceSummary> createDailySummary() async {
+  Future<DailyAttendanceSummary?> createDailySummary() async {
     final today = DateTime.now();
     return createDailySummaryForDate(today);
   }
 
   /// Create daily attendance summary for current user on a specific date
-  Future<DailyAttendanceSummary> createCurrentUserSummaryForDate(
+  /// Only creates summary if user actually attended (has check-in/check-out records)
+  Future<DailyAttendanceSummary?> createCurrentUserSummaryForDate(
     DateTime date,
   ) async {
     Logger.debug(
@@ -62,6 +63,14 @@ class HttpAttendanceService {
         'HttpAttendanceService: Found ${attendance.length} attendance records for current user on $date',
       );
 
+      // Only create summary if there are actual attendance records
+      if (attendance.isEmpty) {
+        Logger.info(
+          'HttpAttendanceService: No attendance records found for $date - returning null',
+        );
+        return null;
+      }
+
       // Create employee attendance record for current user
       final employeeAttendances = <EmployeeAttendance>[];
       int presentCount = 0;
@@ -74,31 +83,24 @@ class HttpAttendanceService {
       int employeeId = 0;
       String employeeName = 'Current User';
 
-      if (attendance.isNotEmpty) {
-        final record = attendance.first; // Get the first (most recent) record
-        Logger.debug('HttpAttendanceService: Attendance record: $record');
+      final record = attendance.first; // Get the first (most recent) record
+      Logger.debug('HttpAttendanceService: Attendance record: $record');
 
-        // Get employee ID from the attendance record
-        employeeId = record['employee_id'] is List
-            ? record['employee_id'][0]
-            : record['employee_id'] ?? 0;
-        Logger.debug(
-          'HttpAttendanceService: Extracted employee ID: $employeeId',
-        );
+      // Get employee ID from the attendance record
+      employeeId = record['employee_id'] is List
+          ? record['employee_id'][0]
+          : record['employee_id'] ?? 0;
+      Logger.debug('HttpAttendanceService: Extracted employee ID: $employeeId');
 
-        checkIn = _parseDateTime(record['check_in']);
-        checkOut = _parseDateTime(record['check_out']);
-        isPresent = checkIn != null;
+      checkIn = _parseDateTime(record['check_in']);
+      checkOut = _parseDateTime(record['check_out']);
+      isPresent = checkIn != null;
 
-        if (checkIn != null && checkOut != null) {
-          workingHours = checkOut.difference(checkIn);
-        } else if (checkIn != null) {
-          // Still at work, calculate hours until now
-          workingHours = DateTime.now().difference(checkIn);
-        }
-      } else {
-        // If no attendance record, try to get employee ID from user profile
-        employeeId = userProfile['id'] ?? 0;
+      if (checkIn != null && checkOut != null) {
+        workingHours = checkOut.difference(checkIn);
+      } else if (checkIn != null) {
+        // Still at work, calculate hours until now
+        workingHours = DateTime.now().difference(checkIn);
       }
 
       // Get employee name from user profile if available
@@ -140,12 +142,13 @@ class HttpAttendanceService {
       Logger.error(
         'HttpAttendanceService: Error creating current user summary for $date: $e',
       );
-      rethrow;
+      return null; // Return null instead of rethrowing to handle gracefully
     }
   }
 
   /// Create daily attendance summary for a specific date
-  Future<DailyAttendanceSummary> createDailySummaryForDate(
+  /// Only creates summary if there are actual attendance records for that date
+  Future<DailyAttendanceSummary?> createDailySummaryForDate(
     DateTime date,
   ) async {
     Logger.debug('HttpAttendanceService: Creating summary for date: $date');
@@ -159,6 +162,14 @@ class HttpAttendanceService {
         'HttpAttendanceService: Found ${attendance.length} attendance records for $date',
       );
 
+      // If no attendance records for this date, return null
+      if (attendance.isEmpty) {
+        Logger.info(
+          'HttpAttendanceService: No attendance records found for $date - returning null',
+        );
+        return null;
+      }
+
       // Create a map of employee attendance for quick lookup
       final attendanceMap = <int, Map<String, dynamic>>{};
       for (final record in attendance) {
@@ -168,23 +179,23 @@ class HttpAttendanceService {
         attendanceMap[empId] = record;
       }
 
-      // Create employee attendance records
+      // Create employee attendance records - only for employees with actual attendance
       final employeeAttendances = <EmployeeAttendance>[];
       int presentCount = 0;
 
       for (final employee in employees) {
         final empId = employee['id'];
         final empName = employee['name'] ?? 'Unknown';
-        final attendance = attendanceMap[empId];
+        final attendanceRecord = attendanceMap[empId];
 
         DateTime? checkIn;
         DateTime? checkOut;
         bool isPresent = false;
         Duration? workingHours;
 
-        if (attendance != null) {
-          checkIn = _parseDateTime(attendance['check_in']);
-          checkOut = _parseDateTime(attendance['check_out']);
+        if (attendanceRecord != null) {
+          checkIn = _parseDateTime(attendanceRecord['check_in']);
+          checkOut = _parseDateTime(attendanceRecord['check_out']);
           isPresent = checkIn != null;
 
           if (checkIn != null && checkOut != null) {
@@ -193,24 +204,36 @@ class HttpAttendanceService {
             // Still at work, calculate hours until now
             workingHours = DateTime.now().difference(checkIn);
           }
+
+          // Only add employee if they have actual attendance records
+          employeeAttendances.add(
+            EmployeeAttendance(
+              employeeId: empId,
+              employeeName: empName,
+              checkIn: checkIn,
+              checkOut: checkOut,
+              isPresent: isPresent,
+              workingHours: workingHours,
+            ),
+          );
+
+          if (isPresent) presentCount++;
         }
-
-        if (isPresent) presentCount++;
-
-        employeeAttendances.add(
-          EmployeeAttendance(
-            employeeId: empId,
-            employeeName: empName,
-            checkIn: checkIn,
-            checkOut: checkOut,
-            isPresent: isPresent,
-            workingHours: workingHours,
-          ),
-        );
       }
 
-      final totalEmployees = employees.length;
-      final absentCount = totalEmployees - presentCount;
+      // Only create summary if there are employees with actual attendance
+      if (employeeAttendances.isEmpty) {
+        Logger.info(
+          'HttpAttendanceService: No employees with attendance records for $date - returning null',
+        );
+        return null;
+      }
+
+      final totalEmployees =
+          employeeAttendances.length; // Only count employees with attendance
+      final absentCount = employeeAttendances
+          .where((emp) => !emp.isPresent)
+          .length;
       final attendancePercentage = totalEmployees > 0
           ? (presentCount / totalEmployees) * 100
           : 0.0;
@@ -232,7 +255,7 @@ class HttpAttendanceService {
       Logger.error(
         'HttpAttendanceService: Error creating summary for $date: $e',
       );
-      rethrow;
+      return null; // Return null instead of rethrowing to handle gracefully
     }
   }
 

@@ -83,24 +83,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           'CalendarScreen: Live data loaded for $date: ${summary.presentEmployees}/${summary.totalEmployees} present',
         );
       } else {
-        Logger.info('CalendarScreen: No live data available for $date');
-        // Create a test summary if no data is available
-        await _createTestSummaryForDate(date);
+        Logger.info(
+          'CalendarScreen: No live data available for $date - user did not attend on this day',
+        );
+        // Don't create test summaries - only show days with actual attendance
       }
     } catch (e) {
       // Silently handle errors - fallback to existing data
       Logger.error('CalendarScreen: Could not load live data for date: $e');
     }
-  }
-
-  Future<void> _createTestSummaryForDate(DateTime date) async {
-    // Create a test summary to show something in the calendar
-    final testSummary = await CalendarHelpers.createTestSummaryForDate(date);
-
-    setState(() {
-      CalendarHelpers.addAttendanceToEvents(_events, testSummary);
-    });
-    Logger.info('Created test summary for $date');
   }
 
   @override
