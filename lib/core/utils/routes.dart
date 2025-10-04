@@ -9,4 +9,5 @@ class Routes {
   static const String calendarScreen = '/calendarScreen';
   static const String adminPasswordResetScreen = '/adminPasswordResetScreen';
   static const String adminLeaveRequestsScreen = '/adminLeaveRequestsScreen';
+  static const String adminLocationScreen = '/adminLocationScreen';
 }

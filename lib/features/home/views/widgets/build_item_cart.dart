@@ -24,18 +24,15 @@ class BuildItemCartRowTwo extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(width: 12),
+        horizontalSpace(12),
         Expanded(
           child: buildActionCard(
             context,
-            icon: Icons.settings,
-            title: 'Settings',
-            subtitle: 'App preferences',
+            icon: Icons.location_on,
+            title: 'Workplace Location',
+            subtitle: 'Set workplace location',
             onTap: () {
-              // Navigate to settings screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Settings feature coming soon!')),
-              );
+              context.pushNamed(Routes.adminLocationScreen);
             },
           ),
         ),
@@ -118,4 +115,3 @@ class BuildItemCartRowOne extends StatelessWidget {
     );
   }
 }
-

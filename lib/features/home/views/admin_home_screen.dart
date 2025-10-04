@@ -5,7 +5,6 @@ import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/build_item_cart.dart';
-import 'package:hodorak/features/home/views/widgets/recent_activity.dart';
 import 'package:hodorak/features/home/views/widgets/welcome_section.dart';
 
 class AdminHomeScreen extends ConsumerWidget {
@@ -60,19 +59,7 @@ class AdminHomeScreen extends ConsumerWidget {
 
             // Action Cards Row three
             BuildItemCartRowThree(),
-            verticalSpace(24),
-
-            // Recent Activity (placeholder)
-            Text(
-              'Recent Activity',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            verticalSpace(16),
-
-            // recent activity
-            RecentActivity(title: 'No recent activity'),
+            verticalSpace(12),
           ],
         ),
       ),

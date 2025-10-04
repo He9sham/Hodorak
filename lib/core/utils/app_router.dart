@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/admin_leave_requests/view/admin_leave_requests_screen.dart';
+import 'package:hodorak/features/admin_location/views/admin_location_screen.dart';
 import 'package:hodorak/features/auth/views/admin_password_reset_screen.dart';
 import 'package:hodorak/features/auth/views/login_screen.dart';
 import 'package:hodorak/features/auth/views/sign_up_screen.dart';
@@ -42,6 +43,8 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => const AdminLeaveRequestsScreen(),
         );
+      case Routes.adminLocationScreen:
+        return MaterialPageRoute(builder: (_) => const AdminLocationScreen());
       default:
         return null;
     }

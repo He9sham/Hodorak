@@ -85,140 +85,142 @@ class _AdminPasswordResetScreenState
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              verticalSpace(32),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.admin_panel_settings,
-                      color: Colors.blue.shade600,
-                      size: 24.sp,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Admin Only: Reset User Password',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              verticalSpace(32),
-              Row(
-                children: [
-                  Text(
-                    'User Email',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              verticalSpace(8),
-              AppTextFormField(
-                hintText: 'Enter user email',
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter user email';
-                  }
-                  if (!RegExp(
-                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                  ).hasMatch(value)) {
-                    return 'Please enter a valid email address';
-                  }
-                  return null;
-                },
-              ),
-              verticalSpace(24),
-              Row(
-                children: [
-                  Text(
-                    'New Password',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              verticalSpace(8),
-              AppTextFormField(
-                hintText: 'Enter new password',
-                controller: _passwordController,
-                isObscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter new password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              verticalSpace(32),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'This will reset the password for the specified user. The user will need to use this new password to log in.',
-                      style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-                    ),
-                  ),
-                ],
-              ),
-              verticalSpace(24),
-              CustomButtonAuth(
-                title: 'Reset Password',
-                onPressed: _handleResetPassword,
-                isLoading: authState.isLoading,
-              ),
-              if (authState.error != null) ...[
-                verticalSpace(16),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                verticalSpace(32),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.blue.shade200),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        Icons.error_outline,
-                        color: Colors.red.shade600,
-                        size: 20.sp,
+                        Icons.admin_panel_settings,
+                        color: Colors.blue.shade600,
+                        size: 24.sp,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          authState.error!,
+                          'Admin Only: Reset User Password',
                           style: TextStyle(
-                            color: Colors.red.shade600,
-                            fontSize: 14.sp,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
+                verticalSpace(32),
+                Row(
+                  children: [
+                    Text(
+                      'User Email',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpace(8),
+                AppTextFormField(
+                  hintText: 'Enter user email',
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter user email';
+                    }
+                    if (!RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    ).hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                ),
+                verticalSpace(24),
+                Row(
+                  children: [
+                    Text(
+                      'New Password',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpace(8),
+                AppTextFormField(
+                  hintText: 'Enter new password',
+                  controller: _passwordController,
+                  isObscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter new password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                verticalSpace(32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'This will reset the password for the specified user. The user will need to use this new password to log in.',
+                        style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpace(24),
+                CustomButtonAuth(
+                  title: 'Reset Password',
+                  onPressed: _handleResetPassword,
+                  isLoading: authState.isLoading,
+                ),
+                if (authState.error != null) ...[
+                  verticalSpace(16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.red.shade600,
+                          size: 20.sp,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            authState.error!,
+                            style: TextStyle(
+                              color: Colors.red.shade600,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

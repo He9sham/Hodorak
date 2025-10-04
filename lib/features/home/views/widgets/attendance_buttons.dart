@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/providers/location_provider.dart';
 import 'package:hodorak/core/providers/login_notifier.dart';
 import 'package:hodorak/core/services/biometric_auth_service.dart';
 import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
@@ -105,7 +106,25 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         return;
       }
 
-      // Perform biometric authentication first
+      // Refresh workplace location state and validate location
+      await ref.read(locationValidationProvider.notifier).checkInitialState();
+      await ref.read(locationValidationProvider.notifier).validateLocation();
+      final locationState = ref.read(locationValidationProvider);
+
+      if (!locationState.hasWorkplaceLocation) {
+        _showErrorMessage('No workplace location has been set by admin.');
+        return;
+      }
+
+      if (!locationState.isAtWorkplace) {
+        _showErrorMessage(
+          locationState.errorMessage ??
+              'You must be at the workplace location to check in.',
+        );
+        return;
+      }
+
+      // Perform biometric authentication
       try {
         final bool isAuthenticated = await _biometricAuthService.authenticate(
           action: 'check in',
@@ -163,7 +182,25 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         return;
       }
 
-      // Perform biometric authentication first
+      // Refresh workplace location state and validate location
+      await ref.read(locationValidationProvider.notifier).checkInitialState();
+      await ref.read(locationValidationProvider.notifier).validateLocation();
+      final locationState = ref.read(locationValidationProvider);
+
+      if (!locationState.hasWorkplaceLocation) {
+        _showErrorMessage('No workplace location has been set by admin.');
+        return;
+      }
+
+      if (!locationState.isAtWorkplace) {
+        _showErrorMessage(
+          locationState.errorMessage ??
+              'You must be at the workplace location to check out.',
+        );
+        return;
+      }
+
+      // Perform biometric authentication
       try {
         final bool isAuthenticated = await _biometricAuthService.authenticate(
           action: 'check out',

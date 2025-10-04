@@ -4,6 +4,10 @@
 <dict>
 	<key>NSFaceIDUsageDescription</key>
     <string>This app uses Face ID for secure check-in authentication.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs location access to verify you are at the workplace for check-in/check-out.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs location access to verify you are at the workplace for check-in/check-out.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
