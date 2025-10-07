@@ -1,16 +1,15 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/services/service_locator.dart';
+import 'package:hodorak/core/supabase/supabase_service.dart';
 import 'package:hodorak/core/theming/colors_manger.dart';
 import 'package:hodorak/core/utils/app_router.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await SupabaseService.initialize();
   await setupServiceLocator();
   await notificationService.initialize();
 

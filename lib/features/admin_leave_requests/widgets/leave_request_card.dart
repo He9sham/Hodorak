@@ -55,30 +55,11 @@ class LeaveRequestCard extends ConsumerWidget {
       children: [
         LeaveStatusChip(status: request.status),
         const Spacer(),
-        Consumer(
-          builder: (context, ref, child) {
-            final userNameAsync = ref.watch(userNameProvider(request.userId));
-            return userNameAsync.when(
-              data: (userName) => Text(
-                '${AdminLeaveConstants.userNameLabel}: ${userName ?? request.userId}',
-                style: AdminLeaveConstants.userIdStyle.copyWith(
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              loading: () => Text(
-                '${AdminLeaveConstants.userNameLabel}: Loading...',
-                style: AdminLeaveConstants.userIdStyle.copyWith(
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              error: (_, _) => Text(
-                '${AdminLeaveConstants.userNameLabel}: ${request.userId}',
-                style: AdminLeaveConstants.userIdStyle.copyWith(
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            );
-          },
+        Text(
+          '${AdminLeaveConstants.userNameLabel}: ${request.userName ?? request.userEmail ?? request.userId}',
+          style: AdminLeaveConstants.userIdStyle.copyWith(
+            color: Colors.grey.shade600,
+          ),
         ),
       ],
     );

@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/utils/routes.dart';
 
-Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
+Widget buildDrawer(
+  BuildContext context,
+  SupabaseAuthState authState,
+  WidgetRef ref,
+) {
   return Drawer(
     child: Column(
       children: [
@@ -38,8 +42,9 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                       radius: 38,
                       backgroundColor: Color(0xff8C9F5F).withValues(alpha: 0.1),
                       child: Text(
-                        authState.name?.isNotEmpty == true
-                            ? authState.name![0].toUpperCase()
+                        authState.user?.name != null &&
+                                authState.user!.name.isNotEmpty
+                            ? authState.user!.name[0].toUpperCase()
                             : 'U',
                         style: TextStyle(
                           fontSize: 24.sp,
@@ -52,7 +57,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                   verticalSpace(16),
                   // User Name
                   Text(
-                    authState.name ?? 'User',
+                    authState.user?.name ?? 'User',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20.sp,
@@ -116,13 +121,13 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
               Divider(),
               _buildDrawerItem(
                 icon: Icons.info,
-                title: 'User ID: ${authState.uid ?? 'N/A'}',
+                title: 'User ID: ${authState.user?.id ?? 'N/A'}',
                 onTap: () {},
                 isInfo: true,
               ),
               _buildDrawerItem(
                 icon: Icons.person,
-                title: 'Name: ${authState.name ?? 'N/A'}',
+                title: 'Name: ${authState.user?.name ?? 'N/A'}',
                 onTap: () {},
                 isInfo: true,
               ),
@@ -156,7 +161,7 @@ Widget buildDrawer(BuildContext context, AuthState authState, WidgetRef ref) {
                           onPressed: () async {
                             Navigator.of(context).pop();
                             await ref
-                                .read(authStateManagerProvider.notifier)
+                                .read(supabaseAuthProvider.notifier)
                                 .logout();
                             if (context.mounted) {
                               context.pushReplacementNamed(Routes.loginScreen);

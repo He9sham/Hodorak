@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hodorak/core/models/supabase_user.dart';
 import 'package:hodorak/core/providers/auth_state_manager.dart';
-import 'package:hodorak/core/providers/user_profile_provider.dart';
+import 'package:hodorak/core/providers/supabase_user_profile_provider.dart';
 
 class ShowDetailsWidget extends ConsumerWidget {
   const ShowDetailsWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileState = ref.watch(userProfileProvider);
+    final userProfileState = ref.watch(supabaseUserProfileProvider);
     final authState = ref.watch(authStateManagerProvider);
 
     return Stack(
@@ -83,7 +84,7 @@ class ShowDetailsWidget extends ConsumerWidget {
           right: 0,
           child: Center(
             child: Text(
-              userProfileState.profileData?['name'] ?? 'Loading...',
+              userProfileState.profileData?.name ?? 'Loading...',
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
@@ -122,7 +123,7 @@ class ShowDetailsWidget extends ConsumerWidget {
                   Icon(Icons.phone, size: 14.sp, color: Colors.white),
                   SizedBox(width: 8.w),
                   Text(
-                    userProfileState.profileData?['work_phone'] ?? 'N/A',
+                    userProfileState.profileData?.phone ?? 'N/A',
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
@@ -146,7 +147,7 @@ class ShowDetailsWidget extends ConsumerWidget {
                   SizedBox(width: 8.w),
                   Flexible(
                     child: Text(
-                      userProfileState.profileData?['work_email'] ?? 'N/A',
+                      userProfileState.profileData?.email ?? 'N/A',
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
@@ -164,13 +165,13 @@ class ShowDetailsWidget extends ConsumerWidget {
     );
   }
 
-  String _formatJobTitle(Map<String, dynamic>? profileData) {
+  String _formatJobTitle(SupabaseUser? profileData) {
     if (profileData == null) {
       return 'Loading...';
     }
 
-    final jobTitle = profileData['job_title'] ?? 'N/A';
-    final department = profileData['department'] ?? 'N/A';
+    final jobTitle = profileData.jobTitle ?? 'N/A';
+    final department = profileData.department ?? 'N/A';
 
     if (jobTitle == 'N/A' && department == 'N/A') {
       return 'Employee';

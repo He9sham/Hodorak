@@ -1,24 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
-import 'package:hodorak/core/services/service_locator.dart';
+import 'package:hodorak/core/models/supabase_user.dart';
+import 'package:hodorak/core/services/supabase_auth_service.dart';
 
-class UserProfileState {
-  final Map<String, dynamic>? profileData;
+class SupabaseUserProfileState {
+  final SupabaseUser? profileData;
   final bool isLoading;
   final String? error;
 
-  const UserProfileState({
+  const SupabaseUserProfileState({
     this.profileData,
     this.isLoading = false,
     this.error,
   });
 
-  UserProfileState copyWith({
-    Map<String, dynamic>? profileData,
+  SupabaseUserProfileState copyWith({
+    SupabaseUser? profileData,
     bool? isLoading,
     String? error,
   }) {
-    return UserProfileState(
+    return SupabaseUserProfileState(
       profileData: profileData ?? this.profileData,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
@@ -26,16 +26,16 @@ class UserProfileState {
   }
 }
 
-class UserProfileNotifier extends Notifier<UserProfileState> {
-  final OdooHttpService _odooService;
+class SupabaseUserProfileNotifier extends Notifier<SupabaseUserProfileState> {
+  final SupabaseAuthService _authService;
 
-  UserProfileNotifier(this._odooService);
+  SupabaseUserProfileNotifier(this._authService);
 
   @override
-  UserProfileState build() {
+  SupabaseUserProfileState build() {
     // Don't call async methods in build() - this causes initialization issues
     // Profile loading should be triggered when needed
-    return const UserProfileState();
+    return const SupabaseUserProfileState();
   }
 
   /// Initialize user profile - call this when the profile screen loads
@@ -47,7 +47,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final profileData = await _odooService.getUserProfile();
+      final profileData = await _authService.getUserProfile();
       state = state.copyWith(profileData: profileData, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -59,7 +59,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
   }
 }
 
-final userProfileProvider =
-    NotifierProvider<UserProfileNotifier, UserProfileState>(() {
-      return UserProfileNotifier(odooService);
+final supabaseUserProfileProvider =
+    NotifierProvider<SupabaseUserProfileNotifier, SupabaseUserProfileState>(() {
+      return SupabaseUserProfileNotifier(SupabaseAuthService());
     });

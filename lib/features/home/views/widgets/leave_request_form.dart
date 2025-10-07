@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hodorak/core/services/service_locator.dart';
+import 'package:hodorak/core/services/notification_service.dart';
+import 'package:hodorak/core/services/supabase_auth_service.dart';
+import 'package:hodorak/core/services/supabase_leave_service.dart';
 
 class LeaveRequestForm extends ConsumerStatefulWidget {
   final String userId;
@@ -76,11 +78,26 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
     });
 
     try {
-      await firebaseLeaveService.submitLeaveRequest(
+      await SupabaseLeaveService().submitLeaveRequest(
         userId: widget.userId,
         reason: _reasonController.text.trim(),
         startDate: _startDate!,
         endDate: _endDate!,
+      );
+
+      // Show notification to user
+      await NotificationService().showLeaveRequestSubmittedNotification(
+        userId: widget.userId,
+      );
+
+      // Get current user info for manager notification
+      final authService = SupabaseAuthService();
+      final userProfile = await authService.getUserProfile(widget.userId);
+      final userName = userProfile?.name ?? 'Unknown User';
+
+      // Show notification to manager (this would ideally be sent to all managers)
+      await NotificationService().showManagerLeaveRequestNotification(
+        username: userName,
       );
 
       if (mounted) {

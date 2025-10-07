@@ -86,11 +86,11 @@ class BuildItemCartRowOne extends StatelessWidget {
         Expanded(
           child: buildActionCard(
             context,
-            icon: Icons.admin_panel_settings,
-            title: 'Change Password',
-            subtitle: 'Change your password',
+            icon: Icons.people,
+            title: 'User Management',
+            subtitle: 'Manage users & passwords',
             onTap: () {
-              context.pushNamed(Routes.adminPasswordResetScreen);
+              context.pushNamed(Routes.adminUserManagementScreen);
             },
           ),
         ),

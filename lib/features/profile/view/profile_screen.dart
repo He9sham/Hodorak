@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/user_profile_provider.dart';
+import 'package:hodorak/core/providers/supabase_user_profile_provider.dart';
 import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/profile/view/widgets/profile_details.dart';
 import 'package:hodorak/features/profile/view/widgets/show_details_widget.dart';
@@ -23,7 +23,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _initializeProfile() async {
     try {
-      await ref.read(userProfileProvider.notifier).initializeUserProfile();
+      await ref
+          .read(supabaseUserProfileProvider.notifier)
+          .initializeUserProfile();
     } catch (e) {
       Logger.error('Profile initialization error: $e');
     }

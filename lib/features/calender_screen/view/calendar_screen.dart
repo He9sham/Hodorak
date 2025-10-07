@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
-import 'package:hodorak/core/providers/calendar_provider.dart';
+import 'package:hodorak/core/providers/supabase_calendar_provider.dart';
 import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/calender_screen/utils/utils.dart';
 import 'package:hodorak/features/calender_screen/view/widgets/widgets.dart';
@@ -28,7 +28,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   void _loadEvents() {
-    final calendarState = ref.read(enhancedCalendarProvider);
+    final calendarState = ref.read(supabaseCalendarProvider);
     CalendarHelpers.clearEvents(_events);
 
     Logger.debug(
@@ -55,8 +55,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Future<void> _refreshData() async {
     try {
-      final notifier = ref.read(enhancedCalendarProvider.notifier);
-      await notifier.refreshMonthData();
+      final notifier = ref.read(supabaseCalendarProvider.notifier);
+      await notifier.loadSummaries();
       _loadEvents();
     } catch (e) {
       // Handle refresh errors gracefully
@@ -72,22 +72,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         return;
       }
 
-      // Try to get live data
-      final notifier = ref.read(enhancedCalendarProvider.notifier);
-      final summary = await notifier.getAttendanceForDate(date);
-      if (summary != null) {
-        setState(() {
-          CalendarHelpers.addAttendanceToEvents(_events, summary);
-        });
-        Logger.info(
-          'CalendarScreen: Live data loaded for $date: ${summary.presentEmployees}/${summary.totalEmployees} present',
-        );
-      } else {
-        Logger.info(
-          'CalendarScreen: No live data available for $date - user did not attend on this day',
-        );
-        // Don't create test summaries - only show days with actual attendance
-      }
+      // Try to get live data by refreshing the month data
+      final notifier = ref.read(supabaseCalendarProvider.notifier);
+      await notifier.loadSummaries();
+      _loadEvents();
+      Logger.info('CalendarScreen: Refreshed data for date: $date');
     } catch (e) {
       // Silently handle errors - fallback to existing data
       Logger.error('CalendarScreen: Could not load live data for date: $e');
@@ -96,7 +85,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final calendarState = ref.watch(enhancedCalendarProvider);
+    final calendarState = ref.watch(supabaseCalendarProvider);
 
     // Reload events when calendar state changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -109,7 +98,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     if (calendarState.errorMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         CalendarHelpers.showError(context, calendarState.errorMessage!);
-        ref.read(enhancedCalendarProvider.notifier).clearError();
+        ref.read(supabaseCalendarProvider.notifier).clearError();
       });
     }
 
@@ -175,7 +164,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               if (focusedDay.month != _selectedDay?.month ||
                   focusedDay.year != _selectedDay?.year) {
                 ref
-                    .read(enhancedCalendarProvider.notifier)
+                    .read(supabaseCalendarProvider.notifier)
                     .selectMonth(focusedDay);
                 _loadEvents();
               }

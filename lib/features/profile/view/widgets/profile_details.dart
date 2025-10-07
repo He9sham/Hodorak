@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/user_profile_provider.dart';
+import 'package:hodorak/core/providers/supabase_user_profile_provider.dart';
 import 'package:hodorak/features/profile/view/widgets/profile_details_employee.dart';
 
 class ProfileDetails extends ConsumerWidget {
-  ProfileDetails({super.key});
-  final List<String> modelTitle = ['employee_id', 'national_id', 'hire_date'];
+  const ProfileDetails({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileState = ref.watch(userProfileProvider);
+    final userProfileState = ref.watch(supabaseUserProfileProvider);
 
     return Container(
       width: 343.w,
@@ -37,7 +36,7 @@ class ProfileDetails extends ConsumerWidget {
                     SizedBox(height: 4.h),
                     TextButton(
                       onPressed: () => ref
-                          .read(userProfileProvider.notifier)
+                          .read(supabaseUserProfileProvider.notifier)
                           .refreshProfile(),
                       child: Text('Retry', style: TextStyle(fontSize: 12.sp)),
                     ),
@@ -48,24 +47,21 @@ class ProfileDetails extends ConsumerWidget {
                 children: [
                   ProfileDetailsEmployee(
                     title: 'Employee ID',
-                    subtitle:
-                        userProfileState.profileData?[modelTitle[0]]
-                            ?.toString() ??
-                        'N/A',
+                    subtitle: _formatEmployeeId(
+                      userProfileState.profileData?.id,
+                    ),
                   ),
                   verticalSpace(16),
                   ProfileDetailsEmployee(
                     title: 'National ID',
                     subtitle:
-                        userProfileState.profileData?[modelTitle[1]]
-                            .toString() ??
-                        'Not Set',
+                        userProfileState.profileData?.nationalId ?? 'Not Set',
                   ),
                   verticalSpace(16),
                   ProfileDetailsEmployee(
                     title: 'Hire Date',
                     subtitle: _formatHireDate(
-                      userProfileState.profileData?[modelTitle[2]],
+                      userProfileState.profileData?.createdAt,
                     ),
                   ),
                 ],
@@ -74,17 +70,24 @@ class ProfileDetails extends ConsumerWidget {
     );
   }
 
-  String _formatHireDate(dynamic hireDate) {
-    if (hireDate == null || hireDate == 'N/A') {
+  String _formatHireDate(DateTime? hireDate) {
+    if (hireDate == null) {
       return 'N/A';
     }
 
-    try {
-      // Parse the date string and format it
-      final date = DateTime.parse(hireDate);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      return hireDate.toString();
+    return '${hireDate.day}/${hireDate.month}/${hireDate.year}';
+  }
+
+  String _formatEmployeeId(String? employeeId) {
+    if (employeeId == null || employeeId.isEmpty) {
+      return 'N/A';
+    }
+
+    // Show only the first 7 digits of the Employee ID
+    if (employeeId.length >= 7) {
+      return employeeId.substring(0, 7);
+    } else {
+      return employeeId;
     }
   }
 }

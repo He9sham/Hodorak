@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/signup_notifier.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/auth/views/widgets/container_icon_auth.dart';
@@ -36,6 +36,42 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _obscurePassword = true;
   String? _selectedGender;
 
+  Color _getErrorColor(String error) {
+    if (error.contains('No internet connection') ||
+        error.contains('Network error') ||
+        error.contains('HTTP error')) {
+      return Colors.orange;
+    } else if (error.contains('Email not confirmed') ||
+        error.contains('confirm your email')) {
+      return Colors.blue;
+    }
+    return Colors.red;
+  }
+
+  Color _getErrorTextColor(String error) {
+    if (error.contains('No internet connection') ||
+        error.contains('Network error') ||
+        error.contains('HTTP error')) {
+      return Colors.orange.shade800;
+    } else if (error.contains('Email not confirmed') ||
+        error.contains('confirm your email')) {
+      return Colors.blue.shade800;
+    }
+    return Colors.red.shade800;
+  }
+
+  IconData _getErrorIcon(String error) {
+    if (error.contains('No internet connection') ||
+        error.contains('Network error') ||
+        error.contains('HTTP error')) {
+      return Icons.wifi_off;
+    } else if (error.contains('Email not confirmed') ||
+        error.contains('confirm your email')) {
+      return Icons.email_outlined;
+    }
+    return Icons.error;
+  }
+
   Future<void> _onSubmit() async {
     if (_formKey.currentState?.validate() != true) return;
     if (_passwordController.text.trim() !=
@@ -46,8 +82,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       return;
     }
     await ref
-        .read(signUpNotifierProvider.notifier)
-        .signUpEmployee(
+        .read(supabaseAuthProvider.notifier)
+        .signUp(
           name: _nameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
@@ -56,9 +92,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           phone: _phoneController.text.trim(),
           nationalId: _nationalIdController.text.trim(),
           gender: _selectedGender ?? '',
+          companyId: '', // Will be set during company creation process
+          isAdmin: false, // Regular users are not admin by default
         );
 
-    final latest = ref.read(signUpNotifierProvider);
+    final latest = ref.read(supabaseAuthProvider);
     if (latest.error != null) {
       if (!mounted) return;
 
@@ -77,13 +115,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           textColor: Colors.white,
           onPressed: () => _onSubmit(),
         );
-      } else if (latest.error!.contains('Only admins can create accounts.')) {
-        errorMsg = 'Only administrators can create new accounts.';
+      } else if (latest.error!.contains('User already registered')) {
+        errorMsg = 'An account with this email already exists.';
         backgroundColor = Colors.red;
-      } else if (latest.error!.contains('Access denied')) {
+      } else if (latest.error!.contains('Email not confirmed') ||
+          latest.error!.contains('confirm your email')) {
         errorMsg =
-            'Access denied. Only administrators can create employee accounts.';
-        backgroundColor = Colors.red;
+            'Please confirm your email. Check your inbox for the confirmation link.';
+        backgroundColor = Colors.blue;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -94,13 +133,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           action: action,
         ),
       );
-    } else if (latest.message != null) {
+    } else if (latest.isAuthenticated) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(latest.message!),
+        const SnackBar(
+          content: Text('Account created successfully!'),
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
+          duration: Duration(seconds: 3),
         ),
       );
     }
@@ -131,7 +170,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final signUpState = ref.watch(signUpNotifierProvider);
+    final signUpState = ref.watch(supabaseAuthProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -374,51 +413,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color:
-                            signUpState.error!.contains(
-                                  'No internet connection',
-                                ) ||
-                                signUpState.error!.contains('Network error') ||
-                                signUpState.error!.contains('HTTP error')
-                            ? Colors.orange.withValues(alpha: 0.1)
-                            : Colors.red.withValues(alpha: 0.1),
+                        color: _getErrorColor(
+                          signUpState.error!,
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color:
-                              signUpState.error!.contains(
-                                    'No internet connection',
-                                  ) ||
-                                  signUpState.error!.contains(
-                                    'Network error',
-                                  ) ||
-                                  signUpState.error!.contains('HTTP error')
-                              ? Colors.orange
-                              : Colors.red,
+                          color: _getErrorColor(signUpState.error!),
                           width: 1,
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            signUpState.error!.contains(
-                                      'No internet connection',
-                                    ) ||
-                                    signUpState.error!.contains(
-                                      'Network error',
-                                    ) ||
-                                    signUpState.error!.contains('HTTP error')
-                                ? Icons.wifi_off
-                                : Icons.error,
-                            color:
-                                signUpState.error!.contains(
-                                      'No internet connection',
-                                    ) ||
-                                    signUpState.error!.contains(
-                                      'Network error',
-                                    ) ||
-                                    signUpState.error!.contains('HTTP error')
-                                ? Colors.orange
-                                : Colors.red,
+                            _getErrorIcon(signUpState.error!),
+                            color: _getErrorColor(signUpState.error!),
                             size: 20.sp,
                           ),
                           const SizedBox(width: 8),
@@ -426,18 +434,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             child: Text(
                               signUpState.error!,
                               style: TextStyle(
-                                color:
-                                    signUpState.error!.contains(
-                                          'No internet connection',
-                                        ) ||
-                                        signUpState.error!.contains(
-                                          'Network error',
-                                        ) ||
-                                        signUpState.error!.contains(
-                                          'HTTP error',
-                                        )
-                                    ? Colors.orange.shade800
-                                    : Colors.red.shade800,
+                                color: _getErrorTextColor(signUpState.error!),
                                 fontSize: 14.sp,
                               ),
                             ),
@@ -445,11 +442,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ],
                       ),
                     ),
-                  if (signUpState.message != null)
+                  if (signUpState.isAuthenticated)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        signUpState.message!,
+                        'Account created successfully!',
                         style: const TextStyle(color: Colors.green),
                       ),
                     ),
@@ -490,3 +487,4 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
   }
 }
+// Heshamhamdan90@

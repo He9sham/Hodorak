@@ -2,15 +2,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/models/supabase_company.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/auth/views/widgets/container_icon_auth.dart';
 import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
-import 'package:hodorak/features/auth/views/widgets/divider_row.dart';
 import 'package:hodorak/features/auth/views/widgets/label_text_field.dart';
 import 'package:hodorak/features/auth/views/widgets/login_button.dart';
 import 'package:hodorak/features/auth/views/widgets/text_rich.dart';
@@ -30,12 +28,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoggingIn = false; // Track if user is actively logging in
   late final TapGestureRecognizer _signUpRecognizer;
+  late final TapGestureRecognizer _createCompanyRecognizer;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _signUpRecognizer.dispose();
+    _createCompanyRecognizer.dispose();
     super.dispose();
   }
 
@@ -46,9 +46,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ..onTap = () {
         context.pushReplacementNamed(Routes.signupScreen);
       };
+    _createCompanyRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        _navigateToCompanyCreation();
+      };
   }
 
-  /// Login using HTTP service + role-based navigation
+  /// Navigate to company creation screen
+  Future<void> _navigateToCompanyCreation() async {
+    final result = await context.pushNamed(Routes.companyCreationScreen);
+
+    if (result != null && result is SupabaseCompany) {
+      // Company was created successfully
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Company "${result.name}" created successfully! You can now sign up.',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Login using Supabase auth + role-based navigation
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -58,29 +82,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       await ref
-          .read(authStateManagerProvider.notifier)
+          .read(supabaseAuthProvider.notifier)
           .login(_emailController.text.trim(), _passwordController.text.trim());
 
       if (mounted) {
-        final authState = ref.read(authStateManagerProvider);
-        final route = authState.isAdmin
-            ? Routes.adminHomeScreen
-            : Routes.userHomeScreen;
-        context.pushReplacementNamed(route);
+        final authState = ref.read(supabaseAuthProvider);
+        if (authState.isAuthenticated) {
+          final route = authState.isAdmin
+              ? Routes.adminHomeScreen
+              : Routes.userHomeScreen;
+          context.pushReplacementNamed(route);
+        }
       }
     } catch (e) {
       // Handle different types of errors with appropriate messages
       if (mounted) {
         String errorMsg;
+        Color backgroundColor = Colors.red;
+        SnackBarAction? action;
 
         if (e.toString().contains('No internet connection') ||
             e.toString().contains('Network error') ||
             e.toString().contains('HTTP error')) {
           errorMsg =
               'No internet connection. Please check your network settings and try again.';
-        } else if (e.toString().contains('Invalid credentials') ||
-            e.toString().contains('password or email has wrong')) {
+          backgroundColor = Colors.orange;
+          action = SnackBarAction(
+            label: 'Retry',
+            textColor: Colors.white,
+            onPressed: () => login(),
+          );
+        } else if (e.toString().contains('Invalid email or password')) {
           errorMsg = 'Invalid email or password. Please try again.';
+          backgroundColor = Colors.red;
+        } else if (e.toString().contains('Email not confirmed') ||
+            e.toString().contains('email_not_confirmed') ||
+            e.toString().contains('confirm your email')) {
+          errorMsg =
+              'Please confirm your email. Check your inbox for the confirmation link.';
+          backgroundColor = Colors.blue;
         } else {
           errorMsg = e.toString();
         }
@@ -88,17 +128,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMsg),
-            backgroundColor: errorMsg.contains('No internet connection')
-                ? Colors.orange
-                : Colors.red,
+            backgroundColor: backgroundColor,
             duration: const Duration(seconds: 4),
-            action: errorMsg.contains('No internet connection')
-                ? SnackBarAction(
-                    label: 'Retry',
-                    textColor: Colors.white,
-                    onPressed: () => login(),
-                  )
-                : null,
+            action: action,
           ),
         );
       }
@@ -183,7 +215,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         return null;
                       },
                     ),
-                    verticalSpace(30),
+                    verticalSpace(20),
+                    // Text under Forgot Password
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        'First time using the app? Create your company to get started.',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12.sp,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                    verticalSpace(20),
+
+                    // Company Creation Toggle
+                    TextRich(
+                      title: 'Need to create a company?',
+                      subtitle: ' Create Company',
+                      gestureRecognizer: _createCompanyRecognizer,
+                    ),
+
+                    verticalSpace(40),
+
                     // Login Button
                     CustomButtonAuth(
                       title: 'Sign in',
@@ -191,27 +248,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         _isLoggingIn ? null : await login();
                       },
                       isLoading: _isLoggingIn,
-                    ),
-                    verticalSpace(24),
-                    DividerRow(title: 'Or Log in with', spaceRow: 235),
-                    verticalSpace(32),
-                    // row auth for social media
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ContainerIconAuth(icon: Icon(Icons.apple)),
-                        horizontalSpace(10),
-                        ContainerIconAuth(icon: Icon(Icons.facebook)),
-                        horizontalSpace(10),
-                        ContainerIconAuth(icon: Icon(FontAwesomeIcons.google)),
-                      ],
-                    ),
-                    verticalSpace(30),
-                    // when user do not have any account
-                    TextRich(
-                      subtitle: '  Sign Up',
-                      title: 'Don’t have an account?',
-                      gestureRecognizer: _signUpRecognizer,
                     ),
                   ],
                 ),

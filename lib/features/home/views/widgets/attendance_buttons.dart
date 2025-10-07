@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
 import 'package:hodorak/core/providers/location_provider.dart';
-import 'package:hodorak/core/providers/login_notifier.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/services/biometric_auth_service.dart';
+import 'package:hodorak/core/services/supabase_attendance_service.dart';
 import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
 
 class AttendanceButtons extends ConsumerStatefulWidget {
@@ -98,10 +98,10 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
     });
 
     try {
-      final authState = ref.read(authStateManagerProvider);
-      final odooService = ref.read(odooHttpServiceProvider);
+      final authState = ref.read(supabaseAuthProvider);
+      final attendanceService = SupabaseAttendanceService();
 
-      if (!authState.isAuthenticated || authState.uid == null) {
+      if (!authState.isAuthenticated || authState.user?.id == null) {
         _showErrorMessage('You are not authenticated. Please login again.');
         return;
       }
@@ -138,20 +138,17 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         return;
       }
 
-      // Get employee ID from user ID
-      final employeeId = await odooService.getEmployeeIdFromUserId(
-        authState.uid!,
+      // Get current location for attendance
+      final locationService = ref.read(locationServiceProvider);
+      final currentLocation = await locationService.getCurrentLocation();
+
+      // Perform check in using Supabase
+      await attendanceService.checkIn(
+        userId: authState.user!.id,
+        location: currentLocation?.toString(),
+        latitude: currentLocation?.latitude,
+        longitude: currentLocation?.longitude,
       );
-
-      if (employeeId == null) {
-        _showErrorMessage(
-          'You are not an employee in the company. Please contact the admin.',
-        );
-        return;
-      }
-
-      // Perform check in
-      await odooService.checkIn(employeeId);
 
       // Refresh attendance data through the provider (optional)
       _refreshAttendanceData();
@@ -174,10 +171,10 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
     });
 
     try {
-      final authState = ref.read(authStateManagerProvider);
-      final odooService = ref.read(odooHttpServiceProvider);
+      final authState = ref.read(supabaseAuthProvider);
+      final attendanceService = SupabaseAttendanceService();
 
-      if (!authState.isAuthenticated || authState.uid == null) {
+      if (!authState.isAuthenticated || authState.user?.id == null) {
         _showErrorMessage('You are not authenticated. Please login again.');
         return;
       }
@@ -214,31 +211,22 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         return;
       }
 
-      // Get employee ID from user ID
-      final employeeId = await odooService.getEmployeeIdFromUserId(
-        authState.uid!,
+      // Get current location for attendance
+      final locationService = ref.read(locationServiceProvider);
+      final currentLocation = await locationService.getCurrentLocation();
+
+      // Perform check out using Supabase
+      await attendanceService.checkOut(
+        userId: authState.user!.id,
+        location: currentLocation?.toString(),
+        latitude: currentLocation?.latitude,
+        longitude: currentLocation?.longitude,
       );
 
-      if (employeeId == null) {
-        _showErrorMessage(
-          'You are not an employee in the company. Please contact the admin.',
-        );
-        return;
-      }
+      // Refresh attendance data through the provider (optional)
+      _refreshAttendanceData();
 
-      // Perform check out
-      final success = await odooService.checkOut(employeeId);
-
-      if (success) {
-        // Refresh attendance data through the provider (optional)
-        _refreshAttendanceData();
-
-        _showSuccessMessage('Check Out successful');
-      } else {
-        _showErrorMessage(
-          'No open attendance record found. Please check in first.',
-        );
-      }
+      _showSuccessMessage('Check Out successful');
     } catch (e) {
       _showErrorMessage('Check Out failed: ${e.toString()}');
     } finally {
@@ -277,17 +265,17 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
   Future<void> _handleTemporaryLeave() async {
     if (_isLoading) return;
 
-    final authState = ref.read(authStateManagerProvider);
-    if (!authState.isAuthenticated || authState.uid == null) {
+    final authState = ref.read(supabaseAuthProvider);
+    if (!authState.isAuthenticated || authState.user?.id == null) {
       _showErrorMessage('You are not authenticated. Please login again.');
       return;
     }
 
-    // Show the new Firebase leave request form
+    // Show the new Supabase leave request form
     await showDialog(
       context: context,
       builder: (context) => LeaveRequestForm(
-        userId: authState.uid.toString(),
+        userId: authState.user!.id,
         onSubmitted: () {
           Navigator.of(context).pop();
           widget.onLeaveRequestSubmitted?.call();

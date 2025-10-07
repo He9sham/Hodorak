@@ -1,23 +1,29 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/leave_request.dart';
-import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
-import 'package:hodorak/core/services/firebase_leave_service.dart';
-import 'package:hodorak/core/services/service_locator.dart';
+import 'package:hodorak/core/services/notification_service.dart';
+import 'package:hodorak/core/services/supabase_auth_service.dart';
+import 'package:hodorak/core/services/supabase_leave_service.dart';
 
-// Provider for Firebase Leave Service
-final firebaseLeaveServiceProvider = Provider<FirebaseLeaveService>((ref) {
-  return firebaseLeaveService;
+// Provider for Supabase Leave Service
+final supabaseLeaveServiceProvider = Provider<SupabaseLeaveService>((ref) {
+  return SupabaseLeaveService();
 });
 
-// Provider for Odoo HTTP Service
-final odooHttpServiceProvider = Provider<OdooHttpService>((ref) {
-  return odooService;
+// Provider for Supabase Auth Service
+final supabaseAuthServiceProvider = Provider<SupabaseAuthService>((ref) {
+  return SupabaseAuthService();
 });
 
-// Provider for leave requests stream
-final leaveRequestsStreamProvider = StreamProvider<List<LeaveRequest>>((ref) {
-  final service = ref.watch(firebaseLeaveServiceProvider);
-  return service.getLeaveRequests();
+// Provider for Notification Service
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  return NotificationService();
+});
+
+// Provider for leave requests
+final leaveRequestsProvider = FutureProvider<List<LeaveRequest>>((ref) async {
+  final service = ref.watch(supabaseLeaveServiceProvider);
+  final requests = await service.getLeaveRequests();
+  return requests.map((request) => LeaveRequest.fromJson(request)).toList();
 });
 
 // Provider for processing requests state
@@ -32,14 +38,8 @@ final deleteAllLoadingProvider =
       return DeleteAllLoadingNotifier();
     });
 
-// Provider for user name lookups
-final userNameProvider = FutureProvider.family<String?, String>((
-  ref,
-  userId,
-) async {
-  final odooService = ref.watch(odooHttpServiceProvider);
-  return await odooService.getUserNameFromUserId(userId);
-});
+// Note: User names are now fetched directly in the leave requests query
+// No separate userNameProvider needed
 
 // Notifier for managing processing state
 class ProcessingRequestsNotifier extends Notifier<Map<String, bool>> {
@@ -81,11 +81,13 @@ class DeleteAllLoadingNotifier extends Notifier<bool> {
 
 // Provider for leave request actions
 final leaveRequestActionsProvider = Provider<LeaveRequestActions>((ref) {
-  final service = ref.watch(firebaseLeaveServiceProvider);
+  final service = ref.watch(supabaseLeaveServiceProvider);
+  final notificationService = ref.watch(notificationServiceProvider);
   final processingNotifier = ref.watch(processingRequestsProvider.notifier);
   final deleteAllLoadingNotifier = ref.watch(deleteAllLoadingProvider.notifier);
   return LeaveRequestActions(
     service,
+    notificationService,
     processingNotifier,
     deleteAllLoadingNotifier,
   );
@@ -93,12 +95,14 @@ final leaveRequestActionsProvider = Provider<LeaveRequestActions>((ref) {
 
 // Class for handling leave request actions
 class LeaveRequestActions {
-  final FirebaseLeaveService _service;
+  final SupabaseLeaveService _service;
+  final NotificationService _notificationService;
   final ProcessingRequestsNotifier _processingNotifier;
   final DeleteAllLoadingNotifier _deleteAllLoadingNotifier;
 
   LeaveRequestActions(
     this._service,
+    this._notificationService,
     this._processingNotifier,
     this._deleteAllLoadingNotifier,
   );
@@ -108,6 +112,20 @@ class LeaveRequestActions {
 
     try {
       await _service.updateLeaveStatus(requestId, status);
+
+      // Show appropriate notification based on status
+      switch (status) {
+        case 'approved':
+          await _notificationService.showLeaveRequestApprovedNotification(
+            userId: requestId,
+          );
+          break;
+        case 'rejected':
+          await _notificationService.showLeaveRequestRejectedNotification(
+            userId: requestId,
+          );
+          break;
+      }
     } finally {
       _processingNotifier.setProcessing(requestId, false);
     }

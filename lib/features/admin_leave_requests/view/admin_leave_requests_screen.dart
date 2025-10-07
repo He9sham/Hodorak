@@ -11,7 +11,7 @@ class AdminLeaveRequestsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final leaveRequestsAsync = ref.watch(leaveRequestsStreamProvider);
+    final leaveRequestsAsync = ref.watch(leaveRequestsProvider);
     final leaveRequestActions = ref.watch(leaveRequestActionsProvider);
     final isDeleteAllLoading = ref.watch(deleteAllLoadingProvider);
 
@@ -21,6 +21,11 @@ class AdminLeaveRequestsScreen extends ConsumerWidget {
         backgroundColor: AdminLeaveConstants.primaryColor,
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => ref.invalidate(leaveRequestsProvider),
+            tooltip: 'Refresh',
+          ),
           Consumer(
             builder: (context, ref, child) {
               return leaveRequestsAsync.when(
@@ -60,23 +65,29 @@ class AdminLeaveRequestsScreen extends ConsumerWidget {
       body: leaveRequestsAsync.when(
         data: (requests) {
           if (requests.isEmpty) {
-            return const LeaveRequestsEmptyState();
+            return RefreshIndicator(
+              onRefresh: () async => ref.invalidate(leaveRequestsProvider),
+              child: const LeaveRequestsEmptyState(),
+            );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(AdminLeaveConstants.cardMargin),
-            itemCount: requests.length,
-            itemBuilder: (context, index) {
-              final request = requests[index];
-              return LeaveRequestCard(request: request);
-            },
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(leaveRequestsProvider),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(AdminLeaveConstants.cardMargin),
+              itemCount: requests.length,
+              itemBuilder: (context, index) {
+                final request = requests[index];
+                return LeaveRequestCard(request: request);
+              },
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) {
           return LeaveRequestsErrorState(
             error: error.toString(),
-            onRetry: () => ref.invalidate(leaveRequestsStreamProvider),
+            onRetry: () => ref.invalidate(leaveRequestsProvider),
           );
         },
       ),

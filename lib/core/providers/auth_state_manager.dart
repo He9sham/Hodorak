@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodorak/core/odoo_service/odoo_http_service.dart';
-import 'package:hodorak/core/services/service_locator.dart';
+import 'package:hodorak/core/services/supabase_auth_service.dart';
 import 'package:hodorak/core/utils/routes.dart';
 
 class AuthState {
@@ -8,7 +7,7 @@ class AuthState {
   final bool isAdmin;
   final bool isLoading;
   final String? error;
-  final int? uid;
+  final String? uid;
   final String? name;
 
   const AuthState({
@@ -25,7 +24,7 @@ class AuthState {
     bool? isAdmin,
     bool? isLoading,
     String? error,
-    int? uid,
+    String? uid,
     String? name,
   }) {
     return AuthState(
@@ -40,9 +39,9 @@ class AuthState {
 }
 
 class AuthStateManager extends Notifier<AuthState> {
-  final OdooHttpService _odooService;
+  final SupabaseAuthService _authService;
 
-  AuthStateManager(this._odooService);
+  AuthStateManager(this._authService);
 
   @override
   AuthState build() {
@@ -61,19 +60,19 @@ class AuthStateManager extends Notifier<AuthState> {
 
     try {
       // Check if user has saved session
-      final isAuthenticated = await _odooService.isAuthenticated();
+      final isAuthenticated = await _authService.isAuthenticated();
 
       if (isAuthenticated) {
         // Verify the session is still valid by checking admin status
-        final isAdmin = await _odooService.isAdmin();
-        final uid = _odooService.uid;
+        final isAdmin = await _authService.isAdmin();
+        final currentUser = _authService.currentUser;
 
         state = state.copyWith(
           isAuthenticated: true,
           isAdmin: isAdmin,
           isLoading: false,
-          uid: uid,
-          name: 'User', // You might want to fetch the actual name from Odoo
+          uid: currentUser?.id,
+          name: currentUser?.email,
         );
       } else {
         state = state.copyWith(
@@ -119,9 +118,9 @@ class AuthStateManager extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final result = await _odooService.login(login: email, password: password);
-      final isAdmin = await _odooService.isAdmin();
-      final uid = result['uid'] as int;
+      final result = await _authService.login(email: email, password: password);
+      final isAdmin = await _authService.isAdmin();
+      final uid = result['uid'] as String;
 
       state = state.copyWith(
         isAuthenticated: true,
@@ -155,7 +154,7 @@ class AuthStateManager extends Notifier<AuthState> {
   }
 
   Future<void> logout() async {
-    await _odooService.clearSession();
+    await _authService.logout();
     state = const AuthState();
   }
 
@@ -166,7 +165,7 @@ class AuthStateManager extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final success = await _odooService.adminResetUserPassword(
+      final success = await _authService.resetUserPassword(
         userEmail: userEmail,
         newPassword: newPassword,
       );
@@ -207,6 +206,6 @@ class AuthStateManager extends Notifier<AuthState> {
 
 final authStateManagerProvider = NotifierProvider<AuthStateManager, AuthState>(
   () {
-    return AuthStateManager(odooService);
+    return AuthStateManager(SupabaseAuthService());
   },
 );

@@ -7,6 +7,11 @@ class LeaveRequest {
   final String status; // 'pending', 'approved', 'rejected'
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? reviewedBy;
+  final String? userName;
+  final String? userEmail;
+  final String? reviewedByName;
+  final String? reviewedByEmail;
 
   LeaveRequest({
     required this.id,
@@ -17,6 +22,11 @@ class LeaveRequest {
     required this.status,
     required this.createdAt,
     this.updatedAt,
+    this.reviewedBy,
+    this.userName,
+    this.userEmail,
+    this.reviewedByName,
+    this.reviewedByEmail,
   });
 
   factory LeaveRequest.fromMap(Map<String, dynamic> map, String id) {
@@ -31,6 +41,31 @@ class LeaveRequest {
       updatedAt: map['updatedAt'] != null
           ? DateTime.parse(map['updatedAt'])
           : null,
+    );
+  }
+
+  factory LeaveRequest.fromJson(Map<String, dynamic> json) {
+    // Extract user data from embedded relationship
+    final userData = json['users'] as Map<String, dynamic>?;
+    final reviewedByUserData =
+        json['reviewed_by_user'] as Map<String, dynamic>?;
+
+    return LeaveRequest(
+      id: json['id'] ?? '',
+      userId: json['user_id'] ?? '',
+      reason: json['reason'] ?? '',
+      startDate: DateTime.parse(json['start_date']),
+      endDate: DateTime.parse(json['end_date']),
+      status: json['status'] ?? 'pending',
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : null,
+      reviewedBy: json['reviewed_by'],
+      userName: userData?['name'],
+      userEmail: userData?['email'],
+      reviewedByName: reviewedByUserData?['name'],
+      reviewedByEmail: reviewedByUserData?['email'],
     );
   }
 
@@ -55,6 +90,11 @@ class LeaveRequest {
     String? status,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? reviewedBy,
+    String? userName,
+    String? userEmail,
+    String? reviewedByName,
+    String? reviewedByEmail,
   }) {
     return LeaveRequest(
       id: id ?? this.id,
@@ -65,6 +105,11 @@ class LeaveRequest {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      reviewedBy: reviewedBy ?? this.reviewedBy,
+      userName: userName ?? this.userName,
+      userEmail: userEmail ?? this.userEmail,
+      reviewedByName: reviewedByName ?? this.reviewedByName,
+      reviewedByEmail: reviewedByEmail ?? this.reviewedByEmail,
     );
   }
 

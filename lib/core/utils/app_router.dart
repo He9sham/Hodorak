@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
+import 'package:hodorak/features/reset_password/views/admin_user_management_screen.dart';
 import 'package:hodorak/features/admin_leave_requests/view/admin_leave_requests_screen.dart';
 import 'package:hodorak/features/admin_location/views/admin_location_screen.dart';
-import 'package:hodorak/features/auth/views/admin_password_reset_screen.dart';
+
 import 'package:hodorak/features/auth/views/login_screen.dart';
 import 'package:hodorak/features/auth/views/sign_up_screen.dart';
 import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
+import 'package:hodorak/features/company_screen/company_creation_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
 import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
@@ -27,6 +29,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const SignUpScreen());
       case Routes.loginScreen:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
+      case Routes.companyCreationScreen:
+        return MaterialPageRoute(builder: (_) => const CompanyCreationScreen());
       case Routes.userHomeScreen:
         return MaterialPageRoute(builder: (_) => const UserHomeScreen());
       case Routes.adminHomeScreen:
@@ -35,16 +39,17 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       case Routes.calendarScreen:
         return MaterialPageRoute(builder: (_) => const CalendarScreen());
-      case Routes.adminPasswordResetScreen:
-        return MaterialPageRoute(
-          builder: (_) => const AdminPasswordResetScreen(),
-        );
+      
       case Routes.adminLeaveRequestsScreen:
         return MaterialPageRoute(
           builder: (_) => const AdminLeaveRequestsScreen(),
         );
       case Routes.adminLocationScreen:
         return MaterialPageRoute(builder: (_) => const AdminLocationScreen());
+      case Routes.adminUserManagementScreen:
+        return MaterialPageRoute(
+          builder: (_) => const AdminUserManagementScreen(),
+        );
       default:
         return null;
     }

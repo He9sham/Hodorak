@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/models/leave_request.dart';
-import 'package:hodorak/core/services/service_locator.dart';
+import 'package:hodorak/core/services/supabase_leave_service.dart';
 
 class LeaveStatusDisplay extends ConsumerStatefulWidget {
   final String userId;
@@ -26,12 +26,12 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
 
   Future<void> _loadLatestRequest() async {
     try {
-      final request = await firebaseLeaveService.getLatestUserLeaveRequest(
+      final requestData = await SupabaseLeaveService().getLatestUserLeaveRequest(
         widget.userId,
       );
       if (mounted) {
         setState(() {
-          _latestRequest = request;
+          _latestRequest = requestData != null ? LeaveRequest.fromJson(requestData) : null;
           _isLoading = false;
           _error = null;
         });
