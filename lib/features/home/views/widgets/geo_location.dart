@@ -12,55 +12,47 @@ class GeoLocation extends ConsumerWidget {
     final locationValidationState = ref.watch(locationValidationProvider);
     final workplaceLocationState = ref.watch(workplaceLocationProvider);
 
-    return Stack(
-      children: [
-        Container(
-          height: 260.h,
-          width: 343.w,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Color.fromARGB(237, 225, 225, 228),
+    return Container(
+      height: 100.h,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Color.fromARGB(237, 225, 225, 228),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 20,
+            left: 20,
+            child: Text(
+              'Geo Location',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        Positioned(
-          top: 20,
-          left: 20,
-          child: Text(
-            'Geo Location',
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          Positioned(
+            top: 5.h,
+            right: 5.w,
+            child: IconButton(
+              icon: Icon(Icons.refresh, size: 20.sp),
+              onPressed: () {
+                ref
+                    .read(locationValidationProvider.notifier)
+                    .validateLocation();
+              },
+              tooltip: 'Refresh location',
+            ),
           ),
-        ),
-        Positioned(
-          top: 20,
-          right: 20,
-          child: IconButton(
-            icon: Icon(Icons.refresh, size: 20.sp),
-            onPressed: () {
-              ref.read(locationValidationProvider.notifier).validateLocation();
-            },
-            tooltip: 'Refresh location',
+          Positioned(
+            bottom: 20.h,
+            left: 20.w,
+            right: 20.w,
+            child: _buildLocationStatus(
+              locationValidationState,
+              workplaceLocationState,
+            ),
           ),
-        ),
-
-        Positioned(
-          top: 50,
-          right: 30,
-          child: Container(
-            width: 300.w,
-            height: 160.h,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-            child: Image.asset('assets/Frame_location.png'),
-          ),
-        ),
-        Positioned(
-          bottom: 20,
-          left: 20,
-          child: _buildLocationStatus(
-            locationValidationState,
-            workplaceLocationState,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -70,16 +62,20 @@ class GeoLocation extends ConsumerWidget {
   ) {
     if (locationState.isValidating) {
       return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 20,
-            height: 20,
+            width: 20.w,
+            height: 20.h,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
           horizontalSpace(8),
-          Text(
-            'Checking location...',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
+          Flexible(
+            child: Text(
+              'Checking location...',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       );
@@ -87,10 +83,11 @@ class GeoLocation extends ConsumerWidget {
 
     if (workplaceState.location == null) {
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.asset('assets/Icon_False.png'),
           horizontalSpace(8),
-          Expanded(
+          Flexible(
             child: Text(
               'No workplace location set by admin',
               style: TextStyle(
@@ -98,6 +95,7 @@ class GeoLocation extends ConsumerWidget {
                 fontSize: 14.sp,
                 color: Colors.orange,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -106,12 +104,14 @@ class GeoLocation extends ConsumerWidget {
 
     if (locationState.isAtWorkplace) {
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.asset('assets/Icon_true.png'),
           horizontalSpace(8),
-          Expanded(
+          Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'You are inside the allowed zone',
@@ -119,11 +119,13 @@ class GeoLocation extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 14.sp,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (locationState.distanceToWorkplace != null)
                   Text(
                     'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
                     style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+                    overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
@@ -132,12 +134,14 @@ class GeoLocation extends ConsumerWidget {
       );
     } else {
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.asset('assets/Icon_False.png'),
           horizontalSpace(8),
-          Expanded(
+          Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'You are outside the allowed zone',
@@ -146,16 +150,19 @@ class GeoLocation extends ConsumerWidget {
                     fontSize: 14.sp,
                     color: Colors.red,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (locationState.distanceToWorkplace != null)
                   Text(
                     'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
                     style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 if (locationState.errorMessage != null)
                   Text(
                     locationState.errorMessage!,
                     style: TextStyle(fontSize: 12.sp, color: Colors.red),
+                    overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
