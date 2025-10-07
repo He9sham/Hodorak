@@ -2,15 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/auth/views/widgets/container_icon_auth.dart';
 import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
-import 'package:hodorak/features/auth/views/widgets/divider_row.dart';
 import 'package:hodorak/features/auth/views/widgets/label_text_field.dart';
 import 'package:hodorak/features/auth/views/widgets/login_button.dart';
 import 'package:hodorak/features/auth/views/widgets/text_rich.dart';
@@ -456,20 +453,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     title: 'Sign Up',
                     onPressed: _onSubmit,
                     isLoading: signUpState.isLoading,
-                  ),
-                  verticalSpace(24),
-                  DividerRow(spaceRow: 250, title: 'Or Register with'),
-                  verticalSpace(32),
-                  // row auth for social media
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ContainerIconAuth(icon: Icon(Icons.apple)),
-                      horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(Icons.facebook)),
-                      horizontalSpace(10),
-                      ContainerIconAuth(icon: Icon(FontAwesomeIcons.google)),
-                    ],
                   ),
                   verticalSpace(30),
                   // when user do not have any account

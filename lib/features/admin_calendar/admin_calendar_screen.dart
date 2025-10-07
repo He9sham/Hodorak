@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/providers/supabase_calendar_provider.dart';
 import 'package:hodorak/features/admin_calendar/widgets/admin_calendar_widget.dart';
+import 'package:hodorak/features/admin_calendar/widgets/attendance_summary_widget.dart';
 import 'package:hodorak/features/admin_calendar/widgets/user_attendance_detail_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -28,34 +28,17 @@ class _AdminCalendarScreenState extends ConsumerState<AdminCalendarScreen> {
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    // Note: SupabaseCalendarNotifier only supports month selection
-    // Individual day selection would need to be implemented
+    ref.read(supabaseCalendarProvider.notifier).selectDay(selectedDay);
   }
 
   void _onPageChanged(DateTime focusedDay) {
-    // Note: SupabaseCalendarNotifier doesn't support focusedDay tracking
-    // This would need to be implemented if required
+    ref.read(supabaseCalendarProvider.notifier).selectMonth(focusedDay);
   }
 
   void _onFormatChanged(CalendarFormat format) {
     setState(() {
       _calendarFormat = format;
     });
-  }
-
-  void _applyDateFilter(DateTime? date) {
-    // Note: SupabaseCalendarNotifier doesn't support date filtering
-    // This would need to be implemented if required
-  }
-
-  void _applyUserFilter(String? userId) {
-    // Note: SupabaseCalendarNotifier doesn't support user filtering
-    // This would need to be implemented if required
-  }
-
-  void _clearFilters() {
-    // Note: SupabaseCalendarNotifier doesn't support filtering
-    // This would need to be implemented if required
   }
 
   void _navigateToUserDetail(
@@ -75,8 +58,12 @@ class _AdminCalendarScreenState extends ConsumerState<AdminCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final adminState = ref.watch(supabaseCalendarProvider);
-    // Note: SupabaseCalendarNotifier doesn't have getSelectedDaySummary method
-    // This would need to be implemented if required
+
+    // Create events map for the calendar
+    final events = <DateTime, List<DailyAttendanceSummary>>{};
+    for (final summary in adminState.summaries) {
+      events[summary.date] = [summary];
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -93,49 +80,59 @@ class _AdminCalendarScreenState extends ConsumerState<AdminCalendarScreen> {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Filters - Note: SupabaseCalendarState doesn't have these properties
-              // FilterWidgets would need to be adapted or removed
-              // FilterWidgets(
-              //   employees: adminState.employees,
-              //   selectedDate: adminState.filterDate,
-              //   selectedUserId: adminState.filterUserId,
-              //   onDateChanged: _applyDateFilter,
-              //   onUserChanged: _applyUserFilter,
-              //   onClearFilters: _clearFilters,
-              // ),
+        child: Column(
+          children: [
+            // Calendar
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: AdminCalendarWidget(
+                calendarFormat: _calendarFormat,
+                focusedDay: adminState.selectedMonth,
+                selectedDay: adminState.selectedDay,
+                events: events,
+                isLoading: adminState.isLoading,
+                errorMessage: adminState.errorMessage,
+                onDaySelected: _onDaySelected,
+                onPageChanged: _onPageChanged,
+                onFormatChanged: _onFormatChanged,
+              ),
+            ),
 
-              // Calendar
-              SizedBox(
-                height: 310.h, // Controlled calendar size
-                child: AdminCalendarWidget(
-                  calendarFormat: _calendarFormat,
-                  focusedDay: adminState.selectedMonth,
-                  selectedDay:
-                      null, // SupabaseCalendarState doesn't track selected day
-                  events: {}, // SupabaseCalendarState doesn't have events map
-                  isLoading: adminState.isLoading,
-                  errorMessage: adminState.errorMessage,
-                  onDaySelected: _onDaySelected,
-                  onPageChanged: _onPageChanged,
-                  onFormatChanged: _onFormatChanged,
+            // Attendance Summary for Selected Day
+            if (adminState.selectedDaySummary != null)
+              Expanded(
+                child: SingleChildScrollView(
+                  child: AttendanceSummaryWidget(
+                    summary: adminState.selectedDaySummary!,
+                    onUserTap: (employeeAttendance) => _navigateToUserDetail(
+                      employeeAttendance,
+                      adminState.selectedDaySummary!.date,
+                    ),
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Select a day to view attendance details',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
-              // Summary - Note: selectedSummary is not available
-              // This would need to be implemented based on SupabaseCalendarState
-              // if (selectedSummary != null)
-              //   AttendanceSummaryWidget(
-              //     summary: selectedSummary,
-              //     onUserTap: (employeeAttendance) => _navigateToUserDetail(
-              //       employeeAttendance,
-              //       selectedSummary.date,
-              //     ),
-              //   ),
-            ],
-          ),
+          ],
         ),
       ),
     );

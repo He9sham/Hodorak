@@ -1,17 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/daily_attendance_summary.dart';
 import 'package:hodorak/core/services/supabase_attendance_service.dart';
+import 'package:hodorak/core/services/supabase_auth_service.dart';
 
 // Calendar state class
 class SupabaseCalendarState {
   final List<DailyAttendanceSummary> summaries;
   final DateTime selectedMonth;
+  final DateTime? selectedDay;
+  final DailyAttendanceSummary? selectedDaySummary;
   final bool isLoading;
   final String? errorMessage;
 
   SupabaseCalendarState({
     this.summaries = const [],
     DateTime? selectedMonth,
+    this.selectedDay,
+    this.selectedDaySummary,
     this.isLoading = false,
     this.errorMessage,
   }) : selectedMonth = selectedMonth ?? DateTime(2024, 1, 1);
@@ -19,12 +24,16 @@ class SupabaseCalendarState {
   SupabaseCalendarState copyWith({
     List<DailyAttendanceSummary>? summaries,
     DateTime? selectedMonth,
+    DateTime? selectedDay,
+    DailyAttendanceSummary? selectedDaySummary,
     bool? isLoading,
     String? errorMessage,
   }) {
     return SupabaseCalendarState(
       summaries: summaries ?? this.summaries,
       selectedMonth: selectedMonth ?? this.selectedMonth,
+      selectedDay: selectedDay,
+      selectedDaySummary: selectedDaySummary,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
     );
@@ -34,8 +43,9 @@ class SupabaseCalendarState {
 // Calendar provider
 class SupabaseCalendarNotifier extends Notifier<SupabaseCalendarState> {
   final SupabaseAttendanceService _attendanceService;
+  final SupabaseAuthService _authService;
 
-  SupabaseCalendarNotifier(this._attendanceService);
+  SupabaseCalendarNotifier(this._attendanceService, this._authService);
 
   @override
   SupabaseCalendarState build() {
@@ -60,7 +70,7 @@ class SupabaseCalendarNotifier extends Notifier<SupabaseCalendarState> {
       );
 
       // Get attendance data for the month
-      final attendanceData = await _attendanceService.getAllAttendance(
+      final attendanceData = await _attendanceService.getAllAttendanceWithUsers(
         startDate: startDate,
         endDate: endDate,
       );
@@ -106,7 +116,7 @@ class SupabaseCalendarNotifier extends Notifier<SupabaseCalendarState> {
       if (dayAttendance.isNotEmpty) {
         final employeeAttendances = dayAttendance.map((record) {
           return EmployeeAttendance(
-            employeeId: record['user_id'],
+            employeeId: record['user_id'].hashCode,
             employeeName: record['users']?['name'] ?? 'Unknown',
             checkIn: DateTime.parse(record['check_in']),
             checkOut: record['check_out'] != null
@@ -144,6 +154,103 @@ class SupabaseCalendarNotifier extends Notifier<SupabaseCalendarState> {
     await loadSummaries();
   }
 
+  Future<void> selectDay(DateTime day) async {
+    try {
+      // Get all users in the system
+      final allUsers = await _authService.getAllUsers();
+
+      // Get attendance data for the specific day
+      final startOfDay = DateTime(day.year, day.month, day.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      final attendanceData = await _attendanceService.getAllAttendanceWithUsers(
+        startDate: startOfDay,
+        endDate: endOfDay,
+      );
+
+      // Create employee attendance list
+      final employeeAttendances = <EmployeeAttendance>[];
+
+      // Add present employees (those who checked in)
+      for (final record in attendanceData) {
+        employeeAttendances.add(
+          EmployeeAttendance(
+            employeeId: record['user_id'].hashCode,
+            employeeName: record['users']?['name'] ?? 'Unknown',
+            checkIn: DateTime.parse(record['check_in']),
+            checkOut: record['check_out'] != null
+                ? DateTime.parse(record['check_out'])
+                : null,
+            isPresent: true,
+            workingHours: record['check_out'] != null
+                ? DateTime.parse(
+                    record['check_out'],
+                  ).difference(DateTime.parse(record['check_in']))
+                : null,
+          ),
+        );
+      }
+
+      // Add absent employees (those who didn't check in)
+      final presentUserIds = attendanceData
+          .map((record) => record['user_id'])
+          .toSet();
+      for (final user in allUsers) {
+        if (!presentUserIds.contains(user.id)) {
+          employeeAttendances.add(
+            EmployeeAttendance(
+              employeeId: user.id.hashCode,
+              employeeName: user.name,
+              checkIn: null,
+              checkOut: null,
+              isPresent: false,
+              workingHours: null,
+            ),
+          );
+        }
+      }
+
+      final daySummary = DailyAttendanceSummary(
+        date: day,
+        employeeAttendances: employeeAttendances,
+        totalEmployees: allUsers.length,
+        presentEmployees: employeeAttendances
+            .where((emp) => emp.isPresent)
+            .length,
+        absentEmployees: employeeAttendances
+            .where((emp) => !emp.isPresent)
+            .length,
+        attendancePercentage: allUsers.isNotEmpty
+            ? (employeeAttendances.where((emp) => emp.isPresent).length /
+                      allUsers.length) *
+                  100
+            : 0.0,
+      );
+
+      state = state.copyWith(selectedDay: day, selectedDaySummary: daySummary);
+    } catch (e) {
+      // If there's an error, create an empty summary
+      final daySummary = DailyAttendanceSummary(
+        date: day,
+        employeeAttendances: [],
+        totalEmployees: 0,
+        presentEmployees: 0,
+        absentEmployees: 0,
+        attendancePercentage: 0.0,
+      );
+
+      state = state.copyWith(
+        selectedDay: day,
+        selectedDaySummary: daySummary,
+        errorMessage: 'Failed to load day details: $e',
+      );
+    }
+  }
+
+  void clearDaySelection() {
+    state = state.copyWith(selectedDay: null, selectedDaySummary: null);
+  }
+
   void clearError() {
     state = state.copyWith(errorMessage: null);
   }
@@ -152,5 +259,8 @@ class SupabaseCalendarNotifier extends Notifier<SupabaseCalendarState> {
 // Provider instance
 final supabaseCalendarProvider =
     NotifierProvider<SupabaseCalendarNotifier, SupabaseCalendarState>(
-      () => SupabaseCalendarNotifier(SupabaseAttendanceService()),
+      () => SupabaseCalendarNotifier(
+        SupabaseAttendanceService(),
+        SupabaseAuthService(),
+      ),
     );

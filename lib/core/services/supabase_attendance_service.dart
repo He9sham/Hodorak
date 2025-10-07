@@ -231,6 +231,42 @@ class SupabaseAttendanceService {
     }
   }
 
+  // Get all attendance records with user information (admin only)
+  Future<List<dynamic>> getAllAttendanceWithUsers({
+    DateTime? startDate,
+    DateTime? endDate,
+    int? limit,
+  }) async {
+    try {
+      dynamic query = _client
+          .from(SupabaseConfig.attendanceTable)
+          .select('*, users(name, email)');
+
+      if (startDate != null) {
+        query = query.gte('check_in', startDate.toIso8601String());
+      }
+
+      if (endDate != null) {
+        query = query.lte('check_in', endDate.toIso8601String());
+      }
+
+      query = query.order('check_in', ascending: false);
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+
+      final data = await query;
+
+      return data as List<dynamic>;
+    } catch (e) {
+      Logger.error(
+        'SupabaseAttendanceService: Error fetching all attendance with users: $e',
+      );
+      rethrow;
+    }
+  }
+
   // Get attendance statistics for a user
   Future<Map<String, dynamic>> getAttendanceStats({
     required String userId,
