@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/reset_password/views/admin_user_management_screen.dart';
 import 'package:hodorak/features/admin_leave_requests/view/admin_leave_requests_screen.dart';
 import 'package:hodorak/features/admin_location/views/admin_location_screen.dart';
-
+import 'package:hodorak/features/auth/sign_up/presentation/views/sign_up_screen.dart';
 import 'package:hodorak/features/auth/views/login_screen.dart';
-import 'package:hodorak/features/auth/views/sign_up_screen.dart';
 import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
 import 'package:hodorak/features/company_screen/company_creation_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
 import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
+import 'package:hodorak/features/reset_password/views/admin_user_management_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
 
 class AppRouter {
@@ -39,7 +38,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       case Routes.calendarScreen:
         return MaterialPageRoute(builder: (_) => const CalendarScreen());
-      
+
       case Routes.adminLeaveRequestsScreen:
         return MaterialPageRoute(
           builder: (_) => const AdminLeaveRequestsScreen(),
