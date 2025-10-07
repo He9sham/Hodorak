@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/location_provider.dart';
+import 'package:hodorak/core/utils/logger.dart';
 
 class GeoLocation extends ConsumerWidget {
   const GeoLocation({super.key});
@@ -43,7 +44,7 @@ class GeoLocation extends ConsumerWidget {
             ),
           ),
           Positioned(
-            bottom: 20.h,
+            bottom: 10.h,
             left: 20.w,
             right: 20.w,
             child: _buildLocationStatus(
@@ -60,6 +61,22 @@ class GeoLocation extends ConsumerWidget {
     LocationValidationState locationState,
     WorkplaceLocationState workplaceState,
   ) {
+    // Debug print to help identify the issue
+    Logger.info('Location State Debug:');
+    Logger.info('  - isValidating: ${locationState.isValidating}');
+    Logger.info('  - isAtWorkplace: ${locationState.isAtWorkplace}');
+    Logger.info(
+      '  - distanceToWorkplace: ${locationState.distanceToWorkplace}',
+    );
+    Logger.info('  - errorMessage: ${locationState.errorMessage}');
+    Logger.info(
+      '  - hasWorkplaceLocation: ${locationState.hasWorkplaceLocation}',
+    );
+    Logger.info('Workplace State Debug:');
+    Logger.info('  - location: ${workplaceState.location}');
+    Logger.info('  - isLoading: ${workplaceState.isLoading}');
+    Logger.info('  - error: ${workplaceState.error}');
+
     if (locationState.isValidating) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -80,33 +97,15 @@ class GeoLocation extends ConsumerWidget {
         ],
       );
     }
-
-    if (workplaceState.location == null) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.asset('assets/Icon_False.png'),
-          horizontalSpace(8),
-          Flexible(
-            child: Text(
-              'No workplace location set by admin',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14.sp,
-                color: Colors.orange,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      );
-    }
-
     if (locationState.isAtWorkplace) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/Icon_true.png'),
+          SizedBox(
+            width: 20.w,
+            height: 20.h,
+            child: Image.asset('assets/Icon_true.png'),
+          ),
           horizontalSpace(8),
           Flexible(
             child: Column(
@@ -136,7 +135,11 @@ class GeoLocation extends ConsumerWidget {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/Icon_False.png'),
+          SizedBox(
+            width: 20.w,
+            height: 20.h,
+            child: Image.asset('assets/Icon_False.png'),
+          ),
           horizontalSpace(8),
           Flexible(
             child: Column(

@@ -183,6 +183,8 @@ class LocationValidationNotifier extends Notifier<LocationValidationState> {
   @override
   LocationValidationState build() {
     checkInitialState();
+    // Automatically validate location when the widget is first built
+    validateLocation();
     return const LocationValidationState();
   }
 

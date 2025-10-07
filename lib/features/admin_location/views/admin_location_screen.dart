@@ -16,15 +16,8 @@ class AdminLocationScreen extends ConsumerStatefulWidget {
 
 class _AdminLocationScreenState extends ConsumerState<AdminLocationScreen> {
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
     // Listen to error state changes and show error messages
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _listenToErrorState();
-    });
-  }
-
-  void _listenToErrorState() {
     ref.listen<AdminLocationState>(adminLocationControllerProvider, (
       previous,
       next,
@@ -35,10 +28,6 @@ class _AdminLocationScreenState extends ConsumerState<AdminLocationScreen> {
         ref.read(adminLocationControllerProvider.notifier).clearError();
       }
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return AdminLocationLoadingOverlay(
       child: Scaffold(
         appBar: AppBar(
