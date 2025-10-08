@@ -346,4 +346,43 @@ class SupabaseAuthService {
       rethrow;
     }
   }
+
+  // Delete user (admin only)
+  Future<bool> deleteUser(String userId) async {
+    try {
+      // Check if current user is admin
+      final isAdminUser = await isAdmin();
+      if (!isAdminUser) {
+        throw Exception('Only administrators can delete users');
+      }
+
+      // Prevent admin from deleting themselves
+      final currentUserId = currentUser?.id;
+      if (currentUserId == userId) {
+        throw Exception('You cannot delete your own account');
+      }
+
+      // Get the target user's profile to check if they are admin
+      final targetUser = await getUserProfile(userId);
+      if (targetUser == null) {
+        throw Exception('User not found');
+      }
+
+      // Prevent deletion of admin users
+      if (targetUser.isAdmin) {
+        throw Exception('Cannot delete administrator accounts');
+      }
+
+      Logger.debug('SupabaseAuthService: Deleting user $userId');
+
+      // Delete from users table first (this should cascade to other tables)
+      await _client.from(SupabaseConfig.usersTable).delete().eq('id', userId);
+
+      Logger.info('SupabaseAuthService: User deleted successfully: $userId');
+      return true;
+    } catch (e) {
+      Logger.error('SupabaseAuthService: Error deleting user: $e');
+      rethrow;
+    }
+  }
 }

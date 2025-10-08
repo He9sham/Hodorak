@@ -5,12 +5,12 @@ import 'package:hodorak/features/reset_password/constants/admin_user_management_
 import 'package:hodorak/features/reset_password/models/password_reset_request.dart';
 import 'package:hodorak/features/reset_password/models/user_management_state.dart';
 import 'package:hodorak/features/reset_password/viewmodels/admin_user_management_viewmodel.dart';
+import 'package:hodorak/features/reset_password/widgets/delete_employee_dialog.dart';
 import 'package:hodorak/features/reset_password/widgets/empty_state.dart';
 import 'package:hodorak/features/reset_password/widgets/error_state.dart';
 import 'package:hodorak/features/reset_password/widgets/loading_dialog.dart';
 import 'package:hodorak/features/reset_password/widgets/password_reset_dialog.dart';
 import 'package:hodorak/features/reset_password/widgets/user_card.dart';
-import 'package:hodorak/features/reset_password/widgets/user_details_dialog.dart';
 
 class AdminUserManagementScreen extends ConsumerStatefulWidget {
   const AdminUserManagementScreen({super.key});
@@ -147,17 +147,64 @@ class _AdminUserManagementScreenState
           return UserCard(
             user: user,
             onResetPassword: () => _resetUserPassword(user),
-            onViewDetails: () => _showUserDetails(user),
+            onDeleteEmployee: () => _deleteUser(user),
           );
         },
       ),
     );
   }
 
-  void _showUserDetails(SupabaseUser user) {
+  Future<void> _deleteUser(SupabaseUser user) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => DeleteEmployeeDialog(
+        user: user,
+        onConfirm: () => _performUserDeletion(user.id),
+      ),
+    );
+  }
+
+  Future<void> _performUserDeletion(String userId) async {
+    final viewModel = ref.read(adminUserManagementProvider.notifier);
+
+    // Show loading dialog
     showDialog(
       context: context,
-      builder: (context) => UserDetailsDialog(user: user),
+      barrierDismissible: false,
+      builder: (context) => const LoadingDialog(
+        message: AdminUserManagementConstants.deletingEmployee,
+      ),
     );
+
+    try {
+      final success = await viewModel.deleteUser(userId);
+
+      if (mounted) {
+        Navigator.of(context).pop(); // Close loading dialog
+
+        if (success) {
+          _showSnackBar(
+            AdminUserManagementConstants.deleteEmployeeSuccess,
+            AdminUserManagementConstants.successColor,
+          );
+        } else {
+          _showSnackBar(
+            AdminUserManagementConstants.deleteEmployeeFailed,
+            AdminUserManagementConstants.errorColor,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop(); // Close loading dialog
+
+        String errorMessage = 'Error: $e';
+        if (e.toString().contains('Cannot delete administrator accounts')) {
+          errorMessage = AdminUserManagementConstants.cannotDeleteAdmin;
+        }
+
+        _showSnackBar(errorMessage, AdminUserManagementConstants.errorColor);
+      }
+    }
   }
 }

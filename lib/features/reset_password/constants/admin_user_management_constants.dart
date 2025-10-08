@@ -4,7 +4,7 @@ class AdminUserManagementConstants {
   // Strings
   static const String title = 'User Management';
   static const String resetPassword = 'Reset Password';
-  static const String viewDetails = 'View Details';
+  static const String deleteEmployee = 'Delete Employee';
   static const String cancel = 'Cancel';
   static const String close = 'Close';
   static const String retry = 'Retry';
@@ -15,6 +15,15 @@ class AdminUserManagementConstants {
   static const String resettingPassword = 'Resetting password...';
   static const String passwordResetFailed =
       'Password reset failed. Please try again.';
+  static const String deleteEmployeeConfirm = 'Delete Employee';
+  static const String deleteEmployeeMessage =
+      'Are you sure you want to delete this employee? This action cannot be undone.';
+  static const String deleteEmployeeSuccess = 'Employee deleted successfully';
+  static const String deleteEmployeeFailed =
+      'Failed to delete employee. Please try again.';
+  static const String deletingEmployee = 'Deleting employee...';
+  static const String cannotDeleteAdmin =
+      'Cannot delete administrator accounts';
   static const String enterNewPassword = 'Enter new password';
   static const String newPassword = 'New Password';
   static const String confirmPassword = 'Confirm Password';

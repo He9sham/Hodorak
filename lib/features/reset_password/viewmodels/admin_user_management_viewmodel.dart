@@ -67,6 +67,31 @@ class AdminUserManagementNotifier extends Notifier<UserManagementState> {
     }
   }
 
+  Future<bool> deleteUser(String userId) async {
+    if (state.isDeletingUser) return false;
+
+    state = state.copyWith(isDeletingUser: true);
+
+    try {
+      final success = await _authService.deleteUser(userId);
+
+      if (success) {
+        Logger.info('User deleted successfully: $userId');
+        // Reload users to refresh the list
+        await loadUsers();
+      } else {
+        Logger.error('Failed to delete user: $userId');
+      }
+
+      return success;
+    } catch (e) {
+      Logger.error('Delete user error: $e');
+      return false;
+    } finally {
+      state = state.copyWith(isDeletingUser: false);
+    }
+  }
+
   void refresh() {
     loadUsers();
   }

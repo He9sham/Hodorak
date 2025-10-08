@@ -179,15 +179,27 @@ class _EmployeeListWidgetState extends ConsumerState<EmployeeListWidget> {
   }
 
   Widget _buildBody() {
-    return Column(
-      children: [
-        // Add Employee Form (expandable)
-        if (_showAddEmployeeForm) _buildAddEmployeeForm(),
-
-        // Employee List
-        Expanded(child: _buildEmployeeList()),
-      ],
-    );
+    if (_showAddEmployeeForm) {
+      // When form is shown, make the entire body scrollable
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildAddEmployeeForm(),
+            const SizedBox(height: 16),
+            // Show a preview of employee list when form is open
+            SizedBox(height: 200.h, child: _buildEmployeeList()),
+          ],
+        ),
+      );
+    } else {
+      // Normal layout when form is not shown
+      return Column(
+        children: [
+          // Employee List
+          Expanded(child: _buildEmployeeList()),
+        ],
+      );
+    }
   }
 
   Widget _buildAddEmployeeForm() {

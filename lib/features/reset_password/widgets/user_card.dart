@@ -5,13 +5,13 @@ import 'package:hodorak/features/reset_password/constants/admin_user_management_
 class UserCard extends StatelessWidget {
   final SupabaseUser user;
   final VoidCallback onResetPassword;
-  final VoidCallback onViewDetails;
+  final VoidCallback onDeleteEmployee;
 
   const UserCard({
     super.key,
     required this.user,
     required this.onResetPassword,
-    required this.onViewDetails,
+    required this.onDeleteEmployee,
   });
 
   @override
@@ -62,45 +62,53 @@ class UserCard extends StatelessWidget {
   }
 
   Widget _buildPopupMenu() {
+    final List<PopupMenuEntry<String>> menuItems = [
+      const PopupMenuItem(
+        value: 'reset_password',
+        child: Row(
+          children: [
+            Icon(
+              Icons.lock_reset,
+              color: AdminUserManagementConstants.warningColor,
+            ),
+            SizedBox(width: 8),
+            Text(AdminUserManagementConstants.resetPassword),
+          ],
+        ),
+      ),
+    ];
+
+    // Only show delete option for non-admin users
+    if (!user.isAdmin) {
+      menuItems.add(
+        const PopupMenuItem(
+          value: 'delete_employee',
+          child: Row(
+            children: [
+              Icon(
+                Icons.delete_outline,
+                color: AdminUserManagementConstants.errorColor,
+              ),
+              SizedBox(width: 8),
+              Text(AdminUserManagementConstants.deleteEmployee),
+            ],
+          ),
+        ),
+      );
+    }
+
     return PopupMenuButton<String>(
       onSelected: (value) {
         switch (value) {
           case 'reset_password':
             onResetPassword();
             break;
-          case 'view_details':
-            onViewDetails();
+          case 'delete_employee':
+            onDeleteEmployee();
             break;
         }
       },
-      itemBuilder: (context) => [
-        const PopupMenuItem(
-          value: 'reset_password',
-          child: Row(
-            children: [
-              Icon(
-                Icons.lock_reset,
-                color: AdminUserManagementConstants.warningColor,
-              ),
-              SizedBox(width: 8),
-              Text(AdminUserManagementConstants.resetPassword),
-            ],
-          ),
-        ),
-        const PopupMenuItem(
-          value: 'view_details',
-          child: Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                color: AdminUserManagementConstants.primaryColor,
-              ),
-              SizedBox(width: 8),
-              Text(AdminUserManagementConstants.viewDetails),
-            ],
-          ),
-        ),
-      ],
+      itemBuilder: (context) => menuItems,
     );
   }
 }

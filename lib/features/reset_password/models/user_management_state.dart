@@ -7,12 +7,14 @@ class UserManagementState {
   final List<SupabaseUser> users;
   final String? error;
   final bool isResettingPassword;
+  final bool isDeletingUser;
 
   const UserManagementState({
     this.type = UserManagementStateType.initial,
     this.users = const [],
     this.error,
     this.isResettingPassword = false,
+    this.isDeletingUser = false,
   });
 
   UserManagementState copyWith({
@@ -20,12 +22,14 @@ class UserManagementState {
     List<SupabaseUser>? users,
     String? error,
     bool? isResettingPassword,
+    bool? isDeletingUser,
   }) {
     return UserManagementState(
       type: type ?? this.type,
       users: users ?? this.users,
       error: error ?? this.error,
       isResettingPassword: isResettingPassword ?? this.isResettingPassword,
+      isDeletingUser: isDeletingUser ?? this.isDeletingUser,
     );
   }
 
