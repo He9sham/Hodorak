@@ -258,6 +258,48 @@ class SupabaseAuthNotifier extends Notifier<SupabaseAuthState> {
       rethrow;
     }
   }
+
+  /// Create a new employee (admin only) - automatically assigns admin's company ID
+  Future<void> createEmployee({
+    required String name,
+    required String email,
+    required String password,
+    required String jobTitle,
+    required String department,
+    required String phone,
+    required String nationalId,
+    required String gender,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      await supabaseAuthService.createEmployee(
+        name: name,
+        email: email,
+        password: password,
+        jobTitle: jobTitle,
+        department: department,
+        phone: phone,
+        nationalId: nationalId,
+        gender: gender,
+      );
+
+      state = state.copyWith(isLoading: false, error: null);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      rethrow;
+    }
+  }
+
+  /// Get all employees for the current admin's company
+  Future<List<SupabaseUser>> getCompanyEmployees() async {
+    try {
+      return await supabaseAuthService.getCompanyEmployees();
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      rethrow;
+    }
+  }
 }
 
 final supabaseAuthProvider =

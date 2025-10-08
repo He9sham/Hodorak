@@ -1,7 +1,7 @@
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
-import 'package:hodorak/features/auth/sign_up/domain/entities/sign_up_entity.dart';
-import 'package:hodorak/features/auth/sign_up/domain/entities/sign_up_validation_entity.dart';
-import 'package:hodorak/features/auth/sign_up/domain/usecases/validate_sign_up_usecase.dart';
+import 'package:hodorak/features/admin_employee_management/domain/entities/sign_up_entity.dart';
+import 'package:hodorak/features/admin_employee_management/domain/entities/sign_up_validation_entity.dart';
+import 'package:hodorak/features/admin_employee_management/domain/usecases/validate_sign_up_usecase.dart';
 
 class SignUpUseCase {
   final SupabaseAuthNotifier _authNotifier;

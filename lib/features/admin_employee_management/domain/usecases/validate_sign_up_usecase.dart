@@ -1,5 +1,5 @@
-import 'package:hodorak/features/auth/sign_up/domain/entities/sign_up_entity.dart';
-import 'package:hodorak/features/auth/sign_up/domain/entities/sign_up_validation_entity.dart';
+import 'package:hodorak/features/admin_employee_management/domain/entities/sign_up_entity.dart';
+import 'package:hodorak/features/admin_employee_management/domain/entities/sign_up_validation_entity.dart';
 
 class ValidateSignUpUseCase {
   SignUpValidationEntity validate(SignUpEntity signUpData) {

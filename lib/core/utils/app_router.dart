@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/admin_leave_requests/view/admin_leave_requests_screen.dart';
 import 'package:hodorak/features/admin_location/views/admin_location_screen.dart';
-import 'package:hodorak/features/auth/sign_up/presentation/views/sign_up_screen.dart';
 import 'package:hodorak/features/auth/views/login_screen.dart';
 import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
 import 'package:hodorak/features/company_screen/company_creation_screen.dart';
@@ -24,8 +23,7 @@ class AppRouter {
       //   return MaterialPageRoute(
       //     builder: (_) => const OnboardingView(),
       //   );
-      case Routes.signupScreen:
-        return MaterialPageRoute(builder: (_) => const SignUpScreen());
+
       case Routes.loginScreen:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case Routes.companyCreationScreen:

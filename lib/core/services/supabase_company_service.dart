@@ -4,6 +4,7 @@ import '../models/supabase_company.dart';
 import '../supabase/supabase_config.dart';
 import '../supabase/supabase_service.dart';
 import '../utils/logger.dart';
+import '../utils/uuid_generator.dart';
 
 class SupabaseCompanyService {
   final SupabaseClient _client = SupabaseService.client;
@@ -21,7 +22,11 @@ class SupabaseCompanyService {
     try {
       Logger.debug('SupabaseCompanyService: Creating company $name');
 
+      // Generate a unique company ID
+      final companyId = UuidGenerator.generateUuid();
+
       final companyData = {
+        'id': companyId, // Explicitly set the company ID
         'name': name,
         'admin_user_id': adminUserId,
         'description': description,

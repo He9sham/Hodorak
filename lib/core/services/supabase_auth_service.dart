@@ -238,6 +238,87 @@ class SupabaseAuthService {
     }
   }
 
+  // Create employee (admin only) - automatically assigns admin's company ID
+  Future<Map<String, dynamic>> createEmployee({
+    required String name,
+    required String email,
+    required String password,
+    required String jobTitle,
+    required String department,
+    required String phone,
+    required String nationalId,
+    required String gender,
+  }) async {
+    try {
+      // Check if current user is admin
+      final isAdminUser = await isAdmin();
+      if (!isAdminUser) {
+        throw Exception('Only administrators can create employees');
+      }
+
+      // Get current admin's profile to retrieve company ID
+      final adminProfile = await getUserProfile();
+      if (adminProfile == null || adminProfile.companyId == null) {
+        throw Exception('Admin user must be associated with a company');
+      }
+
+      Logger.debug(
+        'SupabaseAuthService: Creating employee $email for company ${adminProfile.companyId}',
+      );
+
+      // Create the employee using the admin's company ID
+      final result = await signUp(
+        name: name,
+        email: email,
+        password: password,
+        jobTitle: jobTitle,
+        department: department,
+        phone: phone,
+        nationalId: nationalId,
+        gender: gender,
+        companyId: adminProfile.companyId!, // Use admin's company ID
+        isAdmin: false, // Employee is not admin
+      );
+
+      Logger.info(
+        'SupabaseAuthService: Employee created successfully for $email',
+      );
+      return result;
+    } catch (e) {
+      Logger.error('SupabaseAuthService: Employee creation failed: $e');
+      rethrow;
+    }
+  }
+
+  // Get employees for current admin's company
+  Future<List<SupabaseUser>> getCompanyEmployees() async {
+    try {
+      // Check if current user is admin
+      final isAdminUser = await isAdmin();
+      if (!isAdminUser) {
+        throw Exception('Only administrators can view company employees');
+      }
+
+      // Get current admin's profile to retrieve company ID
+      final adminProfile = await getUserProfile();
+      if (adminProfile == null || adminProfile.companyId == null) {
+        throw Exception('Admin user must be associated with a company');
+      }
+
+      // Get all users from the same company
+      final data = await _client
+          .from(SupabaseConfig.usersTable)
+          .select()
+          .eq('company_id', adminProfile.companyId!)
+          .order('created_at', ascending: false);
+
+      return (data as List).map((user) => SupabaseUser.fromJson(user)).toList();
+    } catch (e) {
+      Logger.error('SupabaseAuthService: Error fetching company employees: $e');
+      rethrow;
+    }
+  }
+
   // Update user profile
   Future<void> updateUserProfile({
     required String userId,

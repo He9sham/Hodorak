@@ -21,25 +21,11 @@ class WelcomeSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome back!',
+            'Welcome Manger!',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.blue.shade800,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            authState.name ?? 'User',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(color: Colors.blue.shade600),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Role: ${authState.isAdmin ? 'Administrator' : 'Employee'}',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.blue.shade700),
           ),
         ],
       ),

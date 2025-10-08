@@ -3,6 +3,7 @@ import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/admin_calendar/admin_calendar_screen.dart';
+import 'package:hodorak/features/admin_employee_management/presentation/widgets/employee_list_widget.dart';
 import 'package:hodorak/features/home/views/widgets/build_action_card.dart';
 
 class BuildItemCartRowTwo extends StatelessWidget {
@@ -51,11 +52,15 @@ class BuildItemCartRowThree extends StatelessWidget {
         Expanded(
           child: buildActionCard(
             context,
-            icon: Icons.person_add,
-            title: 'Add Employee',
-            subtitle: 'Add new employee',
+            icon: Icons.people_outline,
+            title: 'Company Employees',
+            subtitle: 'View & manage employees',
             onTap: () {
-              context.pushReplacementNamed(Routes.signupScreen);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const EmployeeListWidget(),
+                ),
+              );
             },
           ),
         ),
