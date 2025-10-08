@@ -8,10 +8,11 @@ import 'package:hodorak/core/models/supabase_company.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
-import 'package:hodorak/features/auth/views/widgets/label_text_field.dart';
-import 'package:hodorak/features/auth/views/widgets/login_button.dart';
-import 'package:hodorak/features/auth/views/widgets/text_rich.dart';
+import 'package:hodorak/features/login/domain/entities/login_result_entity.dart';
+import 'package:hodorak/features/login/presentation/widgets/custom_text_field_auth.dart';
+import 'package:hodorak/features/login/presentation/widgets/label_text_field.dart';
+import 'package:hodorak/features/login/presentation/widgets/login_button.dart';
+import 'package:hodorak/features/login/presentation/widgets/text_rich.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +27,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _isLoggingIn = false; // Track if user is actively logging in
   late final TapGestureRecognizer _signUpRecognizer;
   late final TapGestureRecognizer _createCompanyRecognizer;
 
@@ -72,13 +72,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  /// Login using Supabase auth + role-based navigation
+  /// Login using the existing auth provider
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isLoggingIn = true;
-    });
 
     try {
       await ref
@@ -86,65 +82,83 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .login(_emailController.text.trim(), _passwordController.text.trim());
 
       if (mounted) {
+        // Wait a moment for the auth state to update
+        await Future.delayed(const Duration(milliseconds: 100));
         final authState = ref.read(supabaseAuthProvider);
+
         if (authState.isAuthenticated) {
           final route = authState.isAdmin
               ? Routes.adminHomeScreen
               : Routes.userHomeScreen;
           context.pushReplacementNamed(route);
+        } else {
+          _showErrorSnackBar(
+            context,
+            'Login failed. Please try again.',
+            LoginStatus.error,
+          );
         }
       }
     } catch (e) {
-      // Handle different types of errors with appropriate messages
       if (mounted) {
-        String errorMsg;
-        Color backgroundColor = Colors.red;
-        SnackBarAction? action;
+        String errorMsg = e.toString();
+        LoginStatus status = LoginStatus.error;
 
-        if (e.toString().contains('No internet connection') ||
-            e.toString().contains('Network error') ||
-            e.toString().contains('HTTP error')) {
-          errorMsg =
-              'No internet connection. Please check your network settings and try again.';
-          backgroundColor = Colors.orange;
-          action = SnackBarAction(
-            label: 'Retry',
-            textColor: Colors.white,
-            onPressed: () => login(),
-          );
-        } else if (e.toString().contains('Invalid email or password')) {
-          errorMsg = 'Invalid email or password. Please try again.';
-          backgroundColor = Colors.red;
-        } else if (e.toString().contains('Email not confirmed') ||
-            e.toString().contains('email_not_confirmed') ||
-            e.toString().contains('confirm your email')) {
-          errorMsg =
-              'Please confirm your email. Check your inbox for the confirmation link.';
-          backgroundColor = Colors.blue;
-        } else {
-          errorMsg = e.toString();
+        if (errorMsg.contains('Invalid email or password')) {
+          status = LoginStatus.invalidCredentials;
+        } else if (errorMsg.contains('Email not confirmed')) {
+          status = LoginStatus.emailNotConfirmed;
+        } else if (errorMsg.contains('Network error') ||
+            errorMsg.contains('No internet connection')) {
+          status = LoginStatus.networkError;
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMsg),
-            backgroundColor: backgroundColor,
-            duration: const Duration(seconds: 4),
-            action: action,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoggingIn = false;
-        });
+        _showErrorSnackBar(context, errorMsg, status);
       }
     }
   }
 
+  void _showErrorSnackBar(
+    BuildContext context,
+    String errorMessage,
+    LoginStatus status,
+  ) {
+    Color backgroundColor = Colors.red;
+    SnackBarAction? action;
+
+    switch (status) {
+      case LoginStatus.networkError:
+        backgroundColor = Colors.orange;
+        action = SnackBarAction(
+          label: 'Retry',
+          textColor: Colors.white,
+          onPressed: () => login(),
+        );
+        break;
+      case LoginStatus.emailNotConfirmed:
+        backgroundColor = Colors.blue;
+        break;
+      case LoginStatus.invalidCredentials:
+        backgroundColor = Colors.red;
+        break;
+      default:
+        backgroundColor = Colors.red;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 4),
+        action: action,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(supabaseAuthProvider);
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -245,9 +259,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     CustomButtonAuth(
                       title: 'Sign in',
                       onPressed: () async {
-                        _isLoggingIn ? null : await login();
+                        authState.isLoading ? null : await login();
                       },
-                      isLoading: _isLoggingIn,
+                      isLoading: authState.isLoading,
                     ),
                   ],
                 ),

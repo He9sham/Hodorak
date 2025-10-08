@@ -8,9 +8,11 @@ class CustomButtonAuth extends StatelessWidget {
     required this.isLoading,
     required this.title,
   });
+
   final void Function() onPressed;
   final bool isLoading;
   final String title;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -34,7 +36,6 @@ class CustomButtonAuth extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       Text('  Logging in...'),
                     ],
                   )

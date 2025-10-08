@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/theming/styles.dart';
-import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
-import 'package:hodorak/features/auth/views/widgets/label_text_field.dart';
+import 'package:hodorak/features/login/presentation/widgets/custom_text_field_auth.dart';
+import 'package:hodorak/features/login/presentation/widgets/label_text_field.dart';
 import 'package:hodorak/features/company_screen/viewmodels/company_creation_viewmodel.dart';
 
 class CompanyInfoSection extends ConsumerWidget {

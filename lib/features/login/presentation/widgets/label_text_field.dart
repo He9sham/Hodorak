@@ -4,6 +4,7 @@ import 'package:hodorak/core/theming/styles.dart';
 class LabelTextField extends StatelessWidget {
   const LabelTextField({super.key, required this.title});
   final String title;
+
   @override
   Widget build(BuildContext context) {
     return Row(

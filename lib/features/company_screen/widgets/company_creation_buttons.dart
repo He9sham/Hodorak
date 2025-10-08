@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/features/auth/views/widgets/login_button.dart';
+import 'package:hodorak/features/login/presentation/widgets/login_button.dart';
 import 'package:hodorak/features/company_screen/viewmodels/company_creation_viewmodel.dart';
 
 class CompanyCreationButtons extends ConsumerWidget {

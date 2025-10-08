@@ -5,6 +5,7 @@ class DividerRow extends StatelessWidget {
   const DividerRow({super.key, required this.title, required this.spaceRow});
   final String title;
   final double spaceRow;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(

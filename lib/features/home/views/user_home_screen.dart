@@ -55,7 +55,15 @@ class UserHomeScreen extends ConsumerWidget {
                 },
               ),
               verticalSpace(16),
-              LeaveStatusDisplay(userId: authState.user?.id ?? ''),
+              authState.user?.id != null
+                  ? LeaveStatusDisplay(userId: authState.user!.id)
+                  : Container(
+                      padding: const EdgeInsets.all(16),
+                      child: const Text(
+                        'Unable to load leave status. Please refresh the page.',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
               verticalSpace(16),
               GeoLocation(),
               verticalSpace(16),

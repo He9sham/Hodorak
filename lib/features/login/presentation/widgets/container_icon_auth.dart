@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class ContainerIconAuth extends StatelessWidget {
   const ContainerIconAuth({super.key, required this.icon});
   final Widget icon;
+
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -5,8 +5,8 @@ import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/supabase_company.dart';
 import 'package:hodorak/core/services/service_locator.dart';
 import 'package:hodorak/core/theming/styles.dart';
-import 'package:hodorak/features/auth/views/widgets/custom_text_field_auth.dart';
-import 'package:hodorak/features/auth/views/widgets/label_text_field.dart';
+import 'package:hodorak/features/login/presentation/widgets/custom_text_field_auth.dart';
+import 'package:hodorak/features/login/presentation/widgets/label_text_field.dart';
 
 class CompanySelectionWidget extends ConsumerStatefulWidget {
   final Function(SupabaseCompany?) onCompanySelected;

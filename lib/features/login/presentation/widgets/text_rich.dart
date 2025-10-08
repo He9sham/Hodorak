@@ -9,8 +9,10 @@ class TextRich extends StatelessWidget {
     required this.title,
     required this.subtitle,
   });
+
   final GestureRecognizer? gestureRecognizer;
   final String title, subtitle;
+
   @override
   Widget build(BuildContext context) {
     return Column(

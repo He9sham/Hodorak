@@ -14,6 +14,7 @@ class CustomTextFieldAuth extends StatelessWidget {
     this.maxLines,
     this.isObscureText,
   });
+
   final Widget? suffixIcon;
   final TextEditingController controller;
   final String hintText;
@@ -22,6 +23,7 @@ class CustomTextFieldAuth extends StatelessWidget {
   final Function(String)? onChanged;
   final int? maxLines;
   final bool? isObscureText;
+
   @override
   Widget build(BuildContext context) {
     return Column(

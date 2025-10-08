@@ -7,7 +7,7 @@ import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_gender_dropdown.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_text_field.dart';
-import 'package:hodorak/features/auth/views/widgets/login_button.dart';
+import 'package:hodorak/features/login/presentation/widgets/login_button.dart';
 
 class EmployeeListWidget extends ConsumerStatefulWidget {
   const EmployeeListWidget({super.key});

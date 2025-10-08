@@ -12,8 +12,8 @@ import 'package:hodorak/features/admin_employee_management/presentation/widgets/
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_gender_dropdown.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_success_widget.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_text_field.dart';
-import 'package:hodorak/features/auth/views/widgets/login_button.dart';
-import 'package:hodorak/features/auth/views/widgets/text_rich.dart';
+import 'package:hodorak/features/login/presentation/widgets/login_button.dart';
+import 'package:hodorak/features/login/presentation/widgets/text_rich.dart';
 
 // Constants
 class _Constants {
