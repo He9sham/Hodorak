@@ -96,3 +96,19 @@ final connectivityStreamProvider = StreamProvider<ConnectivityResult>((ref) {
   final networkService = ref.read(networkServiceProvider);
   return networkService.connectivityStream;
 });
+
+/// Usage examples:
+/// 
+/// 1. Simple banner that shows when internet is lost:
+///    NetworkConnectivityBanner()
+/// 
+/// 2. Full-screen overlay that prevents user interaction when offline:
+///    NetworkConnectivityOverlay(
+///      child: YourMainWidget(),
+///    )
+/// 
+/// 3. Check connectivity programmatically:
+///    final hasInternet = await ref.read(networkServiceProvider).hasInternetConnection();
+///    if (!hasInternet) {
+///      // Show error message
+///    }

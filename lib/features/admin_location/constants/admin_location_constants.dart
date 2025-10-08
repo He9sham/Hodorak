@@ -42,9 +42,9 @@ class AdminLocationConstants {
   static const FontWeight bodyFontWeight = FontWeight.normal;
 
   // Animation durations
-  static const Duration shortAnimationDuration = Duration(milliseconds: 200);
-  static const Duration mediumAnimationDuration = Duration(milliseconds: 300);
-  static const Duration longAnimationDuration = Duration(milliseconds: 500);
+  static const Duration shortAnimationDuration = Duration(seconds: 2);
+  static const Duration mediumAnimationDuration = Duration(seconds: 4);
+  static const Duration longAnimationDuration = Duration(seconds: 6);
 
   // Location accuracy
   static const LocationAccuracy locationAccuracy = LocationAccuracy.high;

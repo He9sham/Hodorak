@@ -6,8 +6,10 @@ import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/supabase_company.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
+import 'package:hodorak/core/services/network_service.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
+import 'package:hodorak/core/widgets/network_connectivity_banner.dart';
 import 'package:hodorak/features/login/domain/entities/login_result_entity.dart';
 import 'package:hodorak/features/login/presentation/widgets/custom_text_field_auth.dart';
 import 'package:hodorak/features/login/presentation/widgets/label_text_field.dart';
@@ -76,6 +78,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Check network connectivity before attempting login
+    final networkService = ref.read(networkServiceProvider);
+    final hasInternet = await networkService.hasInternetConnection();
+
+    if (!hasInternet) {
+      if (mounted) {
+        _showErrorSnackBar(
+          context,
+          'No internet connection. Please check your network settings.',
+          LoginStatus.networkError,
+        );
+      }
+      return;
+    }
+
     try {
       await ref
           .read(supabaseAuthProvider.notifier)
@@ -90,9 +107,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           final route = authState.isAdmin
               ? Routes.adminHomeScreen
               : Routes.userHomeScreen;
+          // ignore: use_build_context_synchronously
           context.pushReplacementNamed(route);
         } else {
           _showErrorSnackBar(
+            // ignore: use_build_context_synchronously
             context,
             'Login failed. Please try again.',
             LoginStatus.error,
@@ -159,113 +178,126 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(supabaseAuthProvider);
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    verticalSpace(50),
-                    // Logo/Title
-                    Text(
-                      'Sign in',
-                      style: Styles.textSize13Black600.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 32.sp,
-                      ),
-                    ),
-                    verticalSpace(48),
-                    LabelTextField(title: 'Email'),
-                    verticalSpace(8),
-                    // Email Field
-                    CustomTextFieldAuth(
-                      controller: _emailController,
-                      hintText: 'Enter Your Email',
-                      validator: (value) {
-                        value = value!.trim();
-                        if (value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
+    return NetworkConnectivityOverlay(
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Network connectivity banner
+                const NetworkConnectivityBanner(),
+                // Main content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            verticalSpace(50),
+                            // Logo/Title
+                            Text(
+                              'Sign in',
+                              style: Styles.textSize13Black600.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 32.sp,
+                              ),
+                            ),
+                            verticalSpace(48),
+                            LabelTextField(title: 'Email'),
+                            verticalSpace(8),
+                            // Email Field
+                            CustomTextFieldAuth(
+                              controller: _emailController,
+                              hintText: 'Enter Your Email',
+                              validator: (value) {
+                                value = value!.trim();
+                                if (value.isEmpty) {
+                                  return 'Please enter your email';
+                                }
+                                if (!value.contains('@')) {
+                                  return 'Please enter a valid email';
+                                }
+                                return null;
+                              },
+                            ),
 
-                    verticalSpace(16),
-                    LabelTextField(title: 'Password'),
-                    verticalSpace(8),
-                    // Password Field
-                    CustomTextFieldAuth(
-                      hintText: 'Enter your password',
-                      controller: _passwordController,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                            verticalSpace(16),
+                            LabelTextField(title: 'Password'),
+                            verticalSpace(8),
+                            // Password Field
+                            CustomTextFieldAuth(
+                              hintText: 'Enter your password',
+                              controller: _passwordController,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                if (value.length < 3) {
+                                  return 'Password must be at least 3 characters';
+                                }
+                                return null;
+                              },
+                            ),
+                            verticalSpace(20),
+                            // Text under Forgot Password
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
+                              child: Text(
+                                'First time using the app? Create your company to get started.',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12.sp,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                            verticalSpace(20),
+
+                            // Company Creation Toggle
+                            TextRich(
+                              title: 'Need to create a company?',
+                              subtitle: ' Create Company',
+                              gestureRecognizer: _createCompanyRecognizer,
+                            ),
+
+                            verticalSpace(40),
+
+                            // Login Button
+                            CustomButtonAuth(
+                              title: 'Sign in',
+                              onPressed: () async {
+                                authState.isLoading ? null : await login();
+                              },
+                              isLoading: authState.isLoading,
+                            ),
+                          ],
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 3) {
-                          return 'Password must be at least 3 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    verticalSpace(20),
-                    // Text under Forgot Password
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        'First time using the app? Create your company to get started.',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12.sp,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
-
-                    verticalSpace(20),
-
-                    // Company Creation Toggle
-                    TextRich(
-                      title: 'Need to create a company?',
-                      subtitle: ' Create Company',
-                      gestureRecognizer: _createCompanyRecognizer,
-                    ),
-
-                    verticalSpace(40),
-
-                    // Login Button
-                    CustomButtonAuth(
-                      title: 'Sign in',
-                      onPressed: () async {
-                        authState.isLoading ? null : await login();
-                      },
-                      isLoading: authState.isLoading,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),

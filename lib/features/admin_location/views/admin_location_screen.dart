@@ -59,7 +59,7 @@ class _AdminLocationScreenState extends ConsumerState<AdminLocationScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: AdminLocationConstants.errorColor,
-        duration: AdminLocationConstants.mediumAnimationDuration,
+        duration: AdminLocationConstants.longAnimationDuration,
       ),
     );
   }

@@ -71,13 +71,27 @@ class _AdminLocationControlsState extends ConsumerState<AdminLocationControls> {
     return TextField(
       controller: _locationNameController,
       decoration: InputDecoration(
-        labelText: AdminLocationConstants.labelLocationName,
         hintText: AdminLocationConstants.hintLocationName,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            AdminLocationConstants.borderRadius,
-          ),
+        hintStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400),
+        contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100),
+          borderSide: BorderSide(color: Colors.black),
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100),
+          borderSide: BorderSide(color: Colors.red),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100),
+          borderSide: BorderSide(color: Colors.red),
+        ),
+        filled: true,
+        fillColor: Colors.grey[100],
         errorText: _getLocationNameError(state),
       ),
       onChanged: (value) {
