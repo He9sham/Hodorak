@@ -115,7 +115,7 @@ Widget buildDrawer(
                 title: 'Settings',
                 onTap: () {
                   Navigator.pop(context);
-                  // Navigate to settings screen
+                  context.pushNamed(Routes.settingScreen);
                 },
               ),
               Divider(),
@@ -159,7 +159,7 @@ Widget buildDrawer(
                         ),
                         TextButton(
                           onPressed: () async {
-                            // Navigator.of(context).pop();
+                            Navigator.of(context).pop();
                             await ref
                                 .read(supabaseAuthProvider.notifier)
                                 .logout();

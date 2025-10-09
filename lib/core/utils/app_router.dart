@@ -9,6 +9,7 @@ import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/login/login.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
 import 'package:hodorak/features/reset_password/views/admin_user_management_screen.dart';
+import 'package:hodorak/features/setting/view/setting_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
 
 class AppRouter {
@@ -36,7 +37,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       case Routes.calendarScreen:
         return MaterialPageRoute(builder: (_) => const CalendarScreen());
-
+      case Routes.settingScreen:
+        return MaterialPageRoute(builder: (_) => const SettingScreen());
       case Routes.adminLeaveRequestsScreen:
         return MaterialPageRoute(
           builder: (_) => const AdminLeaveRequestsScreen(),
