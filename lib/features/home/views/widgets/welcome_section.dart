@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 
 class WelcomeSection extends StatelessWidget {
   const WelcomeSection({super.key, required this.authState});
-  final AuthState authState;
+  final SupabaseAuthState authState;
   @override
   Widget build(BuildContext context) {
     return Container(

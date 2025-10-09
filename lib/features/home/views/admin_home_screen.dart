@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/build_item_cart.dart';
 import 'package:hodorak/features/home/views/widgets/welcome_section.dart';
@@ -12,7 +12,7 @@ class AdminHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateManagerProvider);
+    final authState = ref.watch(supabaseAuthProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +23,7 @@ class AdminHomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              await ref.read(authStateManagerProvider.notifier).logout();
+              await ref.read(supabaseAuthProvider.notifier).logout();
               if (context.mounted) {
                 context.pushReplacementNamed(Routes.loginScreen);
               }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hodorak/core/models/daily_attendance_summary.dart';
+import 'package:hodorak/core/models/monthly_attendance_summary.dart';
 import 'package:hodorak/features/home/views/widgets/status_summary_container.dart';
 
 class QuickSummary extends StatelessWidget {
-  final DailyAttendanceSummary? attendanceSummary;
+  final MonthlyAttendanceSummary? monthlySummary;
   final int? currentUserId;
 
-  const QuickSummary({super.key, this.attendanceSummary, this.currentUserId});
+  const QuickSummary({super.key, this.monthlySummary, this.currentUserId});
 
   String _formatHours(Duration? duration) {
     if (duration == null) return '00h:00m';
@@ -17,34 +17,24 @@ class QuickSummary extends StatelessWidget {
     return '${hours.toString().padLeft(2, '0')}h:${minutes.toString().padLeft(2, '0')}m';
   }
 
-  String _getHoursToday() {
-    if (attendanceSummary == null || currentUserId == null) return '00h:00m';
-
-    final userAttendance = attendanceSummary!.employeeAttendances.firstWhere(
-      (attendance) => attendance.employeeId == currentUserId,
-      orElse: () => EmployeeAttendance(
-        employeeId: currentUserId!,
-        employeeName: 'Unknown',
-        isPresent: false,
-      ),
-    );
-
-    return _formatHours(userAttendance.workingHours);
+  String _getTotalHoursThisMonth() {
+    if (monthlySummary == null) return '00h:00m';
+    return _formatHours(monthlySummary!.totalWorkingHours);
   }
 
   String _getDaysPresent() {
-    if (attendanceSummary == null) return '0';
-    return attendanceSummary!.presentEmployees.toString();
+    if (monthlySummary == null) return '0';
+    return monthlySummary!.daysPresent.toString();
   }
 
   String _getDaysAbsent() {
-    if (attendanceSummary == null) return '0';
-    return attendanceSummary!.absentEmployees.toString();
+    if (monthlySummary == null) return '0';
+    return monthlySummary!.daysAbsent.toString();
   }
 
   String _getAdherence() {
-    if (attendanceSummary == null) return '0%';
-    return '${attendanceSummary!.attendancePercentage.toStringAsFixed(0)}%';
+    if (monthlySummary == null) return '0%';
+    return '${monthlySummary!.attendancePercentage.toStringAsFixed(0)}%';
   }
 
   @override
@@ -52,7 +42,7 @@ class QuickSummary extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 245.h,
+          height: 250.h, // Slightly increased to accommodate taller containers
           width: 343.w,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -71,8 +61,8 @@ class QuickSummary extends StatelessWidget {
           top: 50,
           left: 30,
           child: StatusSummaryContainer(
-            title: 'Hours Today',
-            subtitle: _getHoursToday(),
+            title: 'Hours This Month',
+            subtitle: _getTotalHoursThisMonth(),
             icon: Icons.watch_later_outlined,
             color: Color(0xffFECF7C),
           ),

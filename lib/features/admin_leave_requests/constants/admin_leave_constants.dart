@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AdminLeaveConstants {
   // Colors
-  static const Color primaryColor = Color(0xff8C9F5F);
+  static const Color primaryColor = Colors.blue;
   static const Color successColor = Colors.green;
   static const Color errorColor = Colors.red;
   static const Color warningColor = Colors.orange;

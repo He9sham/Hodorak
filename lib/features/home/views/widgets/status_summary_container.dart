@@ -16,22 +16,25 @@ class StatusSummaryContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 120,
-      height: 82,
+      height: 90, // Increased height to accommodate longer titles
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: color,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon),
-
-            Text(
-              title,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400),
+            Icon(icon, size: 20),
+            Flexible(
+              child: Text(
+                title,
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w400),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             Text(
               subtitle,

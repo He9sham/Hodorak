@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
-import 'package:hodorak/core/providers/supabase_daily_summary_provider.dart';
+import 'package:hodorak/core/providers/supabase_monthly_summary_provider.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_buttons.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
 import 'package:hodorak/features/home/views/widgets/geo_location.dart';
@@ -16,7 +16,9 @@ class UserHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(supabaseAuthProvider);
-    final dailySummaryState = ref.watch(supabaseCurrentDailySummaryProvider);
+    final monthlySummaryState = ref.watch(
+      supabaseCurrentMonthlySummaryProvider,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -68,7 +70,7 @@ class UserHomeScreen extends ConsumerWidget {
               GeoLocation(),
               verticalSpace(16),
               QuickSummary(
-                attendanceSummary: dailySummaryState.summary,
+                monthlySummary: monthlySummaryState.summary,
                 currentUserId: authState.user?.id.hashCode,
               ),
               verticalSpace(16),

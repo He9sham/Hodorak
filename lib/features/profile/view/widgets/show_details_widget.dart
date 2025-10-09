@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/models/supabase_user.dart';
-import 'package:hodorak/core/providers/auth_state_manager.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/providers/supabase_user_profile_provider.dart';
 
 class ShowDetailsWidget extends ConsumerWidget {
@@ -11,7 +11,7 @@ class ShowDetailsWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userProfileState = ref.watch(supabaseUserProfileProvider);
-    final authState = ref.watch(authStateManagerProvider);
+    final authState = ref.watch(supabaseAuthProvider);
 
     return Stack(
       children: [
@@ -64,8 +64,8 @@ class ShowDetailsWidget extends ConsumerWidget {
                   radius: 38.r,
                   backgroundColor: Color(0xff8C9F5F).withValues(alpha: 0.1),
                   child: Text(
-                    authState.name?.isNotEmpty == true
-                        ? authState.name![0].toUpperCase()
+                    authState.user?.name.isNotEmpty == true
+                        ? authState.user!.name[0].toUpperCase()
                         : 'U',
                     style: TextStyle(
                       fontSize: 24.sp,

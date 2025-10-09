@@ -159,7 +159,7 @@ Widget buildDrawer(
                         ),
                         TextButton(
                           onPressed: () async {
-                            Navigator.of(context).pop();
+                            // Navigator.of(context).pop();
                             await ref
                                 .read(supabaseAuthProvider.notifier)
                                 .logout();
