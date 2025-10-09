@@ -1,5 +1,6 @@
 /// Settings widgets exports
 /// This file provides a single import point for all settings-related widgets
+library;
 
 export 'about_app_widget.dart';
 export 'advanced_settings_widget.dart';

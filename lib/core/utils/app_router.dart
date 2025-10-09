@@ -7,6 +7,7 @@ import 'package:hodorak/features/company_screen/company_creation_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
 import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/login/login.dart';
+import 'package:hodorak/features/onboarding/onboarding_view.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
 import 'package:hodorak/features/reset_password/views/admin_user_management_screen.dart';
 import 'package:hodorak/features/setting/view/setting_screen.dart';
@@ -19,12 +20,8 @@ class AppRouter {
     switch (settings.name) {
       case Routes.splashScreen:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
-
-      // case Routes.onBoardingScreen:
-      //   return MaterialPageRoute(
-      //     builder: (_) => const OnboardingView(),
-      //   );
-
+      case Routes.onBoardingScreen:
+        return MaterialPageRoute(builder: (_) => const OnboardingView());
       case Routes.loginScreen:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case Routes.companyCreationScreen:

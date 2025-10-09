@@ -2,11 +2,10 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
+import 'package:hodorak/core/services/service_locator.dart';
 import 'package:hodorak/core/utils/logger.dart';
-import 'package:hodorak/features/home/views/admin_home_screen.dart';
-import 'package:hodorak/features/home/views/user_home_screen.dart';
-import 'package:hodorak/features/login/login.dart';
 import 'package:hodorak/features/splash_screen/view/widgets/splash_view.dart';
+import 'package:hodorak/features/splash_screen/view/widgets/widget_get_next_screen.dart';
 import 'package:page_transition/page_transition.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -18,20 +17,25 @@ class SplashScreen extends ConsumerStatefulWidget {
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _isInitialized = false;
+  bool _hasSeenOnboarding = false;
 
   @override
   void initState() {
     super.initState();
     // Delay the provider modification until after the widget tree is built
-    Future(() => _initializeAuth());
+    Future(() => _initialize());
   }
 
-  Future<void> _initializeAuth() async {
+  Future<void> _initialize() async {
     try {
+      // Check if user has seen onboarding
+      _hasSeenOnboarding = await onboardingService.hasSeenOnboarding();
+
+      // Initialize auth state
       await ref.read(supabaseAuthProvider.notifier).initializeAuthState();
     } catch (e) {
       // Handle initialization error gracefully
-      Logger.error('Auth initialization error: $e');
+      Logger.error('Initialization error: $e');
     }
     if (mounted) {
       setState(() {
@@ -54,22 +58,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     return AnimatedSplashScreen(
       backgroundColor: Colors.white,
       splash: SplashView(),
-      nextScreen: _getNextScreen(authState),
+      nextScreen: getNextScreen(authState, _hasSeenOnboarding),
       splashIconSize: 1000,
       duration: 2000, // Reduced duration to make transition faster
       splashTransition: SplashTransition.values[1],
       pageTransitionType: PageTransitionType.leftToRight,
       animationDuration: Duration(seconds: 1),
     );
-  }
-
-  Widget _getNextScreen(SupabaseAuthState authState) {
-    if (authState.isAuthenticated) {
-      return authState.isAdmin
-          ? const AdminHomeScreen()
-          : const UserHomeScreen();
-    }
-
-    return const LoginScreen();
   }
 }

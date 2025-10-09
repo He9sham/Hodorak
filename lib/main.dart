@@ -7,8 +7,6 @@ import 'features/setting/setting.dart';
 /// Main entry point of the application
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize all required services
   await AppInitializationService.initialize();
 
   runApp(const ProviderScope(child: HodorakApp()));

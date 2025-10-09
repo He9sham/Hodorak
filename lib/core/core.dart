@@ -1,5 +1,6 @@
 /// Core module exports
 /// This file provides a single import point for all core-related components
+library;
 
 export 'app/app_config.dart';
 export 'constants/app_constants.dart';

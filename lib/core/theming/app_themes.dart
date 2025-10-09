@@ -113,7 +113,7 @@ class AppThemes {
   static CardThemeData get _lightCardTheme => CardThemeData(
     color: Colors.white,
     elevation: 2,
-    shadowColor: Colors.grey.withOpacity(0.3),
+    shadowColor: Colors.grey.withValues(alpha: 0.3),
   );
 
   static FilledButtonThemeData get _lightFilledButtonTheme =>
@@ -161,15 +161,15 @@ class AppThemes {
       DividerThemeData(color: Colors.grey[300], thickness: 1);
 
   static SwitchThemeData get _lightSwitchTheme => SwitchThemeData(
-    thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
-      if (states.contains(MaterialState.selected)) {
+    thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+      if (states.contains(WidgetState.selected)) {
         return ColorsManager.kprimarycolorauth;
       }
       return Colors.grey[400]!;
     }),
-    trackColor: MaterialStateProperty.resolveWith<Color>((states) {
-      if (states.contains(MaterialState.selected)) {
-        return ColorsManager.kprimarycolorauth.withOpacity(0.5);
+    trackColor: WidgetStateProperty.resolveWith<Color>((states) {
+      if (states.contains(WidgetState.selected)) {
+        return ColorsManager.kprimarycolorauth.withValues(alpha: 0.5);
       }
       return Colors.grey[300]!;
     }),
@@ -179,7 +179,7 @@ class AppThemes {
       DropdownMenuThemeData(
         textStyle: TextStyle(color: Colors.black87),
         menuStyle: MenuStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.white),
+          backgroundColor: WidgetStateProperty.all(Colors.white),
         ),
       );
 
@@ -221,7 +221,7 @@ class AppThemes {
   static CardThemeData get _darkCardTheme => CardThemeData(
     color: Colors.grey[850],
     elevation: 2,
-    shadowColor: Colors.black.withOpacity(0.3),
+    shadowColor: Colors.black.withValues(alpha: 0.3),
   );
 
   static FilledButtonThemeData get _darkFilledButtonTheme =>
@@ -269,15 +269,15 @@ class AppThemes {
       DividerThemeData(color: Colors.grey[700], thickness: 1);
 
   static SwitchThemeData get _darkSwitchTheme => SwitchThemeData(
-    thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
-      if (states.contains(MaterialState.selected)) {
+    thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+      if (states.contains(WidgetState.selected)) {
         return ColorsManager.kprimarycolorauth;
       }
       return Colors.grey[600]!;
     }),
-    trackColor: MaterialStateProperty.resolveWith<Color>((states) {
-      if (states.contains(MaterialState.selected)) {
-        return ColorsManager.kprimarycolorauth.withOpacity(0.5);
+    trackColor: WidgetStateProperty.resolveWith<Color>((states) {
+      if (states.contains(WidgetState.selected)) {
+        return ColorsManager.kprimarycolorauth.withValues(alpha: 0.5);
       }
       return Colors.grey[700]!;
     }),
@@ -287,7 +287,7 @@ class AppThemes {
       DropdownMenuThemeData(
         textStyle: TextStyle(color: Colors.white),
         menuStyle: MenuStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.grey[850]),
+          backgroundColor: WidgetStateProperty.all(Colors.grey[850]),
         ),
       );
 }
