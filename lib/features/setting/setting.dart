@@ -4,4 +4,5 @@ library;
 
 export 'model/setting_model.dart';
 export 'view/setting_screen.dart';
+export 'view/widgets/widgets.dart';
 export 'viewmodel/setting_viewmodel.dart';

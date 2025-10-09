@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
+
 /// Model class for settings data
 /// Contains all the settings preferences and their default values
 class SettingModel {
   /// Theme mode preference
-  /// true = dark mode, false = light mode
-  final bool isDarkMode;
+  /// 0 = system, 1 = light, 2 = dark
+  final int themeModeIndex;
 
   /// Notification preference
   /// true = notifications enabled, false = notifications disabled
@@ -19,7 +21,7 @@ class SettingModel {
   final String developerName;
 
   const SettingModel({
-    required this.isDarkMode,
+    required this.themeModeIndex,
     required this.notificationsEnabled,
     required this.appVersion,
     required this.appName,
@@ -28,14 +30,14 @@ class SettingModel {
 
   /// Create a copy of the model with updated values
   SettingModel copyWith({
-    bool? isDarkMode,
+    int? themeModeIndex,
     bool? notificationsEnabled,
     String? appVersion,
     String? appName,
     String? developerName,
   }) {
     return SettingModel(
-      isDarkMode: isDarkMode ?? this.isDarkMode,
+      themeModeIndex: themeModeIndex ?? this.themeModeIndex,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       appVersion: appVersion ?? this.appVersion,
       appName: appName ?? this.appName,
@@ -46,7 +48,7 @@ class SettingModel {
   /// Convert model to JSON for storage
   Map<String, dynamic> toJson() {
     return {
-      'isDarkMode': isDarkMode,
+      'themeModeIndex': themeModeIndex,
       'notificationsEnabled': notificationsEnabled,
       'appVersion': appVersion,
       'appName': appName,
@@ -57,7 +59,7 @@ class SettingModel {
   /// Create model from JSON
   factory SettingModel.fromJson(Map<String, dynamic> json) {
     return SettingModel(
-      isDarkMode: json['isDarkMode'] ?? false,
+      themeModeIndex: json['themeModeIndex'] ?? 0, // Default to system
       notificationsEnabled: json['notificationsEnabled'] ?? true,
       appVersion: json['appVersion'] ?? '1.0.0',
       appName: json['appName'] ?? 'Hodorak',
@@ -67,23 +69,51 @@ class SettingModel {
 
   /// Default settings model
   static const SettingModel defaultSettings = SettingModel(
-    isDarkMode: false,
+    themeModeIndex: 0, // Default to system theme
     notificationsEnabled: true,
     appVersion: '1.0.0',
     appName: 'Hodorak',
     developerName: 'Hodorak Team',
   );
 
+  /// Get ThemeMode enum from index
+  ThemeMode get themeMode {
+    switch (themeModeIndex) {
+      case 0:
+        return ThemeMode.system;
+      case 1:
+        return ThemeMode.light;
+      case 2:
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  /// Get theme mode name for display
+  String get themeModeName {
+    switch (themeModeIndex) {
+      case 0:
+        return 'System';
+      case 1:
+        return 'Light';
+      case 2:
+        return 'Dark';
+      default:
+        return 'System';
+    }
+  }
+
   @override
   String toString() {
-    return 'SettingModel(isDarkMode: $isDarkMode, notificationsEnabled: $notificationsEnabled, appVersion: $appVersion, appName: $appName, developerName: $developerName)';
+    return 'SettingModel(themeModeIndex: $themeModeIndex, notificationsEnabled: $notificationsEnabled, appVersion: $appVersion, appName: $appName, developerName: $developerName)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is SettingModel &&
-        other.isDarkMode == isDarkMode &&
+        other.themeModeIndex == themeModeIndex &&
         other.notificationsEnabled == notificationsEnabled &&
         other.appVersion == appVersion &&
         other.appName == appName &&
@@ -93,7 +123,7 @@ class SettingModel {
   @override
   int get hashCode {
     return Object.hash(
-      isDarkMode,
+      themeModeIndex,
       notificationsEnabled,
       appVersion,
       appName,

@@ -1,44 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hodorak/core/services/service_locator.dart';
-import 'package:hodorak/core/supabase/supabase_service.dart';
-import 'package:hodorak/core/theming/colors_manger.dart';
-import 'package:hodorak/core/utils/app_router.dart';
-import 'package:hodorak/core/utils/routes.dart';
 
+import 'core/core.dart';
+import 'features/setting/setting.dart';
+
+/// Main entry point of the application
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SupabaseService.initialize();
-  await setupServiceLocator();
-  await notificationService.initialize();
 
-  runApp(ProviderScope(child: const Hodorak()));
+  // Initialize all required services
+  await AppInitializationService.initialize();
+
+  runApp(const ProviderScope(child: HodorakApp()));
 }
 
-class Hodorak extends StatelessWidget {
-  const Hodorak({super.key});
+/// Main application widget
+class HodorakApp extends ConsumerWidget {
+  const HodorakApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: Size(375, 812),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Hodorak Attendance',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-          filledButtonTheme: FilledButtonThemeData(
-            style: FilledButton.styleFrom(
-              backgroundColor: ColorsManager.kprimarycolorauth,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ),
-        onGenerateRoute: AppRouter().generateRoute,
-        initialRoute: Routes.splashScreen,
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the settings provider to get theme changes
+    final settings = ref.watch(settingProvider);
+
+    // Create app with proper configuration
+    return AppConfig.createApp(
+      themeMode: settings.themeMode,
+      onGenerateRoute: AppConfig.appRouter.generateRoute,
     );
   }
 }

@@ -22,7 +22,10 @@ class SettingNotifier extends Notifier<SettingModel> {
   String? get error => _error;
 
   /// Getter for theme mode
-  bool get isDarkMode => state.isDarkMode;
+  ThemeMode get themeMode => state.themeMode;
+
+  /// Getter for theme mode index
+  int get themeModeIndex => state.themeModeIndex;
 
   /// Getter for notification preference
   bool get notificationsEnabled => state.notificationsEnabled;
@@ -33,15 +36,24 @@ class SettingNotifier extends Notifier<SettingModel> {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      // Load theme mode preference
-      final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      // Load theme mode preference (migrate from old boolean if needed)
+      int themeModeIndex = prefs.getInt('themeModeIndex') ?? 0;
+
+      // Migration: If old boolean exists, convert it
+      if (prefs.containsKey('isDarkMode')) {
+        final oldIsDarkMode = prefs.getBool('isDarkMode') ?? false;
+        themeModeIndex = oldIsDarkMode ? 2 : 1; // 2 = dark, 1 = light
+        // Remove old key and save new one
+        await prefs.remove('isDarkMode');
+        await prefs.setInt('themeModeIndex', themeModeIndex);
+      }
 
       // Load notification preference
       final notificationsEnabled =
           prefs.getBool('notificationsEnabled') ?? true;
 
       state = state.copyWith(
-        isDarkMode: isDarkMode,
+        themeModeIndex: themeModeIndex,
         notificationsEnabled: notificationsEnabled,
       );
 
@@ -53,23 +65,27 @@ class SettingNotifier extends Notifier<SettingModel> {
     }
   }
 
-  /// Toggle theme mode between light and dark
+  /// Set theme mode
   /// Saves the preference to SharedPreferences
-  Future<void> toggleThemeMode() async {
+  Future<void> setThemeMode(int themeModeIndex) async {
     try {
-      final newThemeMode = !state.isDarkMode;
-
       // Update local state
-      state = state.copyWith(isDarkMode: newThemeMode);
+      state = state.copyWith(themeModeIndex: themeModeIndex);
 
       // Save to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isDarkMode', newThemeMode);
+      await prefs.setInt('themeModeIndex', themeModeIndex);
 
       _error = null;
     } catch (e) {
       _error = 'Failed to save theme preference: $e';
     }
+  }
+
+  /// Cycle through theme modes: System -> Light -> Dark -> System
+  Future<void> cycleThemeMode() async {
+    final newIndex = (state.themeModeIndex + 1) % 3;
+    await setThemeMode(newIndex);
   }
 
   /// Toggle notification preference
@@ -98,7 +114,7 @@ class SettingNotifier extends Notifier<SettingModel> {
 
       // Save default values to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isDarkMode', false);
+      await prefs.setInt('themeModeIndex', 0); // System theme
       await prefs.setBool('notificationsEnabled', true);
 
       _error = null;
@@ -115,11 +131,6 @@ class SettingNotifier extends Notifier<SettingModel> {
   /// Private method to update loading state
   void _setLoading(bool loading) {
     _isLoading = loading;
-  }
-
-  /// Get theme mode for Flutter's ThemeMode enum
-  ThemeMode get themeMode {
-    return state.isDarkMode ? ThemeMode.dark : ThemeMode.light;
   }
 }
 
