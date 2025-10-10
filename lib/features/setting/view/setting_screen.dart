@@ -55,16 +55,6 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       body: ListView(
         padding: EdgeInsets.all(16.sp),
         children: [
-          // Theme Settings Section
-          SectionHeaderWidget(title: 'Appearance'),
-          ThemeSettingsWidget(
-            settings: settings,
-            viewModel: viewModel,
-            onShowSnackBar: _showSnackBar,
-          ),
-
-          verticalSpace(24),
-
           // Notification Settings Section
           SectionHeaderWidget(title: 'Notifications'),
           NotificationSettingsWidget(

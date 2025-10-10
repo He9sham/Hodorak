@@ -19,7 +19,6 @@ class AppConfig {
 
   /// Create MaterialApp with proper configuration
   static Widget createApp({
-    required ThemeMode themeMode,
     required Route<dynamic>? Function(RouteSettings) onGenerateRoute,
     bool debugShowCheckedModeBanner = false,
   }) {
@@ -28,9 +27,7 @@ class AppConfig {
       child: MaterialApp(
         debugShowCheckedModeBanner: debugShowCheckedModeBanner,
         title: appTitle,
-        themeMode: themeMode,
         theme: AppThemes.lightTheme,
-        darkTheme: AppThemes.darkTheme,
         onGenerateRoute: onGenerateRoute,
         initialRoute: defaultRoute,
       ),

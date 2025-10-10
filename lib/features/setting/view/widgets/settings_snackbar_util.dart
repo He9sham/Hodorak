@@ -23,13 +23,7 @@ class SettingsSnackbarUtil {
 
   /// Get appropriate icon for snackbar based on message
   static IconData _getSnackBarIcon(String message) {
-    if (message.contains('dark')) {
-      return Icons.dark_mode;
-    } else if (message.contains('light')) {
-      return Icons.light_mode;
-    } else if (message.contains('system')) {
-      return Icons.brightness_auto;
-    } else if (message.contains('notification')) {
+    if (message.contains('notification')) {
       return Icons.notifications;
     } else {
       return Icons.settings;

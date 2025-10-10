@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/core.dart';
-import 'features/setting/setting.dart';
 
 /// Main entry point of the application
 void main() async {
@@ -13,17 +12,13 @@ void main() async {
 }
 
 /// Main application widget
-class HodorakApp extends ConsumerWidget {
+class HodorakApp extends StatelessWidget {
   const HodorakApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the settings provider to get theme changes
-    final settings = ref.watch(settingProvider);
-
+  Widget build(BuildContext context) {
     // Create app with proper configuration
     return AppConfig.createApp(
-      themeMode: settings.themeMode,
       onGenerateRoute: AppConfig.appRouter.generateRoute,
     );
   }
