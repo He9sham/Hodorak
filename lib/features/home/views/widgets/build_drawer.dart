@@ -159,10 +159,11 @@ Widget buildDrawer(
                         ),
                         TextButton(
                           onPressed: () async {
-                            Navigator.of(context).pop();
                             await ref
                                 .read(supabaseAuthProvider.notifier)
                                 .logout();
+                            // ignore: use_build_context_synchronously
+                            Navigator.of(context).pop();
                             if (context.mounted) {
                               context.pushReplacementNamed(Routes.loginScreen);
                             }

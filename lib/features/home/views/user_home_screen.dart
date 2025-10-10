@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/providers/supabase_monthly_summary_provider.dart';
+import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_buttons.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
 import 'package:hodorak/features/home/views/widgets/geo_location.dart';
 import 'package:hodorak/features/home/views/widgets/leave_status_display.dart';
 import 'package:hodorak/features/home/views/widgets/quick_summary.dart';
+import 'package:hodorak/features/notifications_screen/notifications.dart';
 
 class UserHomeScreen extends ConsumerWidget {
   const UserHomeScreen({super.key});
@@ -35,13 +38,14 @@ class UserHomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
-          Icon(Icons.notifications_active_outlined, size: 30.sp),
-          horizontalSpace(8),
-          Container(
-            decoration: BoxDecoration(shape: BoxShape.circle),
-            child: Image.asset("assets/unsplash_CHqrLlwebdM.png", height: 33),
+          NotificationBadge(
+            onTap: () {
+              context.pushNamed(Routes.notificationScreen);
+            },
+            iconColor: Colors.white,
+            iconSize: 24,
           ),
-          horizontalSpace(10),
+          horizontalSpace(8),
         ],
       ),
       drawer: buildDrawer(context, authState, ref),
@@ -51,21 +55,11 @@ class UserHomeScreen extends ConsumerWidget {
           child: Column(
             children: [
               verticalSpace(17),
-              AttendanceButtons(
-                onLeaveRequestSubmitted: () {
-                  // The LeaveStatusDisplay will automatically refresh via StreamBuilder
-                },
-              ),
+              AttendanceButtons(onLeaveRequestSubmitted: () {}),
               verticalSpace(16),
               authState.user?.id != null
                   ? LeaveStatusDisplay(userId: authState.user!.id)
-                  : Container(
-                      padding: const EdgeInsets.all(16),
-                      child: const Text(
-                        'Unable to load leave status. Please refresh the page.',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
+                  : SizedBox.shrink(),
               verticalSpace(16),
               GeoLocation(),
               verticalSpace(16),

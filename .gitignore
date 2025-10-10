@@ -23,9 +23,6 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 # ignore file    by hesham
-lib/admin_dashboard_screen.dart
-lib/unknwon_for_database.dart
-lib/user_dashboard_screen.dart
 lib/core/supabase/supabase_config.dart
 # Flutter/Dart/Pub related
 **/doc/api/

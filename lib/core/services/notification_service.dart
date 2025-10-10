@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hodorak/core/models/notification_model.dart';
+import 'package:hodorak/core/services/notification_storage_service.dart';
+import 'package:uuid/uuid.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -8,6 +11,9 @@ class NotificationService {
 
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  final NotificationStorageService _storageService =
+      NotificationStorageService();
+  final Uuid _uuid = const Uuid();
 
   bool _isInitialized = false;
 
@@ -73,6 +79,8 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    NotificationType type = NotificationType.general,
+    String? userId,
   }) async {
     await _ensureInitialized();
     const AndroidNotificationDetails androidNotificationDetails =
@@ -104,6 +112,41 @@ class NotificationService {
       notificationDetails,
       payload: payload,
     );
+
+    // Save notification to storage
+    await _saveNotificationToStorage(
+      title: title,
+      body: body,
+      type: type,
+      payload: payload,
+      userId: userId,
+    );
+  }
+
+  /// Save notification to local storage
+  Future<void> _saveNotificationToStorage({
+    required String title,
+    required String body,
+    required NotificationType type,
+    String? payload,
+    String? userId,
+  }) async {
+    try {
+      final notification = NotificationModel(
+        id: _uuid.v4(),
+        title: title,
+        body: body,
+        type: type,
+        payload: payload,
+        createdAt: DateTime.now(),
+        isRead: false,
+        userId: userId,
+      );
+
+      await _storageService.saveNotification(notification);
+    } catch (e) {
+      debugPrint('Failed to save notification to storage: $e');
+    }
   }
 
   /// Show notification when user submits leave request
@@ -115,18 +158,23 @@ class NotificationService {
       title: 'Leave Request Sent',
       body: 'Your leave request has been sent to the manager.',
       payload: 'leave_request_submitted',
+      type: NotificationType.leaveRequestSubmitted,
+      userId: userId,
     );
   }
 
   /// Show notification to manager when user submits leave request
   Future<void> showManagerLeaveRequestNotification({
     required String username,
+    String? managerId,
   }) async {
     await showNotification(
       id: 2,
       title: 'New Leave Request',
       body: 'User $username has submitted a leave request.',
       payload: 'new_leave_request_for_manager',
+      type: NotificationType.newLeaveRequest,
+      userId: managerId,
     );
   }
 
@@ -139,6 +187,8 @@ class NotificationService {
       title: 'Leave Request Approved',
       body: 'Your leave request has been approved.',
       payload: 'leave_request_approved',
+      type: NotificationType.leaveRequestApproved,
+      userId: userId,
     );
   }
 
@@ -151,6 +201,8 @@ class NotificationService {
       title: 'Leave Request Rejected',
       body: 'Your leave request has been rejected.',
       payload: 'leave_request_rejected',
+      type: NotificationType.leaveRequestRejected,
+      userId: userId,
     );
   }
 

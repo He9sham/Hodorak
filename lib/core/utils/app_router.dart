@@ -7,6 +7,7 @@ import 'package:hodorak/features/company_screen/company_creation_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
 import 'package:hodorak/features/home/views/user_home_screen.dart';
 import 'package:hodorak/features/login/login.dart';
+import 'package:hodorak/features/notifications_screen/view/notification_screen.dart';
 import 'package:hodorak/features/onboarding/onboarding_view.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
 import 'package:hodorak/features/reset_password/views/admin_user_management_screen.dart';
@@ -36,6 +37,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const CalendarScreen());
       case Routes.settingScreen:
         return MaterialPageRoute(builder: (_) => const SettingScreen());
+      case Routes.notificationScreen:
+        return MaterialPageRoute(builder: (_) => const NotificationScreen());
       case Routes.adminLeaveRequestsScreen:
         return MaterialPageRoute(
           builder: (_) => const AdminLeaveRequestsScreen(),
