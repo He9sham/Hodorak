@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:hodorak/core/models/notification_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,8 +16,16 @@ class NotificationStorageService {
   /// Save a notification to local storage
   Future<void> saveNotification(NotificationModel notification) async {
     try {
+      debugPrint('💾 NotificationStorageService: Saving notification');
+      debugPrint('   ID: ${notification.id}');
+      debugPrint('   Title: ${notification.title}');
+      debugPrint('   Type: ${notification.type}');
+      debugPrint('   UserId: ${notification.userId}');
+
       final prefs = await SharedPreferences.getInstance();
       final notifications = await getAllNotifications();
+
+      debugPrint('   Current notifications count: ${notifications.length}');
 
       // Add new notification at the beginning
       notifications.insert(0, notification);
@@ -29,7 +38,11 @@ class NotificationStorageService {
       // Save to SharedPreferences
       final jsonList = notifications.map((n) => n.toJson()).toList();
       await prefs.setString(_notificationsKey, jsonEncode(jsonList));
+
+      debugPrint('   ✅ Notification saved successfully');
+      debugPrint('   Total notifications now: ${notifications.length}');
     } catch (e) {
+      debugPrint('   ❌ Failed to save notification: $e');
       throw Exception('Failed to save notification: $e');
     }
   }

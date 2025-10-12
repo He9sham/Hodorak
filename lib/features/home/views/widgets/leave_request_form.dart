@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hodorak/core/services/notification_service.dart';
+import 'package:hodorak/core/services/firebase_messaging_service.dart';
 import 'package:hodorak/core/services/supabase_auth_service.dart';
 import 'package:hodorak/core/services/supabase_leave_service.dart';
 
@@ -86,7 +86,7 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
       );
 
       // Show notification to user
-      await NotificationService().showLeaveRequestSubmittedNotification(
+      await FirebaseMessagingService().showLeaveRequestSubmittedNotification(
         userId: widget.userId,
       );
 
@@ -96,7 +96,7 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
       final userName = userProfile?.name ?? 'Unknown User';
 
       // Show notification to manager (this would ideally be sent to all managers)
-      await NotificationService().showManagerLeaveRequestNotification(
+      await FirebaseMessagingService().showManagerLeaveRequestNotification(
         username: userName,
       );
 

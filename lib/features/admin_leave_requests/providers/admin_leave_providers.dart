@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/leave_request.dart';
-import 'package:hodorak/core/services/notification_service.dart';
+import 'package:hodorak/core/services/firebase_messaging_service.dart';
 import 'package:hodorak/core/services/supabase_auth_service.dart';
 import 'package:hodorak/core/services/supabase_leave_service.dart';
 
@@ -14,9 +14,11 @@ final supabaseAuthServiceProvider = Provider<SupabaseAuthService>((ref) {
   return SupabaseAuthService();
 });
 
-// Provider for Notification Service
-final notificationServiceProvider = Provider<NotificationService>((ref) {
-  return NotificationService();
+// Provider for Firebase Messaging Service
+final firebaseMessagingServiceProvider = Provider<FirebaseMessagingService>((
+  ref,
+) {
+  return FirebaseMessagingService();
 });
 
 // Provider for leave requests
@@ -82,12 +84,12 @@ class DeleteAllLoadingNotifier extends Notifier<bool> {
 // Provider for leave request actions
 final leaveRequestActionsProvider = Provider<LeaveRequestActions>((ref) {
   final service = ref.watch(supabaseLeaveServiceProvider);
-  final notificationService = ref.watch(notificationServiceProvider);
+  final firebaseMessagingService = ref.watch(firebaseMessagingServiceProvider);
   final processingNotifier = ref.watch(processingRequestsProvider.notifier);
   final deleteAllLoadingNotifier = ref.watch(deleteAllLoadingProvider.notifier);
   return LeaveRequestActions(
     service,
-    notificationService,
+    firebaseMessagingService,
     processingNotifier,
     deleteAllLoadingNotifier,
   );
@@ -96,13 +98,13 @@ final leaveRequestActionsProvider = Provider<LeaveRequestActions>((ref) {
 // Class for handling leave request actions
 class LeaveRequestActions {
   final SupabaseLeaveService _service;
-  final NotificationService _notificationService;
+  final FirebaseMessagingService _firebaseMessagingService;
   final ProcessingRequestsNotifier _processingNotifier;
   final DeleteAllLoadingNotifier _deleteAllLoadingNotifier;
 
   LeaveRequestActions(
     this._service,
-    this._notificationService,
+    this._firebaseMessagingService,
     this._processingNotifier,
     this._deleteAllLoadingNotifier,
   );
@@ -116,12 +118,12 @@ class LeaveRequestActions {
       // Show appropriate notification based on status
       switch (status) {
         case 'approved':
-          await _notificationService.showLeaveRequestApprovedNotification(
+          await _firebaseMessagingService.showLeaveRequestApprovedNotification(
             userId: requestId,
           );
           break;
         case 'rejected':
-          await _notificationService.showLeaveRequestRejectedNotification(
+          await _firebaseMessagingService.showLeaveRequestRejectedNotification(
             userId: requestId,
           );
           break;

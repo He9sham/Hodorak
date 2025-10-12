@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/providers/location_provider.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/services/biometric_auth_service.dart';
+import 'package:hodorak/core/services/firebase_messaging_service.dart';
 import 'package:hodorak/core/services/supabase_attendance_service.dart';
 import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
 
@@ -150,6 +151,16 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         longitude: currentLocation?.longitude,
       );
 
+      // Send check-in notification
+      final messagingService = FirebaseMessagingService();
+      final username =
+          authState.user?.name ?? authState.user?.email.split('@')[0] ?? 'User';
+      await messagingService.showCheckInNotification(
+        userId: authState.user!.id,
+        username: username,
+        location: currentLocation?.toString(),
+      );
+
       // Refresh attendance data through the provider (optional)
       _refreshAttendanceData();
 
@@ -221,6 +232,16 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         location: currentLocation?.toString(),
         latitude: currentLocation?.latitude,
         longitude: currentLocation?.longitude,
+      );
+
+      // Send check-out notification
+      final messagingService = FirebaseMessagingService();
+      final username =
+          authState.user?.name ?? authState.user?.email.split('@')[0] ?? 'User';
+      await messagingService.showCheckOutNotification(
+        userId: authState.user!.id,
+        username: username,
+        location: currentLocation?.toString(),
       );
 
       // Refresh attendance data through the provider (optional)

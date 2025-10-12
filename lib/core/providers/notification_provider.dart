@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/notification_model.dart';
+import 'package:hodorak/core/services/firebase_messaging_service.dart';
 import 'package:hodorak/core/services/notification_storage_service.dart';
+import 'package:hodorak/core/services/supabase_auth_service.dart';
 
 class NotificationState {
   final List<NotificationModel> notifications;
@@ -32,31 +35,122 @@ class NotificationState {
 
 class NotificationNotifier extends Notifier<NotificationState> {
   final NotificationStorageService _storageService;
+  final FirebaseMessagingService _messagingService;
+  final SupabaseAuthService _authService;
 
-  NotificationNotifier(this._storageService);
+  NotificationNotifier(
+    this._storageService,
+    this._messagingService,
+    this._authService,
+  );
 
   @override
   NotificationState build() {
+    // Set up listener for new notifications from FCM
+    _messagingService.onNotificationReceived = () {
+      loadNotifications();
+    };
+
     // Initialize notifications when provider is created
     loadNotifications();
     return const NotificationState();
   }
 
-  /// Load all notifications from storage
+  /// Load all notifications from storage with user role filtering
   Future<void> loadNotifications() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final notifications = await _storageService.getAllNotifications();
-      final unreadCount = await _storageService.getUnreadCount();
+      final allNotifications = await _storageService.getAllNotifications();
+
+      // Filter notifications based on current user's role
+      final filteredNotifications = await _filterNotificationsByUserRole(
+        allNotifications,
+      );
+
+      final unreadCount = filteredNotifications.where((n) => !n.isRead).length;
 
       state = state.copyWith(
-        notifications: notifications,
+        notifications: filteredNotifications,
         isLoading: false,
         unreadCount: unreadCount,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  /// Filter notifications based on current user's role
+  Future<List<NotificationModel>> _filterNotificationsByUserRole(
+    List<NotificationModel> notifications,
+  ) async {
+    try {
+      debugPrint(
+        '🔍 Filtering ${notifications.length} notifications by user role',
+      );
+
+      // Check if auth service is available
+      if (_authService.currentUser == null) {
+        debugPrint('Auth service not initialized, showing all notifications');
+        return notifications;
+      }
+
+      // Check if current user is admin/manager
+      final isAdmin = await _authService.isAdmin();
+      final currentUserId = _authService.currentUser?.id;
+
+      debugPrint('   Current user: $currentUserId');
+      debugPrint('   Is admin: $isAdmin');
+
+      final filteredNotifications = notifications.where((notification) {
+        // Show notifications based on type and user role
+        bool shouldShow;
+
+        // Special handling for notifications with null userId (broadcast to all admins)
+        if (notification.userId == null) {
+          // Notifications with null userId are meant for all admins
+          shouldShow = isAdmin;
+          debugPrint(
+            '   ${notification.type} (${notification.title}): $shouldShow [null userId, isAdmin: $isAdmin]',
+          );
+          return shouldShow;
+        }
+
+        switch (notification.type) {
+          case NotificationType.leaveRequestSubmitted:
+          case NotificationType.leaveRequestApproved:
+          case NotificationType.leaveRequestRejected:
+            shouldShow = isAdmin || notification.userId == currentUserId;
+            break;
+
+          case NotificationType.newLeaveRequest:
+            // newLeaveRequest with specific userId (rare case)
+            shouldShow = isAdmin || notification.userId == currentUserId;
+            break;
+
+          case NotificationType.checkIn:
+          case NotificationType.checkOut:
+            shouldShow = isAdmin || notification.userId == currentUserId;
+            break;
+
+          case NotificationType.attendance:
+          case NotificationType.general:
+            shouldShow = true;
+            break;
+        }
+
+        debugPrint(
+          '   ${notification.type} (${notification.title}): $shouldShow [userId: ${notification.userId}, currentUserId: $currentUserId]',
+        );
+        return shouldShow;
+      }).toList();
+
+      debugPrint('   Filtered notifications: ${filteredNotifications.length}');
+      return filteredNotifications;
+    } catch (e) {
+      debugPrint('Error filtering notifications by role: $e');
+      // If filtering fails, return all notifications
+      return notifications;
     }
   }
 
@@ -128,7 +222,11 @@ class NotificationNotifier extends Notifier<NotificationState> {
 
 final notificationProvider =
     NotifierProvider<NotificationNotifier, NotificationState>(() {
-      return NotificationNotifier(NotificationStorageService());
+      return NotificationNotifier(
+        NotificationStorageService(),
+        FirebaseMessagingService(),
+        SupabaseAuthService(),
+      );
     });
 
 /// Provider for unread count (computed)

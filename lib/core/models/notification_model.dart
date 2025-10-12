@@ -4,6 +4,8 @@ enum NotificationType {
   leaveRequestRejected,
   newLeaveRequest,
   attendance,
+  checkIn,
+  checkOut,
   general,
 }
 
@@ -89,6 +91,10 @@ class NotificationModel {
         return '📋';
       case NotificationType.attendance:
         return '⏰';
+      case NotificationType.checkIn:
+        return '✅';
+      case NotificationType.checkOut:
+        return '🚪';
       case NotificationType.general:
         return '🔔';
     }

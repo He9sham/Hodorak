@@ -327,6 +327,10 @@ class _NotificationItem extends StatelessWidget {
         return Icons.access_time;
       case NotificationType.general:
         return Icons.notifications;
+      case NotificationType.checkIn:
+        throw UnimplementedError();
+      case NotificationType.checkOut:
+        throw UnimplementedError();
     }
   }
 
@@ -344,6 +348,10 @@ class _NotificationItem extends StatelessWidget {
         return Colors.purple;
       case NotificationType.general:
         return const Color(0xff8C9F5F);
+      case NotificationType.checkIn:
+        throw UnimplementedError();
+      case NotificationType.checkOut:
+        throw UnimplementedError();
     }
   }
 

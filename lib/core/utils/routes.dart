@@ -13,4 +13,5 @@ class Routes {
   static const String adminLocationScreen = '/adminLocationScreen';
   static const String adminUserManagementScreen = '/adminUserManagementScreen';
   static const String notificationScreen = '/notificationScreen';
+  static const String adminNotificationScreen = '/adminNotificationScreen';
 }

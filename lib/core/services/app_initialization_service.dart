@@ -11,7 +11,7 @@ class AppInitializationService {
     // Setup service locator
     await setupServiceLocator();
 
-    // Initialize notification service
-    await notificationService.initialize();
+    // Initialize Firebase Messaging service
+    await firebaseMessagingService.initialize();
   }
 }

@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:hodorak/core/services/notification_service.dart';
+import 'package:hodorak/core/services/firebase_messaging_service.dart';
 import 'package:hodorak/core/services/notification_storage_service.dart';
 import 'package:hodorak/core/services/onboarding_service.dart';
 import 'package:hodorak/core/services/supabase_attendance_service.dart';
@@ -30,8 +30,10 @@ Future<void> setupServiceLocator() async {
     () => SupabaseSetupService(),
   );
 
-  // Register Notification Service
-  getIt.registerLazySingleton<NotificationService>(() => NotificationService());
+  // Register Firebase Messaging Service
+  getIt.registerLazySingleton<FirebaseMessagingService>(
+    () => FirebaseMessagingService(),
+  );
 
   // Register Notification Storage Service
   getIt.registerLazySingleton<NotificationStorageService>(
@@ -52,7 +54,8 @@ SupabaseCompanyService get supabaseCompanyService =>
     getIt<SupabaseCompanyService>();
 SupabaseLeaveService get supabaseLeaveService => getIt<SupabaseLeaveService>();
 SupabaseSetupService get supabaseSetupService => getIt<SupabaseSetupService>();
-NotificationService get notificationService => getIt<NotificationService>();
+FirebaseMessagingService get firebaseMessagingService =>
+    getIt<FirebaseMessagingService>();
 NotificationStorageService get notificationStorageService =>
     getIt<NotificationStorageService>();
 OnboardingService get onboardingService => getIt<OnboardingService>();

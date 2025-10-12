@@ -69,13 +69,38 @@ class BuildItemCartRowThree extends StatelessWidget {
           child: buildActionCard(
             context,
             icon: Icons.request_page_sharp,
-            title: 'Requests',
-            subtitle: 'Requests employees',
+            title: 'Leave Requests',
+            subtitle: 'Review leave requests',
             onTap: () {
               context.pushNamed(Routes.adminLeaveRequestsScreen);
             },
           ),
         ),
+      ],
+    );
+  }
+}
+
+class BuildItemCartRowFour extends StatelessWidget {
+  const BuildItemCartRowFour({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: buildActionCard(
+            context,
+            icon: Icons.notifications_active,
+            title: 'Notifications',
+            subtitle: 'View employee activities',
+            onTap: () {
+              context.pushNamed(Routes.adminNotificationScreen);
+            },
+          ),
+        ),
+        horizontalSpace(12),
+        const Expanded(child: SizedBox()), // Empty space for symmetry
       ],
     );
   }
