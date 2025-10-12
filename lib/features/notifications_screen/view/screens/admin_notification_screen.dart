@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/notification_model.dart';
 import 'package:hodorak/core/providers/notification_provider.dart';
+import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/notifications_screen/models/notification_filter.dart';
 import 'package:hodorak/features/notifications_screen/utils/notification_formatter.dart';
 import 'package:hodorak/features/notifications_screen/view/widgets/admin_notification_item.dart';
@@ -47,14 +48,14 @@ class _AdminNotificationScreenState
     final grouped = NotificationFilter.groupNotifications(adminNotifications);
 
     // Debug logging
-    debugPrint('🔍 Admin Notification Screen Debug:');
-    debugPrint(
+    Logger.debug('🔍 Admin Notification Screen Debug:');
+    Logger.debug(
       '   Total notifications: ${notificationState.notifications.length}',
     );
-    debugPrint('   Admin notifications: ${adminNotifications.length}');
-    debugPrint('   Check-in/out: ${grouped['checkInOut']?.length}');
-    debugPrint('   Leave: ${grouped['leave']?.length}');
-    debugPrint('   Other: ${grouped['other']?.length}');
+    Logger.debug('   Admin notifications: ${adminNotifications.length}');
+    Logger.debug('   Check-in/out: ${grouped['checkInOut']?.length}');
+    Logger.debug('   Leave: ${grouped['leave']?.length}');
+    Logger.debug('   Other: ${grouped['other']?.length}');
 
     return Scaffold(
       appBar: _buildAppBar(adminNotifications, notificationNotifier),

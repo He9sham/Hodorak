@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/notification_model.dart';
 import 'package:hodorak/core/services/firebase_messaging_service.dart';
 import 'package:hodorak/core/services/notification_storage_service.dart';
 import 'package:hodorak/core/services/supabase_auth_service.dart';
+import 'package:hodorak/core/utils/logger.dart';
 
 class NotificationState {
   final List<NotificationModel> notifications;
@@ -85,13 +85,13 @@ class NotificationNotifier extends Notifier<NotificationState> {
     List<NotificationModel> notifications,
   ) async {
     try {
-      debugPrint(
+      Logger.info(
         '🔍 Filtering ${notifications.length} notifications by user role',
       );
 
       // Check if auth service is available
       if (_authService.currentUser == null) {
-        debugPrint('Auth service not initialized, showing all notifications');
+        Logger.debug('Auth service not initialized, showing all notifications');
         return notifications;
       }
 
@@ -99,8 +99,8 @@ class NotificationNotifier extends Notifier<NotificationState> {
       final isAdmin = await _authService.isAdmin();
       final currentUserId = _authService.currentUser?.id;
 
-      debugPrint('   Current user: $currentUserId');
-      debugPrint('   Is admin: $isAdmin');
+      Logger.debug('   Current user: $currentUserId');
+      Logger.debug('   Is admin: $isAdmin');
 
       final filteredNotifications = notifications.where((notification) {
         // Show notifications based on type and user role
@@ -110,7 +110,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
         if (notification.userId == null) {
           // Notifications with null userId are meant for all admins
           shouldShow = isAdmin;
-          debugPrint(
+          Logger.debug(
             '   ${notification.type} (${notification.title}): $shouldShow [null userId, isAdmin: $isAdmin]',
           );
           return shouldShow;
@@ -139,16 +139,18 @@ class NotificationNotifier extends Notifier<NotificationState> {
             break;
         }
 
-        debugPrint(
+        Logger.debug(
           '   ${notification.type} (${notification.title}): $shouldShow [userId: ${notification.userId}, currentUserId: $currentUserId]',
         );
         return shouldShow;
       }).toList();
 
-      debugPrint('   Filtered notifications: ${filteredNotifications.length}');
+      Logger.debug(
+        '   Filtered notifications: ${filteredNotifications.length}',
+      );
       return filteredNotifications;
     } catch (e) {
-      debugPrint('Error filtering notifications by role: $e');
+      Logger.error('Error filtering notifications by role: $e');
       // If filtering fails, return all notifications
       return notifications;
     }

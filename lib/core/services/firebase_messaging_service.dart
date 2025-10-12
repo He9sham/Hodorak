@@ -1,16 +1,15 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:hodorak/core/models/notification_model.dart';
 import 'package:hodorak/core/services/notification_storage_service.dart';
+import 'package:hodorak/core/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 
 /// Top-level function for handling background messages
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  debugPrint('Handling a background message: ${message.messageId}');
-  debugPrint('Message data: ${message.data}');
-  debugPrint('Message notification: ${message.notification?.title}');
+  Logger.debug('Handling a background message: ${message.messageId}');
+  Logger.debug('Message data: ${message.data}');
+  Logger.debug('Message notification: ${message.notification?.title}');
 }
 
 class FirebaseMessagingService {
@@ -50,25 +49,25 @@ class FirebaseMessagingService {
             sound: true,
           );
 
-      debugPrint('User granted permission: ${settings.authorizationStatus}');
+      Logger.info('User granted permission: ${settings.authorizationStatus}');
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        debugPrint('User granted permission');
+        Logger.info('User granted permission');
       } else if (settings.authorizationStatus ==
           AuthorizationStatus.provisional) {
-        debugPrint('User granted provisional permission');
+        Logger.info('User granted provisional permission');
       } else {
-        debugPrint('User declined or has not accepted permission');
+        Logger.warning('User declined or has not accepted permission');
       }
 
       // Get the FCM token
       _fcmToken = await _firebaseMessaging.getToken();
-      debugPrint('FCM Token: $_fcmToken');
+      Logger.info('FCM Token: $_fcmToken');
 
       // Listen to token refresh
       _firebaseMessaging.onTokenRefresh.listen((newToken) {
         _fcmToken = newToken;
-        debugPrint('FCM Token refreshed: $newToken');
+        Logger.info('FCM Token refreshed: $newToken');
       });
 
       // Configure foreground notification presentation options for iOS
@@ -95,19 +94,19 @@ class FirebaseMessagingService {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
       _isInitialized = true;
-      debugPrint('Firebase Messaging initialized successfully');
+      Logger.info('Firebase Messaging initialized successfully');
     } catch (e) {
-      debugPrint('Error initializing Firebase Messaging: $e');
+      Logger.error('Error initializing Firebase Messaging: $e');
     }
   }
 
   /// Handle foreground messages
   void _handleForegroundMessage(RemoteMessage message) {
-    debugPrint('Got a message whilst in the foreground!');
-    debugPrint('Message data: ${message.data}');
+    Logger.debug('Got a message whilst in the foreground!');
+    Logger.debug('Message data: ${message.data}');
 
     if (message.notification != null) {
-      debugPrint(
+      Logger.debug(
         'Message also contained a notification: ${message.notification}',
       );
 
@@ -130,8 +129,8 @@ class FirebaseMessagingService {
 
   /// Handle when user taps on notification
   void _handleMessageOpenedApp(RemoteMessage message) {
-    debugPrint('Message clicked!');
-    debugPrint('Message data: ${message.data}');
+    Logger.debug('Message clicked!');
+    Logger.debug('Message data: ${message.data}');
     // You can use a navigation service or global key for this
   }
 
@@ -160,11 +159,11 @@ class FirebaseMessagingService {
       _showInAppNotification(title, body);
     }
 
-    debugPrint('Notification saved: $title - $body');
-    debugPrint(
+    Logger.debug('Notification saved: $title - $body');
+    Logger.warning(
       '⚠️  Note: To send push notifications to other devices, you need a backend server!',
     );
-    debugPrint('📱 FCM Token: $_fcmToken');
+    Logger.info('📱 FCM Token: $_fcmToken');
     // Note: Actual FCM push notification must be sent from your backend server
     // using the FCM token and Firebase Admin SDK
   }
@@ -178,18 +177,18 @@ class FirebaseMessagingService {
     String? userId,
   }) async {
     try {
-      debugPrint('📤 Saving Notification to Storage:');
-      debugPrint('   Title: $title');
-      debugPrint('   Body: $body');
-      debugPrint('   Type: $type');
-      debugPrint(
+      Logger.debug('📤 Saving Notification to Storage:');
+      Logger.debug('   Title: $title');
+      Logger.debug('   Body: $body');
+      Logger.debug('   Type: $type');
+      Logger.debug(
         '   UserId: $userId ${userId == null ? "(for ALL admins)" : ""}',
       );
-      debugPrint('   Payload: $payload');
+      Logger.debug('   Payload: $payload');
 
       // Check if this notification should be saved for the current user
       if (!_shouldSaveNotification(type, userId)) {
-        debugPrint(
+        Logger.debug(
           '❌ Notification filtered out (not relevant for current user): $title',
         );
         return;
@@ -208,16 +207,16 @@ class FirebaseMessagingService {
 
       await _storageService.saveNotification(notification);
 
-      debugPrint('✅ Notification saved to storage successfully');
-      debugPrint('   Notification ID: ${notification.id}');
-      debugPrint('   UserId in model: ${notification.userId}');
+      Logger.debug('✅ Notification saved to storage successfully');
+      Logger.debug('   Notification ID: ${notification.id}');
+      Logger.debug('   UserId in model: ${notification.userId}');
 
       // Notify listeners that a new notification was saved
       onNotificationReceived?.call();
 
-      debugPrint('✅ UI listeners notified');
+      Logger.debug('✅ UI listeners notified');
     } catch (e) {
-      debugPrint('❌ Failed to save notification to storage: $e');
+      Logger.error('❌ Failed to save notification to storage: $e');
     }
   }
 
@@ -256,7 +255,7 @@ class FirebaseMessagingService {
   void _showInAppNotification(String title, String body) {
     // Note: This will only work if you have a GlobalKey<NavigatorState> set up
     // For now, we just log it
-    debugPrint('📬 IN-APP NOTIFICATION: $title - $body');
+    Logger.debug('📬 IN-APP NOTIFICATION: $title - $body');
     // final context = navigatorKey.currentContext;
     // if (context != null && context.mounted) {
     //   showSimpleNotification(
@@ -296,19 +295,19 @@ class FirebaseMessagingService {
         userId: null, // null userId indicates it's for all admins
       );
 
-      debugPrint('📢 MANAGER NOTIFICATION SAVED:');
-      debugPrint('   Title: New Leave Request');
-      debugPrint('   Body: $username has submitted a leave request');
-      debugPrint('   Type: NotificationType.newLeaveRequest');
-      debugPrint('   UserId: null (for all admins)');
-      debugPrint('   Target: All Admins (local)');
+      Logger.debug('📢 MANAGER NOTIFICATION SAVED:');
+      Logger.debug('   Title: New Leave Request');
+      Logger.debug('   Body: $username has submitted a leave request');
+      Logger.debug('   Type: NotificationType.newLeaveRequest');
+      Logger.debug('   UserId: null (for all admins)');
+      Logger.debug('   Target: All Admins (local)');
     } else {
       // Just log that a notification would be sent to managers
-      debugPrint('📢 MANAGER NOTIFICATION (would be sent via backend):');
-      debugPrint('   Title: New Leave Request');
-      debugPrint('   Body: $username has submitted a leave request');
-      debugPrint('   Target: Managers');
-      debugPrint(
+      Logger.debug('📢 MANAGER NOTIFICATION (would be sent via backend):');
+      Logger.debug('   Title: New Leave Request');
+      Logger.debug('   Body: $username has submitted a leave request');
+      Logger.debug('   Target: Managers');
+      Logger.warning(
         '   ⚠️  This notification needs a backend server to reach managers!',
       );
     }
@@ -402,9 +401,9 @@ class FirebaseMessagingService {
   Future<void> subscribeToTopic(String topic) async {
     try {
       await _firebaseMessaging.subscribeToTopic(topic);
-      debugPrint('Subscribed to topic: $topic');
+      Logger.info('Subscribed to topic: $topic');
     } catch (e) {
-      debugPrint('Error subscribing to topic: $e');
+      Logger.error('Error subscribing to topic: $e');
     }
   }
 
@@ -412,9 +411,9 @@ class FirebaseMessagingService {
   Future<void> unsubscribeFromTopic(String topic) async {
     try {
       await _firebaseMessaging.unsubscribeFromTopic(topic);
-      debugPrint('Unsubscribed from topic: $topic');
+      Logger.info('Unsubscribed from topic: $topic');
     } catch (e) {
-      debugPrint('Error unsubscribing from topic: $e');
+      Logger.error('Error unsubscribing from topic: $e');
     }
   }
 
@@ -423,9 +422,9 @@ class FirebaseMessagingService {
     try {
       await _firebaseMessaging.deleteToken();
       _fcmToken = null;
-      debugPrint('FCM token deleted');
+      Logger.info('FCM token deleted');
     } catch (e) {
-      debugPrint('Error deleting FCM token: $e');
+      Logger.error('Error deleting FCM token: $e');
     }
   }
 }

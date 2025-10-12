@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:hodorak/core/models/notification_model.dart';
+import 'package:hodorak/core/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationStorageService {
@@ -16,16 +16,16 @@ class NotificationStorageService {
   /// Save a notification to local storage
   Future<void> saveNotification(NotificationModel notification) async {
     try {
-      debugPrint('💾 NotificationStorageService: Saving notification');
-      debugPrint('   ID: ${notification.id}');
-      debugPrint('   Title: ${notification.title}');
-      debugPrint('   Type: ${notification.type}');
-      debugPrint('   UserId: ${notification.userId}');
+      Logger.debug('💾 NotificationStorageService: Saving notification');
+      Logger.debug('   ID: ${notification.id}');
+      Logger.debug('   Title: ${notification.title}');
+      Logger.debug('   Type: ${notification.type}');
+      Logger.debug('   UserId: ${notification.userId}');
 
       final prefs = await SharedPreferences.getInstance();
       final notifications = await getAllNotifications();
 
-      debugPrint('   Current notifications count: ${notifications.length}');
+      Logger.debug('   Current notifications count: ${notifications.length}');
 
       // Add new notification at the beginning
       notifications.insert(0, notification);
@@ -39,10 +39,10 @@ class NotificationStorageService {
       final jsonList = notifications.map((n) => n.toJson()).toList();
       await prefs.setString(_notificationsKey, jsonEncode(jsonList));
 
-      debugPrint('   ✅ Notification saved successfully');
-      debugPrint('   Total notifications now: ${notifications.length}');
+      Logger.debug('   ✅ Notification saved successfully');
+      Logger.debug('   Total notifications now: ${notifications.length}');
     } catch (e) {
-      debugPrint('   ❌ Failed to save notification: $e');
+      Logger.error('   ❌ Failed to save notification: $e');
       throw Exception('Failed to save notification: $e');
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/models/notification_model.dart';
 import 'package:hodorak/core/providers/notification_provider.dart';
+import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/notifications_screen/models/notification_filter.dart';
 import 'package:hodorak/features/notifications_screen/utils/notification_formatter.dart';
 
@@ -92,11 +93,11 @@ class AdminNotificationViewModel {
     int adminNotifications,
     Map<String, List<NotificationModel>> grouped,
   ) {
-    debugPrint('🔍 Admin Notification ViewModel Debug:');
-    debugPrint('   Total notifications: $totalNotifications');
-    debugPrint('   Admin notifications: $adminNotifications');
-    debugPrint('   Check-in/out: ${grouped['checkInOut']?.length ?? 0}');
-    debugPrint('   Leave: ${grouped['leave']?.length ?? 0}');
-    debugPrint('   Other: ${grouped['other']?.length ?? 0}');
+    Logger.debug('🔍 Admin Notification ViewModel Debug:');
+    Logger.debug('   Total notifications: $totalNotifications');
+    Logger.debug('   Admin notifications: $adminNotifications');
+    Logger.debug('   Check-in/out: ${grouped['checkInOut']?.length ?? 0}');
+    Logger.debug('   Leave: ${grouped['leave']?.length ?? 0}');
+    Logger.debug('   Other: ${grouped['other']?.length ?? 0}');
   }
 }

@@ -231,6 +231,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             verticalSpace(8),
                             // Password Field
                             CustomTextFieldAuth(
+                              keyboardType: TextInputType.visiblePassword,
+                              isObscureText: _obscurePassword,
                               hintText: 'Enter your password',
                               controller: _passwordController,
                               suffixIcon: IconButton(
