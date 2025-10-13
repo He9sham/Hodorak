@@ -7,7 +7,7 @@ import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/theming/styles.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/admin_employee_management/presentation/viewmodels/sign_up_viewmodel.dart';
+import 'package:hodorak/features/admin_employee_management/presentation/viewmodels/create_employees_view_models.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_error_widget.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_gender_dropdown.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_success_widget.dart';
@@ -202,7 +202,10 @@ class _UnifiedSignUpScreenState extends ConsumerState<UnifiedSignUpScreen> {
     if (!widget.isEmployeeCreation) return null;
 
     return AppBar(
-      title: const Text('Create Employee'),
+      title: const Text(
+        'Create Employee',
+        style: TextStyle(color: Colors.white),
+      ),
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
       leading: IconButton(

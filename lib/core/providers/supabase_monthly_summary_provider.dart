@@ -88,44 +88,44 @@ class SupabaseMonthlySummaryNotifier
       final dayAttendance = attendanceByDate[dateKey] ?? [];
 
       if (dayAttendance.isNotEmpty) {
-        Duration? totalWorkingHours;
-        DateTime? checkIn;
-        DateTime? checkOut;
-        bool isPresent = false;
-
         // Sort attendance by check-in time
         final sortedAttendance = dayAttendance
           ..sort((a, b) => a.checkIn.compareTo(b.checkIn));
 
-        checkIn = sortedAttendance.first.checkIn;
-        final lastRecord = sortedAttendance.last;
-        checkOut = lastRecord.checkOut;
+        // Get first check-in and last check-out for display purposes
+        DateTime? firstCheckIn = sortedAttendance.first.checkIn;
+        DateTime? lastCheckOut = sortedAttendance.last.checkOut;
 
-        isPresent = true;
+        // Calculate total working hours by summing all check-in/check-out pairs
+        Duration totalWorkingHours = Duration.zero;
 
-        if (checkOut != null && checkIn != null) {
-          totalWorkingHours = checkOut.difference(checkIn);
-        } else if (checkIn != null) {
-          // Still at work, calculate hours until end of day or now
-          final endOfDay = DateTime(
-            date.year,
-            date.month,
-            date.day,
-            23,
-            59,
-            59,
-          );
-          totalWorkingHours =
-              (DateTime.now().isBefore(endOfDay) ? DateTime.now() : endOfDay)
-                  .difference(checkIn);
+        for (final record in sortedAttendance) {
+          if (record.checkOut != null) {
+            // Add the duration for this check-in/check-out pair
+            totalWorkingHours += record.checkOut!.difference(record.checkIn);
+          } else {
+            // Still at work, calculate hours until now (but not beyond end of day)
+            final endOfDay = DateTime(
+              date.year,
+              date.month,
+              date.day,
+              23,
+              59,
+              59,
+            );
+            final endTime = DateTime.now().isBefore(endOfDay)
+                ? DateTime.now()
+                : endOfDay;
+            totalWorkingHours += endTime.difference(record.checkIn);
+          }
         }
 
         final employeeAttendance = EmployeeAttendance(
           employeeId: currentUser.id.hashCode,
           employeeName: currentUser.email ?? 'Current User',
-          checkIn: checkIn,
-          checkOut: checkOut,
-          isPresent: isPresent,
+          checkIn: firstCheckIn,
+          checkOut: lastCheckOut,
+          isPresent: true,
           workingHours: totalWorkingHours,
         );
 
@@ -192,44 +192,44 @@ class SupabaseMonthlySummaryNotifier
         final dayAttendance = attendanceByDate[dateKey] ?? [];
 
         if (dayAttendance.isNotEmpty) {
-          Duration? totalWorkingHours;
-          DateTime? checkIn;
-          DateTime? checkOut;
-          bool isPresent = false;
-
           // Sort attendance by check-in time
           final sortedAttendance = dayAttendance
             ..sort((a, b) => a.checkIn.compareTo(b.checkIn));
 
-          checkIn = sortedAttendance.first.checkIn;
-          final lastRecord = sortedAttendance.last;
-          checkOut = lastRecord.checkOut;
+          // Get first check-in and last check-out for display purposes
+          DateTime? firstCheckIn = sortedAttendance.first.checkIn;
+          DateTime? lastCheckOut = sortedAttendance.last.checkOut;
 
-          isPresent = true;
+          // Calculate total working hours by summing all check-in/check-out pairs
+          Duration totalWorkingHours = Duration.zero;
 
-          if (checkOut != null && checkIn != null) {
-            totalWorkingHours = checkOut.difference(checkIn);
-          } else if (checkIn != null) {
-            // Still at work, calculate hours until end of day
-            final endOfDay = DateTime(
-              date.year,
-              date.month,
-              date.day,
-              23,
-              59,
-              59,
-            );
-            totalWorkingHours =
-                (DateTime.now().isBefore(endOfDay) ? DateTime.now() : endOfDay)
-                    .difference(checkIn);
+          for (final record in sortedAttendance) {
+            if (record.checkOut != null) {
+              // Add the duration for this check-in/check-out pair
+              totalWorkingHours += record.checkOut!.difference(record.checkIn);
+            } else {
+              // Still at work, calculate hours until now (but not beyond end of day)
+              final endOfDay = DateTime(
+                date.year,
+                date.month,
+                date.day,
+                23,
+                59,
+                59,
+              );
+              final endTime = DateTime.now().isBefore(endOfDay)
+                  ? DateTime.now()
+                  : endOfDay;
+              totalWorkingHours += endTime.difference(record.checkIn);
+            }
           }
 
           final employeeAttendance = EmployeeAttendance(
             employeeId: currentUser.id.hashCode,
             employeeName: currentUser.email ?? 'Current User',
-            checkIn: checkIn,
-            checkOut: checkOut,
-            isPresent: isPresent,
+            checkIn: firstCheckIn,
+            checkOut: lastCheckOut,
+            isPresent: true,
             workingHours: totalWorkingHours,
           );
 

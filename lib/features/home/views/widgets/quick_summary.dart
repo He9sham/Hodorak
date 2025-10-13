@@ -50,16 +50,16 @@ class QuickSummary extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 15,
-          left: 20,
+          top: 15.h,
+          left: 20.w,
           child: Text(
             'Quick Summary',
             style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
         ),
         Positioned(
-          top: 50,
-          left: 30,
+          top: 50.h,
+          left: 30.w,
           child: StatusSummaryContainer(
             title: 'Hours This Month',
             subtitle: _getTotalHoursThisMonth(),
@@ -68,8 +68,8 @@ class QuickSummary extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 50,
-          right: 30,
+          top: 50.h,
+          right: 30.w,
           child: StatusSummaryContainer(
             title: 'Days Present',
             subtitle: _getDaysPresent(),
@@ -78,8 +78,8 @@ class QuickSummary extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 30,
-          right: 30,
+          bottom: 30.h,
+          right: 30.w,
           child: StatusSummaryContainer(
             title: 'Adherence',
             subtitle: _getAdherence(),
@@ -88,8 +88,8 @@ class QuickSummary extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 30,
-          left: 30,
+          bottom: 30.h,
+          left: 30.w,
           child: StatusSummaryContainer(
             title: 'Days Absent',
             subtitle: _getDaysAbsent(),

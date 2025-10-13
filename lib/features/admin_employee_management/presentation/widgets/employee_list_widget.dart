@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/models/supabase_user.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
-import 'package:hodorak/features/admin_employee_management/presentation/viewmodels/sign_up_viewmodel.dart';
+import 'package:hodorak/features/admin_employee_management/presentation/viewmodels/create_employees_view_models.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_gender_dropdown.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/sign_up_text_field.dart';
 import 'package:hodorak/features/login/presentation/widgets/login_button.dart';
@@ -134,7 +134,10 @@ class _EmployeeListWidgetState extends ConsumerState<EmployeeListWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Company Employees'),
+        title: const Text(
+          'Company Employees',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [

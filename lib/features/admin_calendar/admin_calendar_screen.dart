@@ -67,7 +67,10 @@ class _AdminCalendarScreenState extends ConsumerState<AdminCalendarScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Calendar'),
+        title: const Text(
+          'Admin Calendar',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [

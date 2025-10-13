@@ -30,7 +30,6 @@ class CustomTextFieldAuth extends StatelessWidget {
       children: [
         maxLines != null && maxLines! > 1
             ? TextFormField(
-                obscureText: isObscureText ?? false,
                 controller: controller,
                 keyboardType: keyboardType ?? TextInputType.text,
                 maxLines: maxLines,
@@ -82,6 +81,7 @@ class CustomTextFieldAuth extends StatelessWidget {
                 ),
                 validator: validator ?? (value) => null,
                 onChanged: onChanged,
+                isObscureText: isObscureText,
               ),
       ],
     );

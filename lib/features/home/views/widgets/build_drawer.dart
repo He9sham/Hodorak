@@ -126,8 +126,8 @@ Widget buildDrawer(
                 isInfo: true,
               ),
               _buildDrawerItem(
-                icon: Icons.person,
-                title: 'Name: ${authState.user?.name ?? 'N/A'}',
+                icon: Icons.email,
+                title: 'Email: ${authState.user?.email ?? 'N/A'}',
                 onTap: () {},
                 isInfo: true,
               ),
@@ -163,7 +163,7 @@ Widget buildDrawer(
                                 .read(supabaseAuthProvider.notifier)
                                 .logout();
                             // ignore: use_build_context_synchronously
-                            Navigator.of(context).pop();
+                            context.pop();
                             if (context.mounted) {
                               context.pushReplacementNamed(Routes.loginScreen);
                             }

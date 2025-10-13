@@ -17,7 +17,10 @@ class AdminLeaveRequestsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AdminLeaveConstants.screenTitle),
+        title: const Text(
+          AdminLeaveConstants.screenTitle,
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AdminLeaveConstants.primaryColor,
         foregroundColor: Colors.white,
         actions: [

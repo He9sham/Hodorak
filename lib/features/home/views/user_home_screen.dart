@@ -28,7 +28,11 @@ class UserHomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Hodorak',
-          style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: Color(0xff8C9F5F),
         leading: Builder(

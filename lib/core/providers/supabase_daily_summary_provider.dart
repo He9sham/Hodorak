@@ -63,9 +63,9 @@ class SupabaseDailySummaryNotifier extends Notifier<SupabaseDailySummaryState> {
         .getCurrentUserAttendanceForDate(today);
 
     // Calculate working hours for today
-    Duration? totalWorkingHours;
-    DateTime? checkIn;
-    DateTime? checkOut;
+    Duration totalWorkingHours = Duration.zero;
+    DateTime? firstCheckIn;
+    DateTime? lastCheckOut;
     bool isPresent = false;
 
     if (myAttendance.isNotEmpty) {
@@ -73,17 +73,20 @@ class SupabaseDailySummaryNotifier extends Notifier<SupabaseDailySummaryState> {
       final sortedAttendance = myAttendance
         ..sort((a, b) => a.checkIn.compareTo(b.checkIn));
 
-      checkIn = sortedAttendance.first.checkIn;
-      final lastRecord = sortedAttendance.last;
-      checkOut = lastRecord.checkOut;
+      firstCheckIn = sortedAttendance.first.checkIn;
+      lastCheckOut = sortedAttendance.last.checkOut;
 
       isPresent = true; // If we have attendance records, user is present
 
-      if (checkOut != null) {
-        totalWorkingHours = checkOut.difference(checkIn);
-      } else {
-        // Still at work, calculate hours until now
-        totalWorkingHours = DateTime.now().difference(checkIn);
+      // Calculate total working hours by summing all check-in/check-out pairs
+      for (final record in sortedAttendance) {
+        if (record.checkOut != null) {
+          // Add the duration for this check-in/check-out pair
+          totalWorkingHours += record.checkOut!.difference(record.checkIn);
+        } else {
+          // Still at work, calculate hours until now
+          totalWorkingHours += DateTime.now().difference(record.checkIn);
+        }
       }
     }
 
@@ -92,8 +95,8 @@ class SupabaseDailySummaryNotifier extends Notifier<SupabaseDailySummaryState> {
       EmployeeAttendance(
         employeeId: currentUser.id.hashCode,
         employeeName: currentUser.email ?? 'Current User',
-        checkIn: checkIn,
-        checkOut: checkOut,
+        checkIn: firstCheckIn,
+        checkOut: lastCheckOut,
         isPresent: isPresent,
         workingHours: totalWorkingHours,
       ),

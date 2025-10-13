@@ -31,7 +31,10 @@ class _AdminLocationScreenState extends ConsumerState<AdminLocationScreen> {
     return AdminLocationLoadingOverlay(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(AdminLocationConstants.screenTitle),
+          title: const Text(
+            AdminLocationConstants.screenTitle,
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: AdminLocationConstants.primaryColor,
           foregroundColor: AdminLocationConstants.backgroundColor,
           elevation: 0,

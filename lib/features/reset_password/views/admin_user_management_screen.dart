@@ -103,7 +103,10 @@ class _AdminUserManagementScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AdminUserManagementConstants.title),
+        title: const Text(
+          AdminUserManagementConstants.title,
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AdminUserManagementConstants.primaryColor,
         foregroundColor: Colors.white,
         actions: [
