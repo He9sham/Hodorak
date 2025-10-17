@@ -52,7 +52,7 @@ class SettingModel {
       notificationsEnabled: json['notificationsEnabled'] ?? true,
       appVersion: json['appVersion'] ?? '1.0.0',
       appName: json['appName'] ?? 'Hodorak',
-      developerName: json['developerName'] ?? 'Hodorak Team',
+      developerName: json['developerName'] ?? 'Hesham Hamdan',
     );
   }
 
@@ -61,7 +61,7 @@ class SettingModel {
     notificationsEnabled: true,
     appVersion: '1.0.0',
     appName: 'Hodorak',
-    developerName: 'Hodorak Team',
+    developerName: 'Hesham Hamdan',
   );
 
   @override

@@ -78,7 +78,7 @@ class QuickSummary extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 30.h,
+          bottom: 20.h,
           right: 30.w,
           child: StatusSummaryContainer(
             title: 'Adherence',
@@ -88,7 +88,7 @@ class QuickSummary extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 30.h,
+          bottom: 20.h,
           left: 30.w,
           child: StatusSummaryContainer(
             title: 'Days Absent',

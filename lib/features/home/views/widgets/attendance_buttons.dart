@@ -21,6 +21,7 @@ class AttendanceButtons extends ConsumerStatefulWidget {
 
 class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
   bool _isLoading = false;
+  bool _isCheckedIn = false;
   late Timer _timer;
   String _currentTime = '';
   String _currentDate = '';
@@ -33,6 +34,38 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateDateTime();
     });
+    _checkAttendanceStatus();
+  }
+
+  Future<void> _checkAttendanceStatus() async {
+    try {
+      final authState = ref.read(supabaseAuthProvider);
+      if (!authState.isAuthenticated || authState.user?.id == null) {
+        return;
+      }
+
+      final attendanceService = SupabaseAttendanceService();
+      final today = DateTime.now();
+      final startOfDay = DateTime(today.year, today.month, today.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      final existingAttendance = await attendanceService.getUserAttendance(
+        userId: authState.user!.id,
+        startDate: startOfDay,
+        endDate: endOfDay,
+      );
+
+      if (mounted) {
+        setState(() {
+          // Check if there's an active check-in (no check-out)
+          _isCheckedIn = existingAttendance.any(
+            (record) => record.checkOut == null,
+          );
+        });
+      }
+    } catch (e) {
+      // Silently fail - user can still try to check in
+    }
   }
 
   // Permission checking removed - all users allowed to use attendance features
@@ -164,6 +197,11 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
       // Refresh attendance data through the provider (optional)
       _refreshAttendanceData();
 
+      // Update checked in state
+      setState(() {
+        _isCheckedIn = true;
+      });
+
       _showSuccessMessage('Check In successful');
     } catch (e) {
       _showErrorMessage('Check In failed: ${e.toString()}');
@@ -247,9 +285,22 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
       // Refresh attendance data through the provider (optional)
       _refreshAttendanceData();
 
+      // Update checked in state
+      setState(() {
+        _isCheckedIn = false;
+      });
+
       _showSuccessMessage('Check Out successful');
     } catch (e) {
-      _showErrorMessage('Check Out failed: ${e.toString()}');
+      // Check if the error is because user hasn't checked in
+      final errorMessage = e.toString().toLowerCase();
+      if (errorMessage.contains('no rows') ||
+          errorMessage.contains('not found') ||
+          errorMessage.contains('postgrest')) {
+        _showErrorMessage('Check in must be registered first');
+      } else {
+        _showErrorMessage('Check Out failed: ${e.toString()}');
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -368,7 +419,9 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _handleCheckIn,
+                  onPressed: (_isLoading || _isCheckedIn)
+                      ? null
+                      : _handleCheckIn,
                   icon: _isLoading
                       ? SizedBox(
                           width: 16,
@@ -380,16 +433,21 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
                             ),
                           ),
                         )
-                      : Icon(Icons.login, color: Colors.white),
+                      : Icon(
+                          Icons.login,
+                          color: _isCheckedIn ? Colors.grey[400] : Colors.white,
+                        ),
                   label: Text(
-                    'Check In',
+                    _isCheckedIn ? 'Already Checked In' : 'Check In',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: _isCheckedIn ? Colors.grey[400] : Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff8C9F5F),
+                    backgroundColor: _isCheckedIn
+                        ? Colors.grey[300]
+                        : Color(0xff8C9F5F),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

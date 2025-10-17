@@ -7,6 +7,7 @@ Widget buildActionCard(
   required String title,
   required String subtitle,
   required VoidCallback onTap,
+  bool showBadge = false,
 }) {
   return InkWell(
     onTap: onTap,
@@ -26,7 +27,26 @@ Widget buildActionCard(
       ),
       child: Column(
         children: [
-          Icon(icon, size: 32.sp, color: Colors.blue.shade600),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(icon, size: 32.sp, color: Colors.blue.shade600),
+              if (showBadge)
+                Positioned(
+                  right: -4,
+                  top: -4,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(
             title,

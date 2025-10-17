@@ -333,7 +333,10 @@ class _UnifiedSignUpScreenState extends ConsumerState<UnifiedSignUpScreen> {
         icon: Icon(
           state.obscurePassword ? Icons.visibility : Icons.visibility_off,
         ),
-        onPressed: viewModel.togglePasswordVisibility,
+        onPressed: () {
+          viewModel.togglePasswordVisibility();
+          setState(() {});
+        },
       ),
       validator: (value) => _validatePassword(value),
       onChanged: viewModel.updatePassword,

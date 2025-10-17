@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
+import 'package:hodorak/core/providers/notification_provider.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/admin_calendar/admin_calendar_screen.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/employee_list_widget.dart';
@@ -81,11 +83,13 @@ class BuildItemCartRowThree extends StatelessWidget {
   }
 }
 
-class BuildItemCartRowFour extends StatelessWidget {
+class BuildItemCartRowFour extends ConsumerWidget {
   const BuildItemCartRowFour({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
+
     return Row(
       children: [
         Expanded(
@@ -94,6 +98,7 @@ class BuildItemCartRowFour extends StatelessWidget {
             icon: Icons.notifications_active,
             title: 'Notifications',
             subtitle: 'View employee activities',
+            showBadge: unreadCount > 0,
             onTap: () {
               context.pushNamed(Routes.adminNotificationScreen);
             },

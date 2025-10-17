@@ -132,7 +132,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           status = LoginStatus.networkError;
         }
 
-        _showErrorSnackBar(context, errorMsg, status);
+        // Show appropriate error message based on status
+        String displayMessage = errorMsg;
+        if (status == LoginStatus.emailNotConfirmed) {
+          displayMessage = 'Check the email sent to you to activate';
+        } else if (status == LoginStatus.invalidCredentials) {
+          displayMessage = 'Invalid email or password. Please try again.';
+        } else if (status == LoginStatus.networkError) {
+          displayMessage =
+              'No internet connection. Please check your network settings.';
+        }
+
+        _showErrorSnackBar(context, displayMessage, status);
       }
     }
   }

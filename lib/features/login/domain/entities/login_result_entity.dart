@@ -57,8 +57,7 @@ class LoginResultEntity {
   factory LoginResultEntity.emailNotConfirmed() {
     return const LoginResultEntity(
       status: LoginStatus.emailNotConfirmed,
-      errorMessage:
-          'Please confirm your email. Check your inbox for the confirmation link.',
+      errorMessage: 'Check the email sent to you to activate',
     );
   }
 

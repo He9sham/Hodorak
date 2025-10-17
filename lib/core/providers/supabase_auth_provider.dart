@@ -124,8 +124,7 @@ class SupabaseAuthNotifier extends Notifier<SupabaseAuthState> {
         errorMessage = 'Invalid email or password. Please try again.';
       } else if (e.toString().contains('Email not confirmed') ||
           e.toString().contains('email_not_confirmed')) {
-        errorMessage =
-            'Please confirm your email. Check your inbox for the confirmation link.';
+        errorMessage = 'Check the email sent to you to activate';
       }
 
       state = state.copyWith(
@@ -184,8 +183,7 @@ class SupabaseAuthNotifier extends Notifier<SupabaseAuthState> {
         errorMessage = 'An account with this email already exists.';
       } else if (e.toString().contains('Email not confirmed') ||
           e.toString().contains('email_not_confirmed')) {
-        errorMessage =
-            'Please confirm your email. Check your inbox for the confirmation link.';
+        errorMessage = 'Check the email sent to you to activate';
       }
 
       state = state.copyWith(
