@@ -1,12 +1,13 @@
 import 'package:get_it/get_it.dart';
 import 'package:hodorak/core/services/firebase_messaging_service.dart';
-import 'package:hodorak/core/services/notification_storage_service.dart';
+import 'package:hodorak/core/services/notification_memory_service.dart';
 import 'package:hodorak/core/services/onboarding_service.dart';
 import 'package:hodorak/core/services/supabase_attendance_service.dart';
 import 'package:hodorak/core/services/supabase_auth_service.dart';
 import 'package:hodorak/core/services/supabase_calendar_service.dart';
 import 'package:hodorak/core/services/supabase_company_service.dart';
 import 'package:hodorak/core/services/supabase_leave_service.dart';
+import 'package:hodorak/core/services/supabase_notification_service.dart';
 import 'package:hodorak/core/services/supabase_setup_service.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -26,8 +27,8 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<SupabaseLeaveService>(
     () => SupabaseLeaveService(),
   );
-  getIt.registerLazySingleton<SupabaseSetupService>(
-    () => SupabaseSetupService(),
+  getIt.registerLazySingleton<SupabaseNotificationService>(
+    () => SupabaseNotificationService(),
   );
 
   // Register Firebase Messaging Service
@@ -35,9 +36,9 @@ Future<void> setupServiceLocator() async {
     () => FirebaseMessagingService(),
   );
 
-  // Register Notification Storage Service
-  getIt.registerLazySingleton<NotificationStorageService>(
-    () => NotificationStorageService(),
+  // Register Notification Memory Service
+  getIt.registerLazySingleton<NotificationMemoryService>(
+    () => NotificationMemoryService(),
   );
 
   // Register Onboarding Service
@@ -52,10 +53,11 @@ SupabaseCalendarService get supabaseCalendarService =>
     getIt<SupabaseCalendarService>();
 SupabaseCompanyService get supabaseCompanyService =>
     getIt<SupabaseCompanyService>();
-SupabaseLeaveService get supabaseLeaveService => getIt<SupabaseLeaveService>();
+SupabaseNotificationService get supabaseNotificationService =>
+    getIt<SupabaseNotificationService>();
 SupabaseSetupService get supabaseSetupService => getIt<SupabaseSetupService>();
 FirebaseMessagingService get firebaseMessagingService =>
     getIt<FirebaseMessagingService>();
-NotificationStorageService get notificationStorageService =>
-    getIt<NotificationStorageService>();
+NotificationMemoryService get notificationMemoryService =>
+    getIt<NotificationMemoryService>();
 OnboardingService get onboardingService => getIt<OnboardingService>();

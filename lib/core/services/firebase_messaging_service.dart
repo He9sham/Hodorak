@@ -1,6 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hodorak/core/models/notification_model.dart';
-import 'package:hodorak/core/services/notification_storage_service.dart';
+import 'package:hodorak/core/services/notification_memory_service.dart';
 import 'package:hodorak/core/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,8 +19,7 @@ class FirebaseMessagingService {
   FirebaseMessagingService._internal();
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final NotificationStorageService _storageService =
-      NotificationStorageService();
+  final NotificationMemoryService _memoryService = NotificationMemoryService();
   final Uuid _uuid = const Uuid();
 
   bool _isInitialized = false;
@@ -205,9 +204,9 @@ class FirebaseMessagingService {
         userId: userId,
       );
 
-      await _storageService.saveNotification(notification);
+      await _memoryService.saveNotification(notification);
 
-      Logger.debug('✅ Notification saved to storage successfully');
+      Logger.debug('✅ Notification saved to memory successfully');
       Logger.debug('   Notification ID: ${notification.id}');
       Logger.debug('   UserId in model: ${notification.userId}');
 

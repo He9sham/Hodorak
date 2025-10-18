@@ -3,6 +3,10 @@ import 'package:hodorak/core/models/user_location.dart';
 import 'package:hodorak/core/models/workplace_location.dart';
 import 'package:hodorak/core/services/location_service.dart';
 
+// LEGACY LOCATION PROVIDER
+// This provider uses SharedPreferences for backward compatibility
+// For new Supabase-based location management, use company_location_provider.dart
+
 // Location service provider
 final locationServiceProvider = Provider<LocationService>((ref) {
   return LocationService();

@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hodorak/core/providers/company_location_provider.dart'
+    as company_location;
 import 'package:hodorak/core/providers/location_provider.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/services/biometric_auth_service.dart';
-import 'package:hodorak/core/services/firebase_messaging_service.dart';
 import 'package:hodorak/core/services/supabase_attendance_service.dart';
+import 'package:hodorak/core/services/supabase_notification_service.dart';
 import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
 
 class AttendanceButtons extends ConsumerStatefulWidget {
@@ -140,20 +142,32 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         return;
       }
 
-      // Refresh workplace location state and validate location
-      await ref.read(locationValidationProvider.notifier).checkInitialState();
-      await ref.read(locationValidationProvider.notifier).validateLocation();
-      final locationState = ref.read(locationValidationProvider);
+      // Refresh company location state and validate location
+      await ref
+          .read(company_location.companyLocationProvider.notifier)
+          .refresh();
+      final companyLocationState = ref.read(
+        company_location.companyLocationProvider,
+      );
 
-      if (!locationState.hasWorkplaceLocation) {
+      if (!companyLocationState.hasLocation) {
         _showErrorMessage('No workplace location has been set by admin.');
         return;
       }
 
-      if (!locationState.isAtWorkplace) {
+      // Check if user can check in based on distance from company location
+      final canCheckIn = await ref
+          .read(company_location.companyLocationProvider.notifier)
+          .canCheckIn();
+      if (!canCheckIn) {
+        final distance = await ref
+            .read(company_location.companyLocationProvider.notifier)
+            .getDistanceToCompanyLocation();
+        final distanceText = distance != null
+            ? ' (${distance.toInt()}m away)'
+            : '';
         _showErrorMessage(
-          locationState.errorMessage ??
-              'You must be at the workplace location to check in.',
+          'You must be within 100 meters of the workplace location to check in.$distanceText',
         );
         return;
       }
@@ -184,11 +198,11 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         longitude: currentLocation?.longitude,
       );
 
-      // Send check-in notification
-      final messagingService = FirebaseMessagingService();
+      // Send check-in notification to Supabase (cross-device)
+      final supabaseNotificationService = SupabaseNotificationService();
       final username =
           authState.user?.name ?? authState.user?.email.split('@')[0] ?? 'User';
-      await messagingService.showCheckInNotification(
+      await supabaseNotificationService.sendCheckInNotification(
         userId: authState.user!.id,
         username: username,
         location: currentLocation?.toString(),
@@ -228,20 +242,32 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         return;
       }
 
-      // Refresh workplace location state and validate location
-      await ref.read(locationValidationProvider.notifier).checkInitialState();
-      await ref.read(locationValidationProvider.notifier).validateLocation();
-      final locationState = ref.read(locationValidationProvider);
+      // Refresh company location state and validate location
+      await ref
+          .read(company_location.companyLocationProvider.notifier)
+          .refresh();
+      final companyLocationState = ref.read(
+        company_location.companyLocationProvider,
+      );
 
-      if (!locationState.hasWorkplaceLocation) {
+      if (!companyLocationState.hasLocation) {
         _showErrorMessage('No workplace location has been set by admin.');
         return;
       }
 
-      if (!locationState.isAtWorkplace) {
+      // Check if user can check out based on distance from company location
+      final canCheckIn = await ref
+          .read(company_location.companyLocationProvider.notifier)
+          .canCheckIn();
+      if (!canCheckIn) {
+        final distance = await ref
+            .read(company_location.companyLocationProvider.notifier)
+            .getDistanceToCompanyLocation();
+        final distanceText = distance != null
+            ? ' (${distance.toInt()}m away)'
+            : '';
         _showErrorMessage(
-          locationState.errorMessage ??
-              'You must be at the workplace location to check out.',
+          'You must be within 100 meters of the workplace location to check out.$distanceText',
         );
         return;
       }
@@ -272,11 +298,11 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         longitude: currentLocation?.longitude,
       );
 
-      // Send check-out notification
-      final messagingService = FirebaseMessagingService();
+      // Send check-out notification to Supabase (cross-device)
+      final supabaseNotificationService = SupabaseNotificationService();
       final username =
           authState.user?.name ?? authState.user?.email.split('@')[0] ?? 'User';
-      await messagingService.showCheckOutNotification(
+      await supabaseNotificationService.sendCheckOutNotification(
         userId: authState.user!.id,
         username: username,
         location: currentLocation?.toString(),

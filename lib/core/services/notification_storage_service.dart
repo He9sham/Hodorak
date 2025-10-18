@@ -1,168 +1,59 @@
-import 'dart:convert';
-
 import 'package:hodorak/core/models/notification_model.dart';
 import 'package:hodorak/core/utils/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+/// DEPRECATED: NotificationStorageService
+/// This service is deprecated. Notifications are no longer stored locally.
+/// Use NotificationMemoryService instead for in-memory only notifications.
+@Deprecated('Use NotificationMemoryService instead. Local storage is disabled.')
 class NotificationStorageService {
   static final NotificationStorageService _instance =
       NotificationStorageService._internal();
   factory NotificationStorageService() => _instance;
   NotificationStorageService._internal();
 
-  static const String _notificationsKey = 'user_notifications';
-  static const int _maxNotifications = 50; // Limit stored notifications
-
-  /// Save a notification to local storage
+  /// Save a notification to local storage (DISABLED)
+  @Deprecated('Local notification storage is disabled')
   Future<void> saveNotification(NotificationModel notification) async {
-    try {
-      Logger.debug('💾 NotificationStorageService: Saving notification');
-      Logger.debug('   ID: ${notification.id}');
-      Logger.debug('   Title: ${notification.title}');
-      Logger.debug('   Type: ${notification.type}');
-      Logger.debug('   UserId: ${notification.userId}');
-
-      final prefs = await SharedPreferences.getInstance();
-      final notifications = await getAllNotifications();
-
-      Logger.debug('   Current notifications count: ${notifications.length}');
-
-      // Add new notification at the beginning
-      notifications.insert(0, notification);
-
-      // Keep only the latest notifications
-      if (notifications.length > _maxNotifications) {
-        notifications.removeRange(_maxNotifications, notifications.length);
-      }
-
-      // Save to SharedPreferences
-      final jsonList = notifications.map((n) => n.toJson()).toList();
-      await prefs.setString(_notificationsKey, jsonEncode(jsonList));
-
-      Logger.debug('   ✅ Notification saved successfully');
-      Logger.debug('   Total notifications now: ${notifications.length}');
-    } catch (e) {
-      Logger.error('   ❌ Failed to save notification: $e');
-      throw Exception('Failed to save notification: $e');
-    }
+    Logger.info(
+      '📱 Notification received (not stored locally): ${notification.title}',
+    );
+    // Do nothing - notifications are not stored locally anymore
   }
 
-  /// Get all notifications from local storage
+  /// Get all notifications from local storage (DISABLED)
+  @Deprecated('Local notification storage is disabled')
   Future<List<NotificationModel>> getAllNotifications() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString(_notificationsKey);
-
-      if (jsonString == null || jsonString.isEmpty) {
-        return [];
-      }
-
-      final List<dynamic> jsonList = jsonDecode(jsonString);
-      return jsonList
-          .map(
-            (json) => NotificationModel.fromJson(json as Map<String, dynamic>),
-          )
-          .toList();
-    } catch (e) {
-      throw Exception('Failed to load notifications: $e');
-    }
+    Logger.debug('📱 No local notifications - returning empty list');
+    return [];
   }
 
-  /// Get unread notifications count
+  /// Get unread notifications count (DISABLED)
+  @Deprecated('Local notification storage is disabled')
   Future<int> getUnreadCount() async {
-    try {
-      final notifications = await getAllNotifications();
-      return notifications.where((n) => !n.isRead).length;
-    } catch (e) {
-      return 0;
-    }
+    return 0;
   }
 
-  /// Mark a notification as read
+  /// Mark a notification as read (DISABLED)
+  @Deprecated('Local notification storage is disabled')
   Future<void> markAsRead(String notificationId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final notifications = await getAllNotifications();
-
-      final updatedNotifications = notifications.map((n) {
-        if (n.id == notificationId) {
-          return n.copyWith(isRead: true);
-        }
-        return n;
-      }).toList();
-
-      final jsonList = updatedNotifications.map((n) => n.toJson()).toList();
-      await prefs.setString(_notificationsKey, jsonEncode(jsonList));
-    } catch (e) {
-      throw Exception('Failed to mark notification as read: $e');
-    }
+    Logger.debug('📱 Mark as read disabled - no local storage');
   }
 
-  /// Mark all notifications as read
+  /// Mark all notifications as read (DISABLED)
+  @Deprecated('Local notification storage is disabled')
   Future<void> markAllAsRead() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final notifications = await getAllNotifications();
-
-      final updatedNotifications = notifications
-          .map((n) => n.copyWith(isRead: true))
-          .toList();
-
-      final jsonList = updatedNotifications.map((n) => n.toJson()).toList();
-      await prefs.setString(_notificationsKey, jsonEncode(jsonList));
-    } catch (e) {
-      throw Exception('Failed to mark all notifications as read: $e');
-    }
+    Logger.debug('📱 Mark all as read disabled - no local storage');
   }
 
-  /// Delete a notification
-  Future<void> deleteNotification(String notificationId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final notifications = await getAllNotifications();
-
-      final updatedNotifications = notifications
-          .where((n) => n.id != notificationId)
-          .toList();
-
-      final jsonList = updatedNotifications.map((n) => n.toJson()).toList();
-      await prefs.setString(_notificationsKey, jsonEncode(jsonList));
-    } catch (e) {
-      throw Exception('Failed to delete notification: $e');
-    }
-  }
-
-  /// Clear all notifications
+  /// Clear all notifications (DISABLED)
+  @Deprecated('Local notification storage is disabled')
   Future<void> clearAllNotifications() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_notificationsKey);
-    } catch (e) {
-      throw Exception('Failed to clear notifications: $e');
-    }
+    Logger.debug('📱 Clear all notifications disabled - no local storage');
   }
 
-  /// Get notifications by type
-  Future<List<NotificationModel>> getNotificationsByType(
-    NotificationType type,
-  ) async {
-    try {
-      final notifications = await getAllNotifications();
-      return notifications.where((n) => n.type == type).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  /// Get notifications for a specific user
-  Future<List<NotificationModel>> getNotificationsByUserId(
-    String userId,
-  ) async {
-    try {
-      final notifications = await getAllNotifications();
-      return notifications.where((n) => n.userId == userId).toList();
-    } catch (e) {
-      return [];
-    }
+  /// Delete a specific notification (DISABLED)
+  @Deprecated('Local notification storage is disabled')
+  Future<void> deleteNotification(String notificationId) async {
+    Logger.debug('📱 Delete notification disabled - no local storage');
   }
 }

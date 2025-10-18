@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/notification_model.dart';
 import 'package:hodorak/core/services/firebase_messaging_service.dart';
-import 'package:hodorak/core/services/notification_storage_service.dart';
 import 'package:hodorak/core/services/supabase_auth_service.dart';
+import 'package:hodorak/core/services/supabase_notification_service.dart';
 import 'package:hodorak/core/utils/logger.dart';
 
 class NotificationState {
@@ -34,12 +34,12 @@ class NotificationState {
 }
 
 class NotificationNotifier extends Notifier<NotificationState> {
-  final NotificationStorageService _storageService;
+  final SupabaseNotificationService _supabaseService;
   final FirebaseMessagingService _messagingService;
   final SupabaseAuthService _authService;
 
   NotificationNotifier(
-    this._storageService,
+    this._supabaseService,
     this._messagingService,
     this._authService,
   );
@@ -56,12 +56,12 @@ class NotificationNotifier extends Notifier<NotificationState> {
     return const NotificationState();
   }
 
-  /// Load all notifications from storage with user role filtering
+  /// Load all notifications from Supabase with user role filtering
   Future<void> loadNotifications() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final allNotifications = await _storageService.getAllNotifications();
+      final allNotifications = await _supabaseService.getNotifications();
 
       // Filter notifications based on current user's role
       final filteredNotifications = await _filterNotificationsByUserRole(
@@ -159,7 +159,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
   /// Add a new notification
   Future<void> addNotification(NotificationModel notification) async {
     try {
-      await _storageService.saveNotification(notification);
+      await _supabaseService.saveNotification(notification);
       await loadNotifications();
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -169,7 +169,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
   /// Mark a notification as read
   Future<void> markAsRead(String notificationId) async {
     try {
-      await _storageService.markAsRead(notificationId);
+      await _supabaseService.markAsRead(notificationId);
       await loadNotifications();
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -179,7 +179,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
   /// Mark all notifications as read
   Future<void> markAllAsRead() async {
     try {
-      await _storageService.markAllAsRead();
+      await _supabaseService.markAllAsRead();
       await loadNotifications();
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -189,7 +189,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
   /// Delete a notification
   Future<void> deleteNotification(String notificationId) async {
     try {
-      await _storageService.deleteNotification(notificationId);
+      await _supabaseService.deleteNotification(notificationId);
       await loadNotifications();
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -199,7 +199,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
   /// Clear all notifications
   Future<void> clearAllNotifications() async {
     try {
-      await _storageService.clearAllNotifications();
+      await _supabaseService.clearAllNotifications();
       await loadNotifications();
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -225,7 +225,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
 final notificationProvider =
     NotifierProvider<NotificationNotifier, NotificationState>(() {
       return NotificationNotifier(
-        NotificationStorageService(),
+        SupabaseNotificationService(),
         FirebaseMessagingService(),
         SupabaseAuthService(),
       );

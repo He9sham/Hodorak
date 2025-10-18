@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hodorak/core/models/workplace_location.dart';
+import 'package:hodorak/core/providers/company_location_provider.dart'
+    as company_location;
 import 'package:hodorak/core/providers/location_provider.dart';
+import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/utils/logger.dart';
 import 'package:hodorak/features/admin_location/constants/admin_location_constants.dart';
 import 'package:hodorak/features/admin_location/utils/admin_location_validator.dart';
@@ -60,20 +62,26 @@ class AdminLocationController extends Notifier<AdminLocationState> {
     return const AdminLocationState();
   }
 
-  /// Load existing workplace location
+  /// Load existing workplace location from Supabase
   Future<void> _loadExistingLocation() async {
     try {
-      final workplaceState = ref.read(workplaceLocationProvider);
-      if (workplaceState.location != null) {
-        state = state.copyWith(
-          selectedLocation: LatLng(
-            workplaceState.location!.latitude,
-            workplaceState.location!.longitude,
-          ),
-          locationName: workplaceState.location!.name,
-          allowedRadius: workplaceState.location!.allowedRadius,
-          isLocationSaved: true,
+      final authState = ref.read(supabaseAuthProvider);
+      if (authState.user?.companyId != null) {
+        final companyLocationState = ref.read(
+          company_location.companyLocationProvider,
         );
+        if (companyLocationState.location != null) {
+          state = state.copyWith(
+            selectedLocation: LatLng(
+              companyLocationState.location!.latitude,
+              companyLocationState.location!.longitude,
+            ),
+            locationName:
+                'Company Location', // Default name for Supabase location
+            allowedRadius: 100.0, // Default radius
+            isLocationSaved: true,
+          );
+        }
       }
     } catch (e) {
       Logger.error('Error loading existing location: $e');
@@ -140,7 +148,7 @@ class AdminLocationController extends Notifier<AdminLocationState> {
     await _getCurrentLocation();
   }
 
-  /// Save workplace location
+  /// Save workplace location to Supabase
   Future<bool> saveLocation() async {
     // Validate all inputs
     final validationError = AdminLocationValidator.getFirstValidationError(
@@ -157,18 +165,21 @@ class AdminLocationController extends Notifier<AdminLocationState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final workplaceLocation = WorkplaceLocation(
-        latitude: state.selectedLocation!.latitude,
-        longitude: state.selectedLocation!.longitude,
-        name: AdminLocationValidator.sanitizeLocationName(state.locationName),
-        allowedRadius: state.allowedRadius,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+      final authState = ref.read(supabaseAuthProvider);
+      if (authState.user?.companyId == null) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'No company ID found for current user',
+        );
+        return false;
+      }
 
       final success = await ref
-          .read(workplaceLocationProvider.notifier)
-          .saveWorkplaceLocation(workplaceLocation);
+          .read(company_location.companyLocationProvider.notifier)
+          .setCompanyLocation(
+            latitude: state.selectedLocation!.latitude,
+            longitude: state.selectedLocation!.longitude,
+          );
 
       if (success) {
         state = state.copyWith(
@@ -193,14 +204,24 @@ class AdminLocationController extends Notifier<AdminLocationState> {
     }
   }
 
-  /// Clear workplace location
+  /// Clear workplace location from Supabase
   Future<bool> clearLocation() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final success = await ref
-          .read(workplaceLocationProvider.notifier)
-          .clearWorkplaceLocation();
+      final authState = ref.read(supabaseAuthProvider);
+      if (authState.user?.companyId == null) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'No company ID found for current user',
+        );
+        return false;
+      }
+
+      final locationService = ref.read(locationServiceProvider);
+      final success = await locationService.deleteCompanyLocation(
+        authState.user!.companyId!,
+      );
 
       if (success) {
         state = state.copyWith(
@@ -211,6 +232,10 @@ class AdminLocationController extends Notifier<AdminLocationState> {
           isLocationSaved: false,
           error: null,
         );
+        // Refresh the company location provider
+        await ref
+            .read(company_location.companyLocationProvider.notifier)
+            .refresh();
         return true;
       } else {
         state = state.copyWith(
