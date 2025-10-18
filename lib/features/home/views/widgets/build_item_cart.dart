@@ -4,7 +4,6 @@ import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/notification_provider.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/admin_calendar/admin_calendar_screen.dart';
 import 'package:hodorak/features/admin_employee_management/presentation/widgets/employee_list_widget.dart';
 import 'package:hodorak/features/home/views/widgets/build_action_card.dart';
 
@@ -137,12 +136,7 @@ class BuildItemCartRowOne extends StatelessWidget {
             title: 'Calendar',
             subtitle: 'View your schedule',
             onTap: () {
-              // Navigate to admin calendar screen
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const AdminCalendarScreen(),
-                ),
-              );
+              context.pushNamed(Routes.adminCalendarScreen);
             },
           ),
         ),

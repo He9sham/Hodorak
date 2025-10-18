@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
+import 'package:hodorak/features/admin_calendar/admin_calendar_screen.dart';
 import 'package:hodorak/features/admin_leave_requests/view/admin_leave_requests_screen.dart';
 import 'package:hodorak/features/admin_location/views/admin_location_screen.dart';
 import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
@@ -54,6 +55,8 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => const AdminUserManagementScreen(),
         );
+      case Routes.adminCalendarScreen:
+        return MaterialPageRoute(builder: (_) => const AdminCalendarScreen());
       default:
         return null;
     }
