@@ -167,7 +167,7 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
             ? ' (${distance.toInt()}m away)'
             : '';
         _showErrorMessage(
-          'You must be within 100 meters of the workplace location to check in.$distanceText',
+          'You must be at of the workplace location to check in.$distanceText',
         );
         return;
       }
@@ -267,7 +267,7 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
             ? ' (${distance.toInt()}m away)'
             : '';
         _showErrorMessage(
-          'You must be within 100 meters of the workplace location to check out.$distanceText',
+          'You must be at meters of the workplace location to check out.$distanceText',
         );
         return;
       }

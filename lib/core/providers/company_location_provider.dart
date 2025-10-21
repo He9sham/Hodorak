@@ -272,7 +272,7 @@ class LocationValidationNotifier extends Notifier<LocationValidationState> {
           isLoading: false,
           isAtWorkplace: false,
           errorMessage:
-              'You must be within 100 meters of the workplace location to check in.$distanceText',
+              'You must be at of the workplace location to check in.$distanceText',
           distanceToWorkplace: distance,
         );
       }
