@@ -86,7 +86,7 @@ class SupabaseCalendarNotifier extends Notifier<SupabaseCalendarState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to load summaries: $e',
+        errorMessage: 'An unexpected error occurred. Please try again',
       );
     }
   }
@@ -242,7 +242,7 @@ class SupabaseCalendarNotifier extends Notifier<SupabaseCalendarState> {
       state = state.copyWith(
         selectedDay: day,
         selectedDaySummary: daySummary,
-        errorMessage: 'Failed to load day details: $e',
+        errorMessage: 'An internet error occurred',
       );
     }
   }

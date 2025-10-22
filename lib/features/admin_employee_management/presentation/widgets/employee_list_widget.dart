@@ -45,7 +45,7 @@ class _EmployeeListWidgetState extends ConsumerState<EmployeeListWidget> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = 'An unexpected error occurred. Please try again';
         _isLoading = false;
       });
     }

@@ -294,7 +294,7 @@ class SupabaseAuthNotifier extends Notifier<SupabaseAuthState> {
     try {
       return await supabaseAuthService.getCompanyEmployees();
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: 'An internet error occurred');
       rethrow;
     }
   }

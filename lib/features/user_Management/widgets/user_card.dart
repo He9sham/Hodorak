@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hodorak/core/models/supabase_user.dart';
-import 'package:hodorak/features/reset_password/constants/admin_user_management_constants.dart';
+import 'package:hodorak/features/user_Management/constants/admin_user_management_constants.dart';
 
 class UserCard extends StatelessWidget {
   final SupabaseUser user;

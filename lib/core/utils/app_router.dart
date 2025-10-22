@@ -12,7 +12,7 @@ import 'package:hodorak/features/notifications_screen/view/screens/admin_notific
 import 'package:hodorak/features/notifications_screen/view/screens/notification_screen.dart';
 import 'package:hodorak/features/onboarding/onboarding_view.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
-import 'package:hodorak/features/reset_password/views/admin_user_management_screen.dart';
+import 'package:hodorak/features/user_Management/views/admin_user_management_screen.dart';
 import 'package:hodorak/features/setting/view/setting_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
 

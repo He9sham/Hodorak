@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodorak/core/models/supabase_user.dart';
-import 'package:hodorak/features/reset_password/constants/admin_user_management_constants.dart';
-import 'package:hodorak/features/reset_password/models/password_reset_request.dart';
-import 'package:hodorak/features/reset_password/models/user_management_state.dart';
-import 'package:hodorak/features/reset_password/viewmodels/admin_user_management_viewmodel.dart';
-import 'package:hodorak/features/reset_password/widgets/delete_employee_dialog.dart';
-import 'package:hodorak/features/reset_password/widgets/empty_state.dart';
-import 'package:hodorak/features/reset_password/widgets/error_state.dart';
-import 'package:hodorak/features/reset_password/widgets/loading_dialog.dart';
-import 'package:hodorak/features/reset_password/widgets/password_reset_dialog.dart';
-import 'package:hodorak/features/reset_password/widgets/user_card.dart';
+import 'package:hodorak/features/user_Management/constants/admin_user_management_constants.dart';
+import 'package:hodorak/features/user_Management/models/password_reset_request.dart';
+import 'package:hodorak/features/user_Management/models/user_management_state.dart';
+import 'package:hodorak/features/user_Management/viewmodels/admin_user_management_viewmodel.dart';
+import 'package:hodorak/features/user_Management/widgets/delete_employee_dialog.dart';
+import 'package:hodorak/features/user_Management/widgets/empty_state.dart';
+import 'package:hodorak/features/user_Management/widgets/error_state.dart';
+import 'package:hodorak/features/user_Management/widgets/loading_dialog.dart';
+import 'package:hodorak/features/user_Management/widgets/password_reset_dialog.dart';
+import 'package:hodorak/features/user_Management/widgets/user_card.dart';
 
 class AdminUserManagementScreen extends ConsumerStatefulWidget {
   const AdminUserManagementScreen({super.key});
