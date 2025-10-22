@@ -1,8 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/notification_model.dart';
+import '../services/supabase_notification_service.dart';
 import '../supabase/supabase_config.dart';
 import '../supabase/supabase_service.dart';
 import '../utils/logger.dart';
+import '../utils/uuid_generator.dart';
 
 class SupabaseLeaveService {
   final SupabaseClient _client = SupabaseService.client;
@@ -89,6 +92,13 @@ class SupabaseLeaveService {
         throw Exception('User not authenticated');
       }
 
+      // Get the leave request details to get the user ID
+      final request = await _client
+          .from(SupabaseConfig.leaveRequestsTable)
+          .select('*, users!leave_requests_user_id_fkey(name)')
+          .eq('id', requestId)
+          .single();
+
       await _client
           .from(SupabaseConfig.leaveRequestsTable)
           .update({
@@ -98,8 +108,40 @@ class SupabaseLeaveService {
           })
           .eq('id', requestId);
 
+      // Send notification based on the status
+      final notificationService = SupabaseNotificationService();
+      final userId = request['user_id'] as String;
+      final startDate = DateTime.parse(
+        request['start_date'] as String,
+      ).toLocal();
+      final endDate = DateTime.parse(request['end_date'] as String).toLocal();
+
+      final formattedStartDate =
+          '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}';
+      final formattedEndDate =
+          '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}';
+
+      final notification = NotificationModel(
+        id: UuidGenerator.generateUuid(),
+        title: status == 'approved'
+            ? 'Leave Request Approved'
+            : 'Leave Request Rejected',
+        body: status == 'approved'
+            ? 'Your leave request from $formattedStartDate to $formattedEndDate has been approved'
+            : 'Your leave request from $formattedStartDate to $formattedEndDate has been rejected',
+        type: status == 'approved'
+            ? NotificationType.leaveRequestApproved
+            : NotificationType.leaveRequestRejected,
+        payload: requestId,
+        createdAt: DateTime.now(),
+        isRead: false,
+        userId: userId,
+      );
+
+      await notificationService.saveNotification(notification);
+
       Logger.info(
-        'SupabaseLeaveService: Leave request status updated to $status',
+        'SupabaseLeaveService: Leave request status updated to $status and notification sent',
       );
     } catch (e) {
       Logger.error('SupabaseLeaveService: Failed to update leave status: $e');
