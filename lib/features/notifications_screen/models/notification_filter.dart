@@ -11,14 +11,14 @@ class NotificationFilter {
         return notification.userId == null ||
             notification.payload?.contains('_admin') == true;
 
-      // Admin sees all leave request notifications (new requests, approved, rejected)
+      // Admin only sees new requests and rejected notifications
       case NotificationType.newLeaveRequest:
-      case NotificationType.leaveRequestApproved:
-      case NotificationType.leaveRequestRejected:
         return true;
 
-      // Admin should NOT see user's own "leave request submitted" notifications
+      // Admin should NOT see submitted or approved notifications
       case NotificationType.leaveRequestSubmitted:
+      case NotificationType.leaveRequestApproved:
+      case NotificationType.leaveRequestRejected:
         return false;
 
       // Admin sees general and attendance notifications

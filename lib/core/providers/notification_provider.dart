@@ -120,7 +120,8 @@ class NotificationNotifier extends Notifier<NotificationState> {
           case NotificationType.leaveRequestSubmitted:
           case NotificationType.leaveRequestApproved:
           case NotificationType.leaveRequestRejected:
-            shouldShow = isAdmin || notification.userId == currentUserId;
+            // All leave request related notifications should be shown to the user they belong to
+            shouldShow = notification.userId == currentUserId;
             break;
 
           case NotificationType.newLeaveRequest:
