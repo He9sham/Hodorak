@@ -58,7 +58,7 @@ class NotificationMemoryService {
     try {
       final unreadCount = _notifications.where((n) => !n.isRead).length;
       Logger.debug(
-        '📱 NotificationMemoryService: ${unreadCount} unread notifications',
+        '📱 NotificationMemoryService: $unreadCount unread notifications',
       );
       return unreadCount;
     } catch (e) {

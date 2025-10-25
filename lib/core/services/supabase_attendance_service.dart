@@ -4,6 +4,7 @@ import '../models/supabase_attendance.dart';
 import '../supabase/supabase_config.dart';
 import '../supabase/supabase_service.dart';
 import '../utils/logger.dart';
+import 'supabase_insights_service.dart';
 
 class SupabaseAttendanceService {
   final SupabaseClient _client = SupabaseService.client;
@@ -53,6 +54,13 @@ class SupabaseAttendanceService {
           .select()
           .single();
 
+      // Sync with insights
+      final insightsService = SupabaseInsightsService();
+      await insightsService.syncAttendanceInsights(
+        userId: userId,
+        date: DateTime.now(),
+      );
+
       Logger.info(
         'SupabaseAttendanceService: User $userId checked in successfully',
       );
@@ -100,6 +108,13 @@ class SupabaseAttendanceService {
           .eq('id', attendanceRecord['id'])
           .select()
           .single();
+
+      // Sync with insights
+      final insightsService = SupabaseInsightsService();
+      await insightsService.syncAttendanceInsights(
+        userId: userId,
+        date: DateTime.now(),
+      );
 
       Logger.info(
         'SupabaseAttendanceService: User $userId checked out successfully',

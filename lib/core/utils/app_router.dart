@@ -7,14 +7,15 @@ import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
 import 'package:hodorak/features/company_screen/company_creation_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
 import 'package:hodorak/features/home/views/user_home_screen.dart';
+import 'package:hodorak/features/insights_screen/views/insights_page.dart';
 import 'package:hodorak/features/login/login.dart';
 import 'package:hodorak/features/notifications_screen/view/screens/admin_notification_screen.dart';
 import 'package:hodorak/features/notifications_screen/view/screens/notification_screen.dart';
 import 'package:hodorak/features/onboarding/onboarding_view.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
-import 'package:hodorak/features/user_Management/views/admin_user_management_screen.dart';
 import 'package:hodorak/features/setting/view/setting_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
+import 'package:hodorak/features/user_Management/views/admin_user_management_screen.dart';
 
 class AppRouter {
   Route? generateRoute(RouteSettings settings) {
@@ -57,6 +58,8 @@ class AppRouter {
         );
       case Routes.adminCalendarScreen:
         return MaterialPageRoute(builder: (_) => const AdminCalendarScreen());
+      case Routes.insightsScreen:
+        return MaterialPageRoute(builder: (_) => const InsightsPage());
       default:
         return null;
     }

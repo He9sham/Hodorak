@@ -4,13 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/supabase_auth_provider.dart';
-import 'package:hodorak/core/providers/supabase_monthly_summary_provider.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_buttons.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
 import 'package:hodorak/features/home/views/widgets/geo_location.dart';
 import 'package:hodorak/features/home/views/widgets/leave_status_display.dart';
-import 'package:hodorak/features/home/views/widgets/quick_summary.dart';
+import 'package:hodorak/features/insights_screen/widgets/insights_summary.dart';
 import 'package:hodorak/features/notifications_screen/notifications.dart';
 
 class UserHomeScreen extends ConsumerWidget {
@@ -19,9 +18,6 @@ class UserHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(supabaseAuthProvider);
-    final monthlySummaryState = ref.watch(
-      supabaseCurrentMonthlySummaryProvider,
-    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -66,12 +62,8 @@ class UserHomeScreen extends ConsumerWidget {
                   : SizedBox.shrink(),
               verticalSpace(16),
               GeoLocation(),
-              verticalSpace(16),
-              QuickSummary(
-                monthlySummary: monthlySummaryState.summary,
-                currentUserId: authState.user?.id.hashCode,
-              ),
-              verticalSpace(16),
+              verticalSpace(30),
+              const InsightsSummary(),
             ],
           ),
         ),
