@@ -2,87 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/utils/logger.dart';
-import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-// Models
-class DailyInsight {
-  final String id;
-  final String userId;
-  final DateTime date;
-  final double totalHours;
-  final String status;
-  final String notes;
-
-  DailyInsight({
-    required this.id,
-    required this.userId,
-    required this.date,
-    required this.totalHours,
-    required this.status,
-    required this.notes,
-  });
-
-  factory DailyInsight.fromJson(Map<String, dynamic> json) {
-    Logger.info('Processing insight data: $json'); // Debug print
-    try {
-      return DailyInsight(
-        id: json['id'] as String,
-        userId: json['user_id'] as String,
-        date: DateTime.parse(json['date']),
-        totalHours: (json['total_hours'] ?? 0.0).toDouble(),
-        status: json['status']?.toString() ?? 'absent',
-        notes: json['notes']?.toString() ?? '',
-      );
-    } catch (e) {
-      Logger.error('Error parsing insight: $e'); // Debug print
-      rethrow;
-    }
-  }
-}
-
-// Provider
-final insightsProvider =
-    AsyncNotifierProvider<InsightsNotifier, List<DailyInsight>>(() {
-      return InsightsNotifier();
-    });
-
-class InsightsNotifier extends AsyncNotifier<List<DailyInsight>> {
-  final _supabase = Supabase.instance.client;
-
-  @override
-  Future<List<DailyInsight>> build() async {
-    return fetchInsights();
-  }
-
-  Future<List<DailyInsight>> fetchInsights() async {
-    try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
-
-      // Query directly from the daily_insights table
-      final response = await _supabase
-          .from('daily_insights')
-          .select()
-          .eq('user_id', user.id)
-          .order('date', ascending: false);
-
-      Logger.info('Fetched insights data: $response'); // Debug print
-
-      final insights = (response as List)
-          .map((data) => DailyInsight.fromJson(data))
-          .toList();
-      Logger.info('Parsed ${insights.length} insights'); // Debug print
-      return insights;
-    } catch (e) {
-      Logger.error('Error fetching insights: $e'); // Debug print
-      rethrow;
-    }
-  }
-}
+import 'package:hodorak/features/insights_screen/viewmodels/insights_view_model.dart';
+import 'package:hodorak/features/insights_screen/widgets/custom_insight_cart.dart';
+import 'package:hodorak/features/insights_screen/widgets/custom_stat_cart.dart';
 
 // UI Components
 class InsightsPage extends ConsumerWidget {
@@ -90,7 +12,7 @@ class InsightsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final insightsAsync = ref.watch(insightsProvider);
+    final insightsAsync = ref.watch(insightsViewModelProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -102,7 +24,7 @@ class InsightsPage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              ref.invalidate(insightsProvider);
+              ref.invalidate(insightsViewModelProvider);
             },
           ),
         ],
@@ -116,16 +38,11 @@ class InsightsPage extends ConsumerWidget {
           ),
         ),
         data: (insights) {
-          // Calculate statistics
-          int presentDays = insights.where((i) => i.status == 'present').length;
-          int absentDays = insights.where((i) => i.status == 'absent').length;
-          double totalHours = insights.fold(
-            0.0,
-            (sum, i) => sum + i.totalHours,
-          );
-          double adherenceRate = insights.isEmpty
-              ? 0
-              : (presentDays / insights.length) * 100;
+          final viewModel = ref.read(insightsViewModelProvider.notifier);
+          final presentDays = viewModel.getPresentDays(insights);
+          final absentDays = viewModel.getAbsentDays(insights);
+          final totalHours = viewModel.getTotalHours(insights);
+          final adherenceRate = viewModel.getAdherenceRate(insights);
 
           return CustomScrollView(
             slivers: [
@@ -137,7 +54,7 @@ class InsightsPage extends ConsumerWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: _StatCard(
+                            child: CustomStatCard(
                               title: 'Hours This Month',
                               value: '${totalHours.toStringAsFixed(1)}h',
                               icon: Icons.access_time,
@@ -146,7 +63,7 @@ class InsightsPage extends ConsumerWidget {
                           ),
                           horizontalSpace(16),
                           Expanded(
-                            child: _StatCard(
+                            child: CustomStatCard(
                               title: 'Days Present',
                               value: presentDays.toString(),
                               icon: Icons.check_circle_outline,
@@ -159,7 +76,7 @@ class InsightsPage extends ConsumerWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: _StatCard(
+                            child: CustomStatCard(
                               title: 'Days Absent',
                               value: absentDays.toString(),
                               icon: Icons.cancel_outlined,
@@ -168,7 +85,7 @@ class InsightsPage extends ConsumerWidget {
                           ),
                           horizontalSpace(16),
                           Expanded(
-                            child: _StatCard(
+                            child: CustomStatCard(
                               title: 'Adherence',
                               value: '${adherenceRate.toStringAsFixed(0)}%',
                               icon: Icons.trending_up,
@@ -208,7 +125,7 @@ class InsightsPage extends ConsumerWidget {
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: InsightCard(insight: insights[index]),
+                        child: CustomInsightCard(insight: insights[index]),
                       ),
                       childCount: insights.length,
                     ),
@@ -217,143 +134,6 @@ class InsightsPage extends ConsumerWidget {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 28),
-          verticalSpace(12),
-          Text(title, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-          verticalSpace(4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class InsightCard extends StatelessWidget {
-  final DailyInsight insight;
-
-  const InsightCard({super.key, required this.insight});
-
-  Color get statusColor {
-    switch (insight.status.toLowerCase()) {
-      case 'present':
-        return Colors.green;
-      case 'late':
-        return Colors.orange;
-      case 'absent':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormat('MMM dd, yyyy').format(insight.date),
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    insight.status.toUpperCase(),
-                    style: TextStyle(
-                      color: statusColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (insight.notes.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(12),
-                  bottomRight: Radius.circular(12),
-                ),
-              ),
-              child: Text(
-                insight.notes,
-                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
-              ),
-            ),
-        ],
       ),
     );
   }

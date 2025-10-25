@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/utils/routes.dart';
-import 'package:hodorak/features/insights_screen/views/insights_page.dart';
+import 'package:hodorak/features/insights_screen/viewmodels/insights_view_model.dart';
 import 'package:intl/intl.dart';
 
 class InsightsSummary extends ConsumerWidget {
@@ -11,7 +11,7 @@ class InsightsSummary extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final insightsAsync = ref.watch(insightsProvider);
+    final insightsAsync = ref.watch(insightsViewModelProvider);
 
     return Container(
       decoration: BoxDecoration(
