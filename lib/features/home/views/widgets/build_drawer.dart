@@ -111,6 +111,14 @@ Widget buildDrawer(
                 },
               ),
               _buildDrawerItem(
+                icon: Icons.analytics,
+                title: 'Analytics',
+                onTap: () {
+                  context.pop();
+                  context.pushNamed(Routes.analyticsScreen);
+                },
+              ),
+              _buildDrawerItem(
                 icon: Icons.settings,
                 title: 'Settings',
                 onTap: () {

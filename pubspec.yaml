@@ -48,6 +48,7 @@ dependencies:
   supabase_flutter: ^2.9.0
   table_calendar: ^3.1.2
   uuid: ^4.5.1
+  fl_chart: ^0.66.2
 
 dev_dependencies:
   flutter_lints: ^6.0.0

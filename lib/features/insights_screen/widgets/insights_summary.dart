@@ -15,7 +15,7 @@ class InsightsSummary extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color.fromARGB(237, 225, 225, 228),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

@@ -57,6 +57,8 @@ class UserHomeScreen extends ConsumerWidget {
               verticalSpace(17),
               AttendanceButtons(onLeaveRequestSubmitted: () {}),
               verticalSpace(16),
+              // const RecentAnalytics(),
+              verticalSpace(16),
               authState.user?.id != null
                   ? LeaveStatusDisplay(userId: authState.user!.id)
                   : SizedBox.shrink(),
@@ -64,6 +66,7 @@ class UserHomeScreen extends ConsumerWidget {
               GeoLocation(),
               verticalSpace(30),
               const InsightsSummary(),
+              verticalSpace(30),
             ],
           ),
         ),
