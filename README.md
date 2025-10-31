@@ -1,7 +1,8 @@
 # 📱 Hodorak – Smart Attendance & Employee Management System
 
 **Hodorak** is a modern Flutter-based mobile application designed to simplify **attendance tracking**, **employee management**, and **workflow organization** for companies of all sizes.  
-It’s built with **Supabase as the backend**, providing real-time data handling, secure authentication, and location-based check-ins — all in one smooth experience.
+It’s built with **Supabase as the backend**, providing real-time data handling, secure authentication, and location-based check-ins — all in one smooth experience.  
+It now includes powerful **attendance insights and analytics**, helping admins make data-driven decisions.
 
 ---
 
@@ -31,6 +32,12 @@ It’s built with **Supabase as the backend**, providing real-time data handling
 - ⚡ **Notifications System**  
   Admins and employees receive real-time updates for attendance, leaves, and approvals.
 
+- 📊 **Employee Insights & Statistics**  
+  View detailed insights about employee performance, working hours, and attendance consistency — all visualized in interactive graphs.
+
+- 📈 **Real-Time Analytics Dashboard**  
+  Automatically updates after every check-in/out, showing live statistics for admins.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -54,12 +61,11 @@ It provides a reliable SQL-based backend with real-time capabilities — perfect
 We’re continuously improving **Hodorak** to make it even more powerful and business-ready.  
 Upcoming updates will include:
 
-- 📊 **Advanced Analytics Dashboard** – View attendance trends, working hours, and employee performance reports.  
 - 🔔 **Push Notifications** – Real-time alerts for attendance events, approvals, and location updates.  
 - 🧾 **Monthly Attendance Reports** – Downloadable summaries for HR management.  
 - 👁️ **Employee Activity Tracking** – Better insights into working patterns.  
 - 🌍 **Multi-Company Support** – Manage multiple organizations from one admin account.  
-- 🧠 **AI-Based Insights** – Predict attendance patterns and suggest scheduling optimizations.
+- 🧠 **AI-Based Insights Expansion** – Smarter predictions based on attendance trends.
 
 ---
 
