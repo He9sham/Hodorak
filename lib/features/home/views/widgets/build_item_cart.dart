@@ -104,7 +104,17 @@ class BuildItemCartRowFour extends ConsumerWidget {
           ),
         ),
         horizontalSpace(12),
-        const Expanded(child: SizedBox()), // Empty space for symmetry
+        Expanded(
+          child: buildActionCard(
+            context,
+            icon: Icons.timer_outlined,
+            title: 'Attendance Settings',
+            subtitle: 'Set attendance time thresholds',
+            onTap: () {
+              context.pushNamed(Routes.attendanceSettings);
+            },
+          ),
+        ), // Empty space for symmetry
       ],
     );
   }
