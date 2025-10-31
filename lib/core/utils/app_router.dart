@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/admin_calendar/admin_calendar_screen.dart';
 import 'package:hodorak/features/admin_leave_requests/view/admin_leave_requests_screen.dart';
-import 'package:hodorak/features/attendance/views/attendance_settings_screen.dart';
 import 'package:hodorak/features/admin_location/views/admin_location_screen.dart';
 import 'package:hodorak/features/analytics_screen/screens/analytics_screen.dart';
+import 'package:hodorak/features/attendance/views/attendance_settings_screen.dart';
 import 'package:hodorak/features/calender_screen/view/calendar_screen.dart';
 import 'package:hodorak/features/company_screen/company_creation_screen.dart';
 import 'package:hodorak/features/home/views/admin_home_screen.dart';
@@ -65,7 +65,9 @@ class AppRouter {
       case Routes.analyticsScreen:
         return MaterialPageRoute(builder: (_) => const AnalyticsScreen());
       case Routes.attendanceSettings:
-        return MaterialPageRoute(builder: (_) => const AttendanceSettingsScreen());
+        return MaterialPageRoute(
+          builder: (_) => const AttendanceSettingsScreen(),
+        );
       default:
         return null;
     }

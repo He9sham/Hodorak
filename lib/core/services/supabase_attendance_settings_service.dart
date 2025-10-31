@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../models/attendance_settings.dart';
 import '../supabase/supabase_config.dart';
 import '../supabase/supabase_service.dart';
