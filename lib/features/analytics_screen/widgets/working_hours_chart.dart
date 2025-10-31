@@ -30,8 +30,9 @@ class WorkingHoursChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  if (value.toInt() >= weeklyStats.length)
+                  if (value.toInt() >= weeklyStats.length) {
                     return const Text('');
+                  }
                   final date = weeklyStats[value.toInt()].date;
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
