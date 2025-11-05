@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/features/attendance/providers/attendance_providers.dart';
-import 'package:hodorak/features/attendance/widgets/build_status_card.dart';
+import 'package:hodorak/features/attendance_settings/providers/attendance_providers.dart';
+import 'package:hodorak/features/attendance_settings/widgets/build_status_card.dart';
 
 class AttendanceSettingsScreen extends ConsumerWidget {
   const AttendanceSettingsScreen({super.key});
