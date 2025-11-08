@@ -16,23 +16,19 @@
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
+  desc "Lane for Android firebase Distribution"
+  lane :firebase_distribution do
+    sh "flutter clean"
+    sh "flutter pub get"
+    sh "flutter build apk --release"
+    firebase_app_distribution(
+    app: "1:436763573657:android:9c6397628bad78cb85a708",
+    firebase_cli_token:"1//03z_QTKSozgf-CgYIARAAGAMSNwF-L9IrYyivVRmEaqAC88nvVWenKUsEjUCgtv-_DGTM91ZicgCenwCys1k1xi41VQIRNAcNprI",
+    android_artifact_type: "APK",
+    android_artifact_path: "../build/app/outputs/flutter-apk/app-release.apk",
+    release_notes: "New build is available for testing",
+    testers: "heshamhamdan512@gmail.com"
+  )
   end
 
-  desc "Submit a new Beta Build to Crashlytics Beta"
-  lane :beta do
-    gradle(task: "clean assembleRelease")
-    crashlytics
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
-  end
-
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
-    gradle(task: "clean assembleRelease")
-    upload_to_play_store
-  end
 end
