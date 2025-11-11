@@ -24,6 +24,7 @@ migrate_working_dir/
 #.vscode/
 # ignore file    by hesham
 lib/core/supabase/supabase_config.dart
+lib/core/fastlane_config/fastlane_config.dart
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
