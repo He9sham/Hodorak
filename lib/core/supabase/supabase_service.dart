@@ -1,6 +1,7 @@
+import 'package:hodorak/core/supabase/supabase_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'supabase_config.dart';
+
 
 class SupabaseService {
   static SupabaseClient get client => Supabase.instance.client;

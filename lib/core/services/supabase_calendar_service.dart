@@ -1,7 +1,8 @@
+import 'package:hodorak/core/supabase/supabase_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/supabase_calendar_event.dart';
-import '../supabase/supabase_config.dart';
+
 import '../supabase/supabase_service.dart';
 import '../utils/logger.dart';
 
