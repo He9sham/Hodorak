@@ -41,7 +41,7 @@ class AdminLeaveConstants {
   static TextStyle userIdStyle = TextStyle(fontSize: 14.sp);
 
   // Strings
-  static const String screenTitle = 'Leave Requests Management';
+  static const String screenTitle = 'Leave Requests';
   static const String noRequestsTitle = 'No leave requests found';
   static const String noRequestsSubtitle =
       'Leave requests will appear here when employees submit them.';

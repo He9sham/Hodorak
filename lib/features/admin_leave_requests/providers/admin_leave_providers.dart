@@ -40,6 +40,29 @@ final deleteAllLoadingProvider =
       return DeleteAllLoadingNotifier();
     });
 
+// Provider for selected filter status
+final selectedFilterStatusProvider =
+    NotifierProvider<SelectedFilterStatusNotifier, String?>(() {
+      return SelectedFilterStatusNotifier();
+    });
+
+// Provider for filtered leave requests
+final filteredLeaveRequestsProvider = FutureProvider<List<LeaveRequest>>((
+  ref,
+) async {
+  final selectedStatus = ref.watch(selectedFilterStatusProvider);
+  // Refetch or re-evaluate when filter changes
+  final allRequests = await ref.watch(leaveRequestsProvider.future);
+
+  if (selectedStatus == null) {
+    return allRequests; // Show all if no filter selected
+  }
+
+  return allRequests
+      .where((request) => request.status == selectedStatus)
+      .toList();
+});
+
 // Note: User names are now fetched directly in the leave requests query
 // No separate userNameProvider needed
 
@@ -78,6 +101,24 @@ class DeleteAllLoadingNotifier extends Notifier<bool> {
 
   void setLoading(bool loading) {
     state = loading;
+  }
+}
+
+// Notifier for selected filter status
+class SelectedFilterStatusNotifier extends Notifier<String?> {
+  SelectedFilterStatusNotifier();
+
+  @override
+  String? build() {
+    return null; // Default to showing all
+  }
+
+  void setStatus(String? status) {
+    state = status;
+  }
+
+  void resetFilter() {
+    state = null;
   }
 }
 
