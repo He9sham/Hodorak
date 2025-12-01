@@ -11,9 +11,10 @@ class AdminLeaveRequestsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final leaveRequestsAsync = ref.watch(leaveRequestsProvider);
+    final leaveRequestsAsync = ref.watch(filteredLeaveRequestsProvider);
     final leaveRequestActions = ref.watch(leaveRequestActionsProvider);
     final isDeleteAllLoading = ref.watch(deleteAllLoadingProvider);
+    final selectedStatus = ref.watch(selectedFilterStatusProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -65,35 +66,103 @@ class AdminLeaveRequestsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: leaveRequestsAsync.when(
-        data: (requests) {
-          if (requests.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: () async => ref.invalidate(leaveRequestsProvider),
-              child: const LeaveRequestsEmptyState(),
-            );
-          }
+      body: Column(
+        children: [
+          // Filter tabs
+          Padding(
+            padding: const EdgeInsets.all(AdminLeaveConstants.cardMargin),
+            child: Row(
+              children: [
+                _buildFilterButton(
+                  context,
+                  ref,
+                  label: 'All',
+                  filterValue: null,
+                  isSelected: selectedStatus == null,
+                ),
+                const SizedBox(width: 8),
+                _buildFilterButton(
+                  context,
+                  ref,
+                  label: 'Approved',
+                  filterValue: 'approved',
+                  isSelected: selectedStatus == 'approved',
+                ),
+                const SizedBox(width: 8),
+                _buildFilterButton(
+                  context,
+                  ref,
+                  label: 'Rejected',
+                  filterValue: 'rejected',
+                  isSelected: selectedStatus == 'rejected',
+                ),
+              ],
+            ),
+          ),
+          // Leave requests list
+          Expanded(
+            child: leaveRequestsAsync.when(
+              data: (requests) {
+                if (requests.isEmpty) {
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        ref.invalidate(leaveRequestsProvider),
+                    child: const LeaveRequestsEmptyState(),
+                  );
+                }
 
-          return RefreshIndicator(
-            onRefresh: () async => ref.invalidate(leaveRequestsProvider),
-            child: ListView.builder(
-              padding: const EdgeInsets.all(AdminLeaveConstants.cardMargin),
-              itemCount: requests.length,
-              itemBuilder: (context, index) {
-                final request = requests[index];
-                return LeaveRequestCard(request: request);
+                return RefreshIndicator(
+                  onRefresh: () async => ref.invalidate(leaveRequestsProvider),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AdminLeaveConstants.cardMargin,
+                    ),
+                    itemCount: requests.length,
+                    itemBuilder: (context, index) {
+                      final request = requests[index];
+                      return LeaveRequestCard(request: request);
+                    },
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) {
+                return LeaveRequestsErrorState(
+                  error: error.toString(),
+                  onRetry: () => ref.invalidate(leaveRequestsProvider),
+                );
               },
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) {
-          return LeaveRequestsErrorState(
-            error: error.toString(),
-            onRetry: () => ref.invalidate(leaveRequestsProvider),
-          );
-        },
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildFilterButton(
+    BuildContext context,
+    WidgetRef ref, {
+    required String label,
+    required String? filterValue,
+    required bool isSelected,
+  }) {
+    return ElevatedButton(
+      onPressed: () {
+        ref.read(selectedFilterStatusProvider.notifier).setStatus(filterValue);
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected
+            ? AdminLeaveConstants.primaryColor
+            : Colors.grey[300],
+        foregroundColor: isSelected
+            ? Colors.white
+            : AdminLeaveConstants.primaryColor,
+        side: BorderSide(
+          color: AdminLeaveConstants.primaryColor,
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: Text(label),
     );
   }
 

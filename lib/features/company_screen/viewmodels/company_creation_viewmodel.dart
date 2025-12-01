@@ -187,7 +187,7 @@ class CompanyCreationNotifier extends Notifier<CompanyCreationState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Error creating company: $e',
+        error: 'Error creating company , please try again.',
       );
       return false;
     }

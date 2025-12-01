@@ -3,7 +3,7 @@ class AppConstants {
   // App Information
   static const String appName = 'Hodorak';
   static const String appTitle = 'Hodorak Attendance';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.0.2';
   static const String developerName = 'Hesham hamdan';
 
   // Design Constants
