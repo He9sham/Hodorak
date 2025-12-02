@@ -21,59 +21,76 @@ class AdminHomeScreen extends ConsumerWidget {
           'Hodorak',
           style: TextStyle(
             fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
+        elevation: 2,
+        shadowColor: Colors.blue.shade700.withValues(alpha: 0.3),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(supabaseAuthProvider.notifier).logout();
-              if (context.mounted) {
-                context.pushReplacementNamed(Routes.loginScreen);
-              }
-            },
+          Padding(
+            padding: EdgeInsets.only(right: 8.w),
+            child: IconButton(
+              icon: const Icon(Icons.logout_rounded),
+              tooltip: 'Logout',
+              onPressed: () async {
+                await ref.read(supabaseAuthProvider.notifier).logout();
+                if (context.mounted) {
+                  context.pushReplacementNamed(Routes.loginScreen);
+                }
+              },
+            ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Container(
+        color: Colors.grey.shade50,
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Section
-              WelcomeSection(authState: authState),
-              verticalSpace(24),
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Welcome Section with Quick Stats
+                WelcomeSection(authState: authState),
+                verticalSpace(32),
 
-              // Quick Actions
-              Text(
-                'Quick Actions',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              verticalSpace(16),
+                // Quick Actions Header
+                Padding(
+                  padding: EdgeInsets.only(left: 4.w),
+                  child: Text(
+                    'Quick Actions',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18.sp,
+                      color: Colors.grey.shade900,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+                verticalSpace(16),
 
-              // Action Cards Row One
-              BuildItemCartRowOne(),
-              verticalSpace(12),
+                // Action Cards Row One
+                BuildItemCartRowOne(),
+                verticalSpace(16),
 
-              // Action Cards Row two
-              BuildItemCartRowTwo(),
-              verticalSpace(12),
+                // Action Cards Row Two
+                BuildItemCartRowTwo(),
+                verticalSpace(16),
 
-              // Action Cards Row three
-              BuildItemCartRowThree(),
-              verticalSpace(12),
+                // Action Cards Row Three
+                BuildItemCartRowThree(),
+                verticalSpace(16),
 
-              // Action Cards Row four
-              BuildItemCartRowFour(),
-              verticalSpace(12),
-            ],
+                // Action Cards Row Four
+                BuildItemCartRowFour(),
+                verticalSpace(24),
+              ],
+            ),
           ),
         ),
       ),
