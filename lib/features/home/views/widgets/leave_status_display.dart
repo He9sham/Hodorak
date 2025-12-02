@@ -26,12 +26,13 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
 
   Future<void> _loadLatestRequest() async {
     try {
-      final requestData = await SupabaseLeaveService().getLatestUserLeaveRequest(
-        widget.userId,
-      );
+      final requestData = await SupabaseLeaveService()
+          .getLatestUserLeaveRequest(widget.userId);
       if (mounted) {
         setState(() {
-          _latestRequest = requestData != null ? LeaveRequest.fromJson(requestData) : null;
+          _latestRequest = requestData != null
+              ? LeaveRequest.fromJson(requestData)
+              : null;
           _isLoading = false;
           _error = null;
         });
@@ -88,9 +89,12 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Card(
+      return Card(
+        elevation: 0,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               SizedBox(
@@ -108,7 +112,9 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
 
     if (_error != null) {
       return Card(
+        elevation: 0,
         color: Colors.red.shade50,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -136,49 +142,73 @@ class _LeaveStatusDisplayState extends ConsumerState<LeaveStatusDisplay> {
     final statusMessage = _getStatusMessage(_latestRequest!.status);
 
     return Card(
+      elevation: 0,
       color: statusColor.withValues(alpha: 0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(statusIcon, color: statusColor, size: 24.sp),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    statusMessage,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: statusColor,
-                      fontSize: 16.sp,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              spreadRadius: -4,
+              blurRadius: 20,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(statusIcon, color: statusColor, size: 24.sp),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      statusMessage,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: statusColor,
+                        fontSize: 16.sp,
+                      ),
                     ),
+                  ),
+                ],
+              ),
+              if (_latestRequest!.status != 'pending') ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Leave Period: ${_latestRequest!.startDate.day}/${_latestRequest!.startDate.month}/${_latestRequest!.startDate.year} - ${_latestRequest!.endDate.day}/${_latestRequest!.endDate.month}/${_latestRequest!.endDate.year}',
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 14.sp,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Reason: ${_latestRequest!.reason}',
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 14.sp,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ] else ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Submitted on: ${_latestRequest!.createdAt.day}/${_latestRequest!.createdAt.month}/${_latestRequest!.createdAt.year}',
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 14.sp,
                   ),
                 ),
               ],
-            ),
-            if (_latestRequest!.status != 'pending') ...[
-              const SizedBox(height: 8),
-              Text(
-                'Leave Period: ${_latestRequest!.startDate.day}/${_latestRequest!.startDate.month}/${_latestRequest!.startDate.year} - ${_latestRequest!.endDate.day}/${_latestRequest!.endDate.month}/${_latestRequest!.endDate.year}',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 14.sp),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Reason: ${_latestRequest!.reason}',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 14.sp),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ] else ...[
-              const SizedBox(height: 8),
-              Text(
-                'Submitted on: ${_latestRequest!.createdAt.day}/${_latestRequest!.createdAt.month}/${_latestRequest!.createdAt.year}',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 14.sp),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );

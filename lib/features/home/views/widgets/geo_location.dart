@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/location_provider.dart';
+import 'package:hodorak/core/providers/company_location_provider.dart';
 import 'package:hodorak/core/utils/logger.dart';
 
 class GeoLocation extends ConsumerWidget {
@@ -11,28 +11,36 @@ class GeoLocation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationValidationState = ref.watch(locationValidationProvider);
-    final workplaceLocationState = ref.watch(workplaceLocationProvider);
+    final companyLocationState = ref.watch(companyLocationProvider);
 
     return Container(
       height: 100.h,
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         color: Color.fromARGB(237, 225, 225, 228),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.15),
+            spreadRadius: -4,
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Stack(
         children: [
           Positioned(
-            top: 20,
-            left: 20,
+            top: 16,
+            left: 16,
             child: Text(
               'Geo Location',
               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
             ),
           ),
           Positioned(
-            top: 5.h,
-            right: 5.w,
+            top: 8,
+            right: 8,
             child: IconButton(
               icon: Icon(Icons.refresh, size: 20.sp),
               onPressed: () {
@@ -44,12 +52,12 @@ class GeoLocation extends ConsumerWidget {
             ),
           ),
           Positioned(
-            bottom: 10.h,
-            left: 20.w,
-            right: 20.w,
+            bottom: 12.h,
+            left: 16.w,
+            right: 16.w,
             child: _buildLocationStatus(
               locationValidationState,
-              workplaceLocationState,
+              companyLocationState,
             ),
           ),
         ],
@@ -59,11 +67,11 @@ class GeoLocation extends ConsumerWidget {
 
   Widget _buildLocationStatus(
     LocationValidationState locationState,
-    WorkplaceLocationState workplaceState,
+    CompanyLocationState companyState,
   ) {
     // Debug print to help identify the issue
     Logger.info('Location State Debug:');
-    Logger.info('  - isValidating: ${locationState.isValidating}');
+    Logger.info('  - isLoading: ${locationState.isLoading}');
     Logger.info('  - isAtWorkplace: ${locationState.isAtWorkplace}');
     Logger.info(
       '  - distanceToWorkplace: ${locationState.distanceToWorkplace}',
@@ -72,12 +80,13 @@ class GeoLocation extends ConsumerWidget {
     Logger.info(
       '  - hasWorkplaceLocation: ${locationState.hasWorkplaceLocation}',
     );
-    Logger.info('Workplace State Debug:');
-    Logger.info('  - location: ${workplaceState.location}');
-    Logger.info('  - isLoading: ${workplaceState.isLoading}');
-    Logger.info('  - error: ${workplaceState.error}');
+    Logger.info('Company Location State Debug:');
+    Logger.info('  - location: ${companyState.location}');
+    Logger.info('  - isLoading: ${companyState.isLoading}');
+    Logger.info('  - error: ${companyState.error}');
+    Logger.info('  - hasLocation: ${companyState.hasLocation}');
 
-    if (locationState.isValidating) {
+    if (locationState.isLoading) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -106,7 +115,7 @@ class GeoLocation extends ConsumerWidget {
             height: 20.h,
             child: Image.asset('assets/Icon_true.png'),
           ),
-          horizontalSpace(8),
+          horizontalSpace(10),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,10 +130,27 @@ class GeoLocation extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (locationState.distanceToWorkplace != null)
-                  Text(
-                    'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                    overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 14.sp,
+                          color: Colors.grey[500],
+                        ),
+                        horizontalSpace(4),
+                        Text(
+                          'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -140,7 +166,7 @@ class GeoLocation extends ConsumerWidget {
             height: 20.h,
             child: Image.asset('assets/Icon_False.png'),
           ),
-          horizontalSpace(8),
+          horizontalSpace(10),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,16 +182,36 @@ class GeoLocation extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (locationState.distanceToWorkplace != null)
-                  Text(
-                    'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                    overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 14.sp,
+                          color: Colors.grey[500],
+                        ),
+                        horizontalSpace(4),
+                        Text(
+                          'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                 if (locationState.errorMessage != null)
-                  Text(
-                    locationState.errorMessage!,
-                    style: TextStyle(fontSize: 12.sp, color: Colors.red),
-                    overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      locationState.errorMessage!,
+                      style: TextStyle(fontSize: 12.sp, color: Colors.red),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
               ],
             ),

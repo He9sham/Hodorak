@@ -7,6 +7,7 @@ import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_buttons.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
+import 'package:hodorak/features/home/views/widgets/geo_location.dart';
 import 'package:hodorak/features/home/views/widgets/leave_status_display.dart';
 import 'package:hodorak/features/insights_screen/widgets/insights_summary.dart';
 import 'package:hodorak/features/notifications_screen/notifications.dart';
@@ -32,19 +33,21 @@ class UserHomeScreen extends ConsumerWidget {
         backgroundColor: Color(0xff8C9F5F),
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Colors.white),
+            icon: Icon(Icons.menu, color: Colors.white, size: 22),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         actions: [
-          NotificationBadge(
-            onTap: () {
-              context.pushNamed(Routes.notificationScreen);
-            },
-            iconColor: Colors.white,
-            iconSize: 24,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: NotificationBadge(
+              onTap: () {
+                context.pushNamed(Routes.notificationScreen);
+              },
+              iconColor: Colors.white,
+              iconSize: 22,
+            ),
           ),
-          horizontalSpace(8),
         ],
       ),
       drawer: buildDrawer(context, authState, ref),
@@ -53,12 +56,14 @@ class UserHomeScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              verticalSpace(17),
+              verticalSpace(16),
               AttendanceButtons(onLeaveRequestSubmitted: () {}),
-              verticalSpace(16),        
+              verticalSpace(16),
               authState.user?.id != null
                   ? LeaveStatusDisplay(userId: authState.user!.id)
                   : SizedBox.shrink(),
+              verticalSpace(20),
+              GeoLocation(),
               verticalSpace(16),
               const InsightsSummary(),
               verticalSpace(30),
