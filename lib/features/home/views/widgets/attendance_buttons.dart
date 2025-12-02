@@ -530,7 +530,7 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Icon(Icons.schedule, color: Colors.white),
+                  : Icon(Icons.request_quote, color: Colors.white),
               label: Text(
                 'Request Temporary Leave',
                 style: TextStyle(

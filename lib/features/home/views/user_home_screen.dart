@@ -7,6 +7,7 @@ import 'package:hodorak/core/providers/supabase_auth_provider.dart';
 import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/home/views/widgets/attendance_buttons.dart';
 import 'package:hodorak/features/home/views/widgets/build_drawer.dart';
+import 'package:hodorak/features/home/views/widgets/geo_location.dart';
 import 'package:hodorak/features/home/views/widgets/leave_status_display.dart';
 import 'package:hodorak/features/insights_screen/widgets/insights_summary.dart';
 import 'package:hodorak/features/notifications_screen/notifications.dart';
@@ -55,10 +56,12 @@ class UserHomeScreen extends ConsumerWidget {
             children: [
               verticalSpace(17),
               AttendanceButtons(onLeaveRequestSubmitted: () {}),
-              verticalSpace(16),        
+              verticalSpace(16),
               authState.user?.id != null
                   ? LeaveStatusDisplay(userId: authState.user!.id)
                   : SizedBox.shrink(),
+              verticalSpace(30),
+              GeoLocation(),
               verticalSpace(16),
               const InsightsSummary(),
               verticalSpace(30),

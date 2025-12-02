@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hodorak/core/helper/spacing.dart';
-import 'package:hodorak/core/providers/location_provider.dart';
+import 'package:hodorak/core/providers/company_location_provider.dart';
 import 'package:hodorak/core/utils/logger.dart';
 
 class GeoLocation extends ConsumerWidget {
@@ -11,7 +11,7 @@ class GeoLocation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationValidationState = ref.watch(locationValidationProvider);
-    final workplaceLocationState = ref.watch(workplaceLocationProvider);
+    final companyLocationState = ref.watch(companyLocationProvider);
 
     return Container(
       height: 100.h,
@@ -49,7 +49,7 @@ class GeoLocation extends ConsumerWidget {
             right: 20.w,
             child: _buildLocationStatus(
               locationValidationState,
-              workplaceLocationState,
+              companyLocationState,
             ),
           ),
         ],
@@ -59,11 +59,11 @@ class GeoLocation extends ConsumerWidget {
 
   Widget _buildLocationStatus(
     LocationValidationState locationState,
-    WorkplaceLocationState workplaceState,
+    CompanyLocationState companyState,
   ) {
     // Debug print to help identify the issue
     Logger.info('Location State Debug:');
-    Logger.info('  - isValidating: ${locationState.isValidating}');
+    Logger.info('  - isLoading: ${locationState.isLoading}');
     Logger.info('  - isAtWorkplace: ${locationState.isAtWorkplace}');
     Logger.info(
       '  - distanceToWorkplace: ${locationState.distanceToWorkplace}',
@@ -72,12 +72,13 @@ class GeoLocation extends ConsumerWidget {
     Logger.info(
       '  - hasWorkplaceLocation: ${locationState.hasWorkplaceLocation}',
     );
-    Logger.info('Workplace State Debug:');
-    Logger.info('  - location: ${workplaceState.location}');
-    Logger.info('  - isLoading: ${workplaceState.isLoading}');
-    Logger.info('  - error: ${workplaceState.error}');
+    Logger.info('Company Location State Debug:');
+    Logger.info('  - location: ${companyState.location}');
+    Logger.info('  - isLoading: ${companyState.isLoading}');
+    Logger.info('  - error: ${companyState.error}');
+    Logger.info('  - hasLocation: ${companyState.hasLocation}');
 
-    if (locationState.isValidating) {
+    if (locationState.isLoading) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
