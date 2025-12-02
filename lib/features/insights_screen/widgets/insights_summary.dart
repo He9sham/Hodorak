@@ -16,13 +16,13 @@ class InsightsSummary extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: Color.fromARGB(237, 225, 225, 228),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            color: Colors.grey.withValues(alpha: 0.15),
+            spreadRadius: -4,
+            blurRadius: 20,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -86,7 +86,8 @@ class InsightsSummary extends ConsumerWidget {
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
-                children: recentInsights.map((insight) {
+                children: List.generate(recentInsights.length, (index) {
+                  final insight = recentInsights[index];
                   Color statusColor;
                   switch (insight.status.toLowerCase()) {
                     case 'present':
@@ -102,59 +103,75 @@ class InsightsSummary extends ConsumerWidget {
                       statusColor = Colors.grey;
                   }
 
-                  return InkWell(
-                    onTap: () {
-                      // Navigate to full insights page
-                      Navigator.pushNamed(context, Routes.insightsScreen);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 8.w,
-                            height: 8.h,
-                            decoration: BoxDecoration(
-                              color: statusColor,
-                              shape: BoxShape.circle,
-                            ),
+                  return Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          // Navigate to full insights page
+                          Navigator.pushNamed(context, Routes.insightsScreen);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
-                          horizontalSpace(12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  DateFormat('MMM dd').format(insight.date),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 6.w,
+                                height: 6.h,
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  shape: BoxShape.circle,
                                 ),
-                                if (insight.notes.isNotEmpty)
-                                  Text(
-                                    insight.notes,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 13.sp,
+                              ),
+                              horizontalSpace(12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      DateFormat('MMM dd').format(insight.date),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                              ],
-                            ),
+                                    if (insight.notes.isNotEmpty)
+                                      Text(
+                                        insight.notes,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 13.sp,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '${insight.totalHours.toStringAsFixed(1)}h',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            '${insight.totalHours.toStringAsFixed(1)}h',
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      // Add divider between items (but not after the last one)
+                      if (index < recentInsights.length - 1)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Divider(
+                            height: 1,
+                            color: Colors.grey.withValues(alpha: 0.2),
+                          ),
+                        ),
+                    ],
                   );
-                }).toList(),
+                }),
               );
             },
           ),

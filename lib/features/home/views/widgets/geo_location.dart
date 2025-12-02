@@ -17,22 +17,30 @@ class GeoLocation extends ConsumerWidget {
       height: 100.h,
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         color: Color.fromARGB(237, 225, 225, 228),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.15),
+            spreadRadius: -4,
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Stack(
         children: [
           Positioned(
-            top: 20,
-            left: 20,
+            top: 16,
+            left: 16,
             child: Text(
               'Geo Location',
               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
             ),
           ),
           Positioned(
-            top: 5.h,
-            right: 5.w,
+            top: 8,
+            right: 8,
             child: IconButton(
               icon: Icon(Icons.refresh, size: 20.sp),
               onPressed: () {
@@ -44,9 +52,9 @@ class GeoLocation extends ConsumerWidget {
             ),
           ),
           Positioned(
-            bottom: 10.h,
-            left: 20.w,
-            right: 20.w,
+            bottom: 12.h,
+            left: 16.w,
+            right: 16.w,
             child: _buildLocationStatus(
               locationValidationState,
               companyLocationState,
@@ -107,7 +115,7 @@ class GeoLocation extends ConsumerWidget {
             height: 20.h,
             child: Image.asset('assets/Icon_true.png'),
           ),
-          horizontalSpace(8),
+          horizontalSpace(10),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,10 +130,27 @@ class GeoLocation extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (locationState.distanceToWorkplace != null)
-                  Text(
-                    'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                    overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 14.sp,
+                          color: Colors.grey[500],
+                        ),
+                        horizontalSpace(4),
+                        Text(
+                          'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -141,7 +166,7 @@ class GeoLocation extends ConsumerWidget {
             height: 20.h,
             child: Image.asset('assets/Icon_False.png'),
           ),
-          horizontalSpace(8),
+          horizontalSpace(10),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,16 +182,36 @@ class GeoLocation extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (locationState.distanceToWorkplace != null)
-                  Text(
-                    'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                    overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 14.sp,
+                          color: Colors.grey[500],
+                        ),
+                        horizontalSpace(4),
+                        Text(
+                          'Distance: ${locationState.distanceToWorkplace!.toInt()}m',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                 if (locationState.errorMessage != null)
-                  Text(
-                    locationState.errorMessage!,
-                    style: TextStyle(fontSize: 12.sp, color: Colors.red),
-                    overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      locationState.errorMessage!,
+                      style: TextStyle(fontSize: 12.sp, color: Colors.red),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
               ],
             ),

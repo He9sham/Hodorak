@@ -33,19 +33,21 @@ class UserHomeScreen extends ConsumerWidget {
         backgroundColor: Color(0xff8C9F5F),
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Colors.white),
+            icon: Icon(Icons.menu, color: Colors.white, size: 22),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         actions: [
-          NotificationBadge(
-            onTap: () {
-              context.pushNamed(Routes.notificationScreen);
-            },
-            iconColor: Colors.white,
-            iconSize: 24,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: NotificationBadge(
+              onTap: () {
+                context.pushNamed(Routes.notificationScreen);
+              },
+              iconColor: Colors.white,
+              iconSize: 22,
+            ),
           ),
-          horizontalSpace(8),
         ],
       ),
       drawer: buildDrawer(context, authState, ref),
@@ -54,13 +56,13 @@ class UserHomeScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              verticalSpace(17),
+              verticalSpace(16),
               AttendanceButtons(onLeaveRequestSubmitted: () {}),
               verticalSpace(16),
               authState.user?.id != null
                   ? LeaveStatusDisplay(userId: authState.user!.id)
                   : SizedBox.shrink(),
-              verticalSpace(30),
+              verticalSpace(20),
               GeoLocation(),
               verticalSpace(16),
               const InsightsSummary(),

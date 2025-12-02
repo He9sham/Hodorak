@@ -12,6 +12,60 @@ import 'package:hodorak/core/services/supabase_attendance_service.dart';
 import 'package:hodorak/core/services/supabase_notification_service.dart';
 import 'package:hodorak/features/home/views/widgets/leave_request_form.dart';
 
+// Scale animation button wrapper
+class ScaleButton extends StatefulWidget {
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  const ScaleButton({super.key, this.onPressed, required this.child});
+
+  @override
+  State<ScaleButton> createState() => _ScaleButtonState();
+}
+
+class _ScaleButtonState extends State<ScaleButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.96,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) {
+        if (widget.onPressed != null) {
+          _controller.forward();
+        }
+      },
+      onTapUp: (_) {
+        _controller.reverse();
+      },
+      onTapCancel: () {
+        _controller.reverse();
+      },
+      child: ScaleTransition(scale: _scaleAnimation, child: widget.child),
+    );
+  }
+}
+
 class AttendanceButtons extends ConsumerStatefulWidget {
   final VoidCallback? onLeaveRequestSubmitted;
 
@@ -393,13 +447,13 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+            color: Colors.grey.withValues(alpha: 0.15),
+            spreadRadius: -4,
+            blurRadius: 20,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -416,26 +470,46 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          // Date and Time Display
+          // Date and Time Display with Enhanced Styling
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             decoration: BoxDecoration(
               color: const Color(0xff8C9F5F).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.08),
+                  spreadRadius: -2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               children: [
-                Text(
-                  _currentTime,
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff8C9F5F),
+                // Animated fade for clock display
+                AnimatedOpacity(
+                  opacity: 1.0,
+                  duration: const Duration(milliseconds: 500),
+                  child: Text(
+                    _currentTime,
+                    style: TextStyle(
+                      fontSize: 24.sp,
+                      fontWeight:
+                          FontWeight.w600, // Changed from bold to SemiBold
+                      color: Color(0xff8C9F5F),
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
+                const SizedBox(height: 6),
                 Text(
                   _currentDate,
-                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12.sp, // Increased from 10sp to 12sp
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -444,105 +518,145 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
           Row(
             children: [
               Expanded(
-                child: ElevatedButton.icon(
+                child: ScaleButton(
                   onPressed: (_isLoading || _isCheckedIn)
                       ? null
                       : _handleCheckIn,
-                  icon: _isLoading
-                      ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
+                  child: ElevatedButton.icon(
+                    onPressed: (_isLoading || _isCheckedIn)
+                        ? null
+                        : _handleCheckIn,
+                    icon: _isLoading
+                        ? SizedBox(
+                            width: 14.4, // Reduced by 10% from 16
+                            height: 14.4,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
+                          )
+                        : Icon(
+                            Icons.login,
+                            size: 18.4, // Reduced by 10%
+                            color: _isCheckedIn
+                                ? Colors.grey[400]
+                                : Colors.white,
                           ),
-                        )
-                      : Icon(
-                          Icons.login,
-                          color: _isCheckedIn ? Colors.grey[400] : Colors.white,
-                        ),
-                  label: Text(
-                    _isCheckedIn ? 'Already Checked In' : 'Check In',
-                    style: TextStyle(
-                      color: _isCheckedIn ? Colors.grey[400] : Colors.white,
-                      fontWeight: FontWeight.w600,
+                    label: Text(
+                      _isCheckedIn ? 'Already Checked In' : 'Check In',
+                      style: TextStyle(
+                        color: _isCheckedIn ? Colors.grey[400] : Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isCheckedIn
-                        ? Colors.grey[300]
-                        : Color(0xff8C9F5F),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isCheckedIn
+                          ? Colors.grey[300]
+                          : Color(0xff8C9F5F),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16), // Increased from 12 to 16
               Expanded(
-                child: ElevatedButton.icon(
+                child: ScaleButton(
                   onPressed: _isLoading ? null : _handleCheckOut,
-                  icon: _isLoading
-                      ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _handleCheckOut,
+                    icon: _isLoading
+                        ? SizedBox(
+                            width: 14.4, // Reduced by 10% from 16
+                            height: 14.4,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
+                          )
+                        : Icon(
+                            Icons.logout,
+                            size: 18.4, // Reduced by 10%
+                            color: Colors.white,
                           ),
-                        )
-                      : Icon(Icons.logout, color: Colors.white),
-                  label: Text(
-                    'Check Out',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                    label: Text(
+                      'Check Out',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Temporary Leave Button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _isLoading ? null : _handleTemporaryLeave,
-              icon: _isLoading
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Icon(Icons.request_quote, color: Colors.white),
-              label: Text(
-                'Request Temporary Leave',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+          const SizedBox(height: 14),
+          // Temporary Leave Button with Gradient
+          ScaleButton(
+            onPressed: _isLoading ? null : _handleTemporaryLeave,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: LinearGradient(
+                  colors: [Colors.orange, Colors.orange.shade700],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    spreadRadius: -2,
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              child: ElevatedButton.icon(
+                onPressed: _isLoading ? null : _handleTemporaryLeave,
+                icon: _isLoading
+                    ? SizedBox(
+                        width: 14.4,
+                        height: 14.4,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : Icon(
+                        Icons.request_quote,
+                        size: 18.4,
+                        color: Colors.white,
+                      ),
+                label: Text(
+                  'Request Temporary Leave',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
               ),
             ),
