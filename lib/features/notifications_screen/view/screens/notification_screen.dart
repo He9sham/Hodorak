@@ -29,6 +29,11 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Watch the notification state from provider
     final notificationState = ref.watch(notificationProvider);

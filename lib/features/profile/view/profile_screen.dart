@@ -21,6 +21,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     Future(() => _initializeProfile());
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _initializeProfile() async {
     try {
       await ref

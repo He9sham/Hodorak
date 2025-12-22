@@ -27,6 +27,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     _loadEvents();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void _loadEvents() {
     final calendarState = ref.read(supabaseCalendarProvider);
     CalendarHelpers.clearEvents(_events);

@@ -34,6 +34,11 @@ class _AdminNotificationScreenState
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Watch the notification state from provider
     final notificationState = ref.watch(notificationProvider);

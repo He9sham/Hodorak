@@ -27,6 +27,11 @@ class _AdminCalendarScreenState extends ConsumerState<AdminCalendarScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     ref.read(supabaseCalendarProvider.notifier).selectDay(selectedDay);
   }

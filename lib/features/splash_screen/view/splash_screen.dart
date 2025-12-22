@@ -26,6 +26,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     Future(() => _initialize());
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _initialize() async {
     try {
       // Check if user has seen onboarding
@@ -49,7 +54,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!_isInitialized) {
       return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: SizedBox.shrink()),
       );
     }
     final authState = ref.watch(supabaseAuthProvider);
