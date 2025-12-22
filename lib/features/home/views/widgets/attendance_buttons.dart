@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hodorak/core/helper/spacing.dart';
 import 'package:hodorak/core/providers/company_location_provider.dart'
     as company_location;
 import 'package:hodorak/core/providers/location_provider.dart';
@@ -261,10 +262,6 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
         username: username,
         location: currentLocation?.toString(),
       );
-
-      // Refresh attendance data through the provider (optional)
-      _refreshAttendanceData();
-
       // Update checked in state
       setState(() {
         _isCheckedIn = true;
@@ -363,7 +360,6 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
       );
 
       // Refresh attendance data through the provider (optional)
-      _refreshAttendanceData();
 
       // Update checked in state
       setState(() {
@@ -436,11 +432,6 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
     );
   }
 
-  void _refreshAttendanceData() {
-    // Attendance data refresh is now handled by the calendar system
-    // No additional refresh needed here
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -469,7 +460,7 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          verticalSpace(12),
           // Date and Time Display with Enhanced Styling
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -502,7 +493,8 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
+
+                verticalSpace(6),
                 Text(
                   _currentDate,
                   style: TextStyle(
@@ -514,7 +506,7 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          verticalSpace(16),
           Row(
             children: [
               Expanded(
@@ -528,8 +520,8 @@ class _AttendanceButtonsState extends ConsumerState<AttendanceButtons> {
                         : _handleCheckIn,
                     icon: _isLoading
                         ? SizedBox(
-                            width: 14.4, // Reduced by 10% from 16
-                            height: 14.4,
+                            width: 14.4.w, // Reduced by 10% from 16
+                            height: 14.4.h,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(
