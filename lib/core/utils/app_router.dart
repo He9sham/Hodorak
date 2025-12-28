@@ -16,6 +16,8 @@ import 'package:hodorak/features/notifications_screen/view/screens/notification_
 import 'package:hodorak/features/onboarding/onboarding_view.dart';
 import 'package:hodorak/features/profile/view/profile_screen.dart';
 import 'package:hodorak/features/setting/view/setting_screen.dart';
+import 'package:hodorak/features/shift_management/views/shift_management_screen.dart';
+import 'package:hodorak/features/shift_management/views/user_shift_view_screen.dart';
 import 'package:hodorak/features/splash_screen/view/splash_screen.dart';
 import 'package:hodorak/features/user_Management/views/admin_user_management_screen.dart';
 
@@ -68,6 +70,10 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => const AttendanceSettingsScreen(),
         );
+      case Routes.shiftManagementScreen:
+        return MaterialPageRoute(builder: (_) => const ShiftManagementScreen());
+      case Routes.userShiftViewScreen:
+        return MaterialPageRoute(builder: (_) => const UserShiftViewScreen());
       default:
         return null;
     }

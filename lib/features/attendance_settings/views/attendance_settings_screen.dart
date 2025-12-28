@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hodorak/core/helper/extensions.dart';
 import 'package:hodorak/core/helper/spacing.dart';
+import 'package:hodorak/core/utils/routes.dart';
 import 'package:hodorak/features/attendance_settings/providers/attendance_providers.dart';
 import 'package:hodorak/features/attendance_settings/widgets/build_status_card.dart';
 
@@ -133,6 +135,51 @@ class AttendanceSettingsScreen extends ConsumerWidget {
                 status: 'Late',
                 description:
                     'Check-in after ${attendanceTime.hour.toString().padLeft(2, '0')}:${attendanceTime.minute.toString().padLeft(2, '0')}',
+              ),
+              verticalSpace(16),
+              Text(
+                'Shift Management:',
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+              GestureDetector(
+                onTap: () {
+                  context.pushNamed(Routes.shiftManagementScreen);
+                },
+                child: Container(
+                  padding: EdgeInsets.all(16.sp),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withValues(alpha: 0.1),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.schedule, color: Colors.blue, size: 24.sp),
+                      horizontalSpace(16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Tap here to manage shifts',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

@@ -132,8 +132,9 @@ class SupabaseShiftService {
       if (name != null) updateData['name'] = name;
       if (startTime != null) updateData['start_time'] = startTime;
       if (endTime != null) updateData['end_time'] = endTime;
-      if (gracePeriodMinutes != null)
+      if (gracePeriodMinutes != null) {
         updateData['grace_period_minutes'] = gracePeriodMinutes;
+      }
       if (isOvernight != null) updateData['is_overnight'] = isOvernight;
       if (isActive != null) updateData['is_active'] = isActive;
 

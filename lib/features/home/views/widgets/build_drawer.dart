@@ -119,6 +119,14 @@ Widget buildDrawer(
                 },
               ),
               _buildDrawerItem(
+                icon: Icons.schedule,
+                title: 'My Shift',
+                onTap: () {
+                  context.pop();
+                  context.pushNamed(Routes.userShiftViewScreen);
+                },
+              ),
+              _buildDrawerItem(
                 icon: Icons.settings,
                 title: 'Settings',
                 onTap: () {
