@@ -130,6 +130,16 @@ class AdminShiftViewModel extends Notifier<AdminShiftState> {
       return false;
     }
   }
+
+  Future<List<SupabaseUser>> getShiftEmployees(String shiftId) async {
+    try {
+      final repository = ref.read(shiftRepositoryProvider);
+      return await repository.getShiftEmployees(shiftId);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return [];
+    }
+  }
 }
 
 final adminShiftViewModelProvider =

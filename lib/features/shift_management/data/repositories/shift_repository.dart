@@ -105,4 +105,20 @@ class ShiftRepository {
 
     return response is List ? response.first : response;
   }
+
+  Future<List<SupabaseUser>> getShiftEmployees(String shiftId) async {
+    final response = await _supabase
+        .from('employee_shifts')
+        .select('users(*)')
+        .eq('shift_id', shiftId)
+        .isFilter('effective_to', null);
+
+    final List<dynamic> data = response as List;
+    // The response is a list of objects like { "users": { ... } }
+    // We map each item's 'users' field to a SupabaseUser
+    return data
+        .where((e) => e['users'] != null)
+        .map((e) => SupabaseUser.fromJson(e['users']))
+        .toList();
+  }
 }

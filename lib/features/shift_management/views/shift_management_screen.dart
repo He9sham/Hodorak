@@ -5,6 +5,7 @@ import 'package:hodorak/features/shift_management/view_models/admin_shift_view_m
 import 'package:hodorak/features/shift_management/views/widgets/add_shift_dialog.dart';
 import 'package:hodorak/features/shift_management/views/widgets/assign_employee_dialog.dart';
 import 'package:hodorak/features/shift_management/views/widgets/shift_card.dart';
+import 'package:hodorak/features/shift_management/views/widgets/shift_employees_dialog.dart';
 
 /// Shift Management Screen for Admins
 ///
@@ -91,6 +92,7 @@ class _ShiftManagementScreenState extends ConsumerState<ShiftManagementScreen> {
                   shift: shift,
                   onAssignEmployee: () =>
                       _showAssignEmployeeDialog(context, shift),
+                  onTap: () => _showShiftEmployees(context, shift),
                 );
               },
             ),
@@ -135,6 +137,13 @@ class _ShiftManagementScreenState extends ConsumerState<ShiftManagementScreen> {
           }
         },
       ),
+    );
+  }
+
+  void _showShiftEmployees(BuildContext context, Shift shift) {
+    showDialog(
+      context: context,
+      builder: (context) => ShiftEmployeesDialog(shift: shift),
     );
   }
 }

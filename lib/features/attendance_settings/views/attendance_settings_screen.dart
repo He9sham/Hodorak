@@ -141,6 +141,7 @@ class AttendanceSettingsScreen extends ConsumerWidget {
                 'Shift Management:',
                 style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
               ),
+              verticalSpace(16),
               GestureDetector(
                 onTap: () {
                   context.pushNamed(Routes.shiftManagementScreen);
