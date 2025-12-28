@@ -9,6 +9,13 @@ class SupabaseAttendance {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // Shift-related fields
+  final String? shiftId;
+  final int? lateMinutes;
+  final int? earlyLeaveMinutes;
+  final int? overtimeMinutes;
+  final String? attendanceStatus;
+
   SupabaseAttendance({
     required this.id,
     required this.userId,
@@ -19,6 +26,11 @@ class SupabaseAttendance {
     this.longitude,
     required this.createdAt,
     required this.updatedAt,
+    this.shiftId,
+    this.lateMinutes,
+    this.earlyLeaveMinutes,
+    this.overtimeMinutes,
+    this.attendanceStatus,
   });
 
   factory SupabaseAttendance.fromJson(Map<String, dynamic> json) {
@@ -34,6 +46,11 @@ class SupabaseAttendance {
       longitude: json['longitude'] as double?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      shiftId: json['shift_id'] as String?,
+      lateMinutes: json['late_minutes'] as int?,
+      earlyLeaveMinutes: json['early_leave_minutes'] as int?,
+      overtimeMinutes: json['overtime_minutes'] as int?,
+      attendanceStatus: json['attendance_status'] as String?,
     );
   }
 
@@ -48,6 +65,11 @@ class SupabaseAttendance {
       'longitude': longitude,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'shift_id': shiftId,
+      'late_minutes': lateMinutes,
+      'early_leave_minutes': earlyLeaveMinutes,
+      'overtime_minutes': overtimeMinutes,
+      'attendance_status': attendanceStatus,
     };
   }
 
@@ -71,6 +93,11 @@ class SupabaseAttendance {
     double? longitude,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? shiftId,
+    int? lateMinutes,
+    int? earlyLeaveMinutes,
+    int? overtimeMinutes,
+    String? attendanceStatus,
   }) {
     return SupabaseAttendance(
       id: id ?? this.id,
@@ -82,6 +109,11 @@ class SupabaseAttendance {
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      shiftId: shiftId ?? this.shiftId,
+      lateMinutes: lateMinutes ?? this.lateMinutes,
+      earlyLeaveMinutes: earlyLeaveMinutes ?? this.earlyLeaveMinutes,
+      overtimeMinutes: overtimeMinutes ?? this.overtimeMinutes,
+      attendanceStatus: attendanceStatus ?? this.attendanceStatus,
     );
   }
 }
