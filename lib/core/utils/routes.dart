@@ -18,4 +18,6 @@ class Routes {
   static const String insightsScreen = '/insightsScreen';
   static const String analyticsScreen = '/analyticsScreen';
   static const String attendanceSettings = '/attendanceSettings';
+  static const String shiftManagementScreen = '/shiftManagementScreen';
+  static const String userShiftViewScreen = '/userShiftViewScreen';
 }
